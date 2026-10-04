@@ -126,16 +126,36 @@ class ReelRuntime {
     if (innerWidth !== this.W || innerHeight !== this.H) this._layout();
     await this.scene.renderAt(t, this);
     this.applyItems();
+    this.applyBehind();
+  }
+
+  /**
+   * "behind": the job's whole layer is hidden wherever the cut-out subject (job.behind.layer, from
+   * key.py/segment.py) is opaque — text passes behind people/buildings. this.matte is that frame
+   * (an <img> in render, the subject's preview <video> in the editor).
+   */
+  applyBehind() {
+    if (!this.job.behind) return;
+    const m = this.matte;
+    if (!m || (m.readyState !== undefined && m.readyState < 2)) { this.stage.style.webkitMaskImage = ""; return; }
+    const c = (this._matteCv ??= document.createElement("canvas"));
+    const k = this.mode === "render" ? 0.5 : 1;
+    c.width = Math.max(2, Math.round(this.W * k)); c.height = Math.max(2, Math.round(this.H * k));
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.filter = `blur(${(this.job.behind.feather ?? 1) * k}px)`;
+    ctx.drawImage(m, 0, 0, c.width, c.height);
+    Object.assign(this.stage.style, {
+      webkitMaskImage: `linear-gradient(#000, #000), url(${c.toDataURL()})`,
+      webkitMaskSize: "100% 100%", webkitMaskRepeat: "no-repeat", webkitMaskComposite: "xor", maskComposite: "exclude",
+    });
   }
 
   /** Called by render.py for every frame. */
-  async frame(t, frameUrl) {
-    if (frameUrl) {
-      const img = new Image();
-      img.src = frameUrl;
-      await img.decode();
-      this.source = img;
-    }
+  async frame(t, frameUrl, matteUrl) {
+    const load = async (u) => { const img = new Image(); img.src = u; await img.decode(); return img; };
+    if (frameUrl) this.source = await load(frameUrl);
+    if (matteUrl) this.matte = await load(matteUrl);
     await this.renderFrame(t);
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   }

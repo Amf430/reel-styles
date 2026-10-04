@@ -145,14 +145,20 @@ def main():
 
     common.run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(chain), "-map", "[out]",
                 "-c:v", "prores_ks", "-profile:v", "4444", "-vendor", "apl0", "-pix_fmt", "yuva444p10le", out])
-    # Browser-playable copy with alpha (Chrome can't decode ProRes) for player.py.
+    finalize(out, a.video, a.start, end, W, H, fps)
+
+
+def finalize(out, video, start, end, W, H, fps):
+    """Companions of a cut-out layer, shared by key.py and segment.py: browser preview, still, stats, QC."""
+    stem = os.path.splitext(out)[0]
+    # Browser-playable copy with alpha (Chrome can't decode ProRes) for the editor.
     common.run(["ffmpeg", "-y", "-v", "error", "-i", out, "-vf", "scale=iw/2:-2", "-c:v", "libvpx-vp9", "-pix_fmt", "yuva420p",
                 "-b:v", "0", "-crf", "32", "-deadline", "realtime", "-cpu-used", "8", "-an", stem + "_preview.webm"])
     still = stem + "_still.png"
-    common.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{(end - a.start) / 2:.3f}", "-i", out, "-frames:v", "1",
+    common.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{(end - start) / 2:.3f}", "-i", out, "-frames:v", "1",
                 "-pix_fmt", "rgba", still])
     stats = alpha_stats(still) or {}
-    stats.update({"video": os.path.abspath(a.video), "start": a.start, "end": end, "size": [W, H], "fps": fps, "layer": out})
+    stats.update({"video": os.path.abspath(video), "start": start, "end": end, "size": [W, H], "fps": fps, "layer": out})
     with open(stem + ".json", "w") as f:
         json.dump(stats, f, indent=2)
     qc = stem + "_qc.jpg"
@@ -161,7 +167,7 @@ def main():
     print(f"subject: {out}\nstill:   {still}\nqc:      {qc}  (magenta = removed)\nstats:   {json.dumps({k: stats.get(k) for k in ('bbox', 'feet_y', 'feet_x', 'touches_bottom')})}")
     if stats.get("touches_bottom"):
         print("note: the subject touches the bottom edge (feet out of frame) → shadow.py will skip the cast shadow")
-
+    return stats
 
 if __name__ == "__main__":
     main()

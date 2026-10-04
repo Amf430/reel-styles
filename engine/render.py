@@ -40,8 +40,8 @@ def _worker(args):
             page.evaluate("window.__reel.ready")
         except Exception:
             raise RuntimeError("scene failed to load:\n" + "\n".join(errors[-10:]))
-        for t, frame_url, out in jobs:
-            page.evaluate("([t,u]) => window.__reel.frame(t,u)", [t, frame_url])
+        for t, frame_url, matte_url, out in jobs:
+            page.evaluate("([t,u,m]) => window.__reel.frame(t,u,m)", [t, frame_url, matte_url])
             page.screenshot(path=out, omit_background=alpha, type="png")
         if want_meta:
             meta = page.evaluate("window.__reel.meta()")
@@ -54,8 +54,8 @@ def _worker(args):
 def extract_frames(job, times, d, which=True):
     """Frames handed to the scene per t: the footage (glass) or the keyed subject with alpha (studio3d shadow)."""
     os.makedirs(d, exist_ok=True)
-    if which == "subject":
-        sub = job["subject"]["layer"]
+    if which in ("subject", "behind"):
+        sub = job[which]["layer"]
         src = sub if os.path.isabs(sub) else os.path.join(job["_dir"], sub)
         with open(os.path.splitext(src)[0] + ".json") as f:
             offset = json.load(f).get("start", 0)
@@ -78,7 +78,10 @@ def render_frames(job, times, outdir, workers, alpha, needs_frames):
     frames = [None] * len(times)
     if (needs_frames == "subject" and job.get("subject")) or (needs_frames is True and job.get("video")):
         frames = [f"{base}/f{urllib.parse.quote(p)}" for p in extract_frames(job, times, os.path.join(outdir, "_src"), needs_frames)]
-    items = [(t, frames[i], os.path.join(outdir, f"f_{i:06d}.png")) for i, t in enumerate(times)]
+    mattes = [None] * len(times)
+    if job.get("behind"):
+        mattes = [f"{base}/f{urllib.parse.quote(p)}" for p in extract_frames(job, times, os.path.join(outdir, "_matte"), "behind")]
+    items = [(t, frames[i], mattes[i], os.path.join(outdir, f"f_{i:06d}.png")) for i, t in enumerate(times)]
     n = max(1, min(workers, len(items) // 8 or 1))
     chunks = [items[i::n] for i in range(n)]
     t_start = time.time()

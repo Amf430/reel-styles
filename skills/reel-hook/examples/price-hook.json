@@ -1,0 +1,24 @@
+{
+  "style": "reel-hook",
+  "name": "hook",
+  "video": "../clip.mp4",
+  "start": 0,
+  "end": 3.2,
+  "theme": "punch",
+  "params": {
+    "in": 0.1,
+    "out": 3.0,
+    "anim": "punch",
+    "lines": [
+      {
+        "text": "شقة *180 م²*",
+        "size": 150
+      },
+      {
+        "text": "بـ *سعر* ما تتوقعه",
+        "size": 110
+      }
+    ],
+    "sub": "حي النرجس — الرياض"
+  }
+}

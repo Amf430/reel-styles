@@ -38,6 +38,21 @@ export function setPath(o, p, v) {
   a[ks.at(-1)] = v;
 }
 
+/**
+ * Text with emphasis markup → HTML, one <span class="w"> per word (for word-by-word motion).
+ * `*word*` or `*several words*` marks the emphasised part (class "hl"). HTML is escaped.
+ */
+export function richWords(str) {
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const out = [];
+  let hl = false;
+  for (const tok of String(str ?? "").split(/(\*)/)) {
+    if (tok === "*") { hl = !hl; continue; }
+    for (const w of tok.split(/\s+/).filter(Boolean)) out.push({ text: w, hl });
+  }
+  return { words: out, html: out.map((w, i) => `<span class="w${w.hl ? " hl" : ""}" data-i="${i}">${esc(w.text)}</span>`).join(" ") };
+}
+
 // ------------------------------------------------------------------ runtime
 // Modes: "render" (render.py, the viewport is the frame) and "embed" (inside the editor's iframe,
 // the iframe is the frame). Opening a scene on its own sends you to the editor.

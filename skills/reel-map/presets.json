@@ -1,0 +1,124 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "prepare": "maptiles",
+  "default_theme": "night",
+  "defaults": {
+    "dir": "rtl",
+    "center": [
+      24.8303,
+      46.6403
+    ],
+    "frame": "full",
+    "card": {
+      "x": 0.5,
+      "y": 0.42,
+      "w": 0.86,
+      "h": 0.5,
+      "radius": 40
+    },
+    "camera": {
+      "zoom_from": 11,
+      "zoom_to": 15,
+      "start": null,
+      "dur": 3.2
+    },
+    "pin": {
+      "label": "",
+      "sub": "",
+      "at": 1.6
+    },
+    "route": {
+      "points": [],
+      "start": 1.0,
+      "dur": 2.0,
+      "width": 8
+    },
+    "pois": [],
+    "in": null,
+    "out": null
+  },
+  "themes": {
+    "night": {
+      "dark": "#0b1220",
+      "light": "#5d7aa6",
+      "road": 0.9,
+      "accent": "#ffb020",
+      "text": "#ffffff",
+      "card": "rgba(12,18,32,0.82)",
+      "vignette": 0.45
+    },
+    "day": {
+      "dark": "#7d8794",
+      "light": "#f4f1ea",
+      "road": 1.0,
+      "accent": "#e0242b",
+      "text": "#111111",
+      "card": "rgba(255,255,255,0.9)",
+      "vignette": 0.15
+    },
+    "seen": {
+      "dark": "#1a0009",
+      "light": "#a8806a",
+      "road": 0.9,
+      "accent": "#e2c3a4",
+      "text": "#ffffff",
+      "card": "rgba(36,2,21,0.85)",
+      "vignette": 0.4
+    },
+    "teal": {
+      "dark": "#0d2b2a",
+      "light": "#7fb8ae",
+      "road": 0.9,
+      "accent": "#ffd38a",
+      "text": "#ffffff",
+      "card": "rgba(10,32,30,0.82)",
+      "vignette": 0.35
+    }
+  },
+  "tune": [
+    {
+      "path": "camera.zoom_from",
+      "label": "zoom from",
+      "min": 3,
+      "max": 18,
+      "step": 0.1
+    },
+    {
+      "path": "camera.zoom_to",
+      "label": "zoom to",
+      "min": 3,
+      "max": 18,
+      "step": 0.1
+    },
+    {
+      "path": "camera.dur",
+      "label": "zoom time",
+      "min": 0.3,
+      "max": 8,
+      "step": 0.1
+    },
+    {
+      "path": "theme.dark",
+      "label": "map dark",
+      "type": "color"
+    },
+    {
+      "path": "theme.light",
+      "label": "map light",
+      "type": "color"
+    },
+    {
+      "path": "theme.accent",
+      "label": "accent",
+      "type": "color"
+    },
+    {
+      "path": "theme.vignette",
+      "label": "vignette",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

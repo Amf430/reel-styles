@@ -1,0 +1,59 @@
+{
+  "style": "reel-collage",
+  "name": "collage",
+  "video": "../reel.mp4",
+  "start": 0,
+  "end": 5,
+  "theme": "newsprint",
+  "params": {
+    "pieces": [
+      {
+        "type": "ransom",
+        "text": "شقتك الجديدة جاهزة",
+        "x": 0.5,
+        "y": 0.13,
+        "w": 0.86,
+        "size": 82,
+        "in": 0.2,
+        "out": 4.8
+      },
+      {
+        "type": "clipping",
+        "text": "النرجس يتصدر طلبات السكن",
+        "x": 0.3,
+        "y": 0.33,
+        "w": 0.5,
+        "size": 46,
+        "lines": 6,
+        "rot": -5,
+        "in": 0.6,
+        "out": 4.8
+      },
+      {
+        "type": "photo",
+        "src": "photos/living-room.jpg",
+        "caption": "الصالة — 40 م²",
+        "x": 0.68,
+        "y": 0.5,
+        "w": 0.52,
+        "size": 54,
+        "rot": 6,
+        "in": 1.0,
+        "out": 4.8
+      },
+      {
+        "type": "paper",
+        "kicker": "عرض محدود",
+        "text": "خصم 10%",
+        "sub": "حتى نهاية الشهر",
+        "x": 0.33,
+        "y": 0.68,
+        "w": 0.46,
+        "size": 70,
+        "head_color": "#d7261e",
+        "in": 1.4,
+        "out": 4.8
+      }
+    ]
+  }
+}

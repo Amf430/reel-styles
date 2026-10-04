@@ -237,7 +237,9 @@ class ReelRuntime {
    * transform (size the canvas from it).
    */
   drawSourceFor(el, canvas, filter = "none", pad = 0, zoom = 1) {
-    const it = el.__reelItem, wrap = it?.wrap;
+    let it = null;
+    for (let e = el; e && !it; e = e.parentElement) it = e.__reelItem; // el may sit inside an item
+    const wrap = it?.wrap;
     let r0;
     if (wrap && wrap.style.transform) {
       const s = wrap.style.transform; wrap.style.transform = ""; r0 = this.rect(el); wrap.style.transform = s;

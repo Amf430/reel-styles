@@ -77,12 +77,15 @@ class ReelRuntime {
     document.head.appendChild(css);
     this._layout();
     addEventListener("resize", () => this._layout());
-    for (const f of this.P.google_fonts || []) {
+    // Google fonts: wait for the stylesheet AND the font files, or the first frames render in Tajawal.
+    this._fonts = (this.P.google_fonts || []).map((f) => new Promise((res) => {
       const l = document.createElement("link");
       l.rel = "stylesheet";
-      l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:wght@300;400;500;700;800;900&display=block`;
+      l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:wght@400;700&display=block`;
+      l.onload = () => Promise.all([document.fonts.load(`400 40px "${f}"`, "ابجد"), document.fonts.load(`700 40px "${f}"`, "ابجد")]).then(res, res);
+      l.onerror = () => { console.warn("font failed:", f); res(); };
       document.head.appendChild(l);
-    }
+    }));
     window.__reel = this;
     return this;
   }
@@ -113,6 +116,7 @@ class ReelRuntime {
   define(scene) {
     this.scene = scene;
     this.ready = (async () => {
+      await Promise.all(this._fonts || []);
       await document.fonts.ready;
       if (scene.ready) await scene.ready(this);
       await document.fonts.ready;

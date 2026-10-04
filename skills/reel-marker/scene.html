@@ -1,0 +1,206 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .mark { position: absolute; inset: 0; pointer-events: none; }
+  .mark svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .mark path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .label { position: absolute; white-space: nowrap; line-height: 1; transform-origin: 50% 50%; }
+  .hitbox { position: absolute; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp, rand, noise1 } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+let marks = [];
+
+// Catmull-Rom through points → smooth cubic Bézier path.
+function smooth(pts, closed = false) {
+  if (pts.length < 2) return "";
+  const P = closed ? [pts.at(-1), ...pts, pts[0], pts[1]] : [pts[0], ...pts, pts.at(-1)];
+  let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i < P.length - 2; i++) {
+    const [p0, p1, p2, p3] = [P[i - 1], P[i], P[i + 1], P[i + 2]];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)},${c1[1].toFixed(1)} ${c2[0].toFixed(1)},${c2[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+const line = (a, b, seed, rough, u, n = 6) => {
+  // A slightly wobbly hand-drawn straight stroke.
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const k = i / n, j = rough * 2.2 * u * noise1(k * 3 + seed, seed);
+    const nx = -(b[1] - a[1]), ny = b[0] - a[0], L = Math.hypot(nx, ny) || 1;
+    pts.push([a[0] + (b[0] - a[0]) * k + (nx / L) * j, a[1] + (b[1] - a[1]) * k + (ny / L) * j]);
+  }
+  return smooth(pts);
+};
+
+// Each shape returns a list of stroke paths, drawn one after another.
+const SHAPES = {
+  circle(m, W, H, s, r, u) {
+    const cx = m.x * W, cy = m.y * H, rx = (m.w ?? 0.2) * W / 2, ry = (m.h ?? m.w ?? 0.2) * (m.h ? H : W) / 2;
+    const pts = [], turns = 1.12, a0 = -1.9 + rand(s) * 0.6, N = 40;
+    for (let i = 0; i <= N; i++) {
+      const k = i / N, a = a0 + k * turns * Math.PI * 2;
+      const wob = 1 + r * 0.035 * noise1(k * 4, s) + r * 0.04 * k; // drifts outward like a real hand
+      pts.push([cx + Math.cos(a) * rx * wob, cy + Math.sin(a) * ry * wob]);
+    }
+    return [smooth(pts)];
+  },
+  box(m, W, H, s, r, u) {
+    const x0 = m.x * W, y0 = m.y * H, x1 = x0 + (m.w ?? 0.2) * W, y1 = y0 + (m.h ?? 0.1) * H, o = 10 * u;
+    return [line([x0 - o, y0], [x1 + o * 0.6, y0 + 2 * u], s, r, u), line([x1, y0 - o], [x1 - 2 * u, y1 + o * 0.6], s + 1, r, u),
+            line([x1 + o, y1], [x0 - o * 0.6, y1 - 2 * u], s + 2, r, u), line([x0, y1 + o], [x0 + 2 * u, y0 - o * 0.6], s + 3, r, u)];
+  },
+  underline(m, W, H, s, r, u) {
+    const y = m.y * H, x0 = m.x * W, x1 = x0 + (m.w ?? 0.3) * W;
+    if (m.wave) {
+      const pts = [], n = Math.max(6, Math.round((x1 - x0) / (28 * u)));
+      for (let i = 0; i <= n; i++) pts.push([x0 + (x1 - x0) * (i / n), y + (i % 2 ? -1 : 1) * 9 * u + r * 2 * u * noise1(i, s)]);
+      return [smooth(pts)];
+    }
+    const paths = [line([x1, y], [x0, y + 3 * u], s, r, u, 8)];
+    if (m.double) paths.push(line([x1 - 12 * u, y + 16 * u], [x0 + 20 * u, y + 18 * u], s + 5, r, u, 8));
+    return paths;
+  },
+  arrow(m, W, H, s, r, u) {
+    const a = [m.x1 * W, m.y1 * H], b = [m.x2 * W, m.y2 * H], bend = m.bend ?? 0.25;
+    const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = -(b[1] - a[1]), ny = b[0] - a[0];
+    const c = [mx + nx * bend, my + ny * bend], pts = [];
+    for (let i = 0; i <= 16; i++) {
+      const k = i / 16, q = 1 - k;
+      pts.push([q * q * a[0] + 2 * q * k * c[0] + k * k * b[0] + r * u * 1.5 * noise1(k * 3, s), q * q * a[1] + 2 * q * k * c[1] + k * k * b[1] + r * u * 1.5 * noise1(k * 3, s + 9)]);
+    }
+    const end = pts.at(-1), pre = pts.at(-3), ang = Math.atan2(end[1] - pre[1], end[0] - pre[0]), L = (m.head ?? 34) * u;
+    const h1 = [end[0] - Math.cos(ang - 0.5) * L, end[1] - Math.sin(ang - 0.5) * L], h2 = [end[0] - Math.cos(ang + 0.5) * L, end[1] - Math.sin(ang + 0.5) * L];
+    return [smooth(pts), line(h1, end, s + 2, r * 0.5, u, 3) , line(end, h2, s + 3, r * 0.5, u, 3)];
+  },
+  check(m, W, H, s, r, u) {
+    const x = m.x * W, y = m.y * H, S = (m.w ?? 0.06) * W;
+    return [smooth([[x - S * 0.5, y], [x - S * 0.15, y + S * 0.38], [x + S * 0.6, y - S * 0.55]].map((p, i) => [p[0] + r * u * noise1(i, s), p[1]]))];
+  },
+  cross(m, W, H, s, r, u) {
+    const x = m.x * W, y = m.y * H, S = (m.w ?? 0.06) * W / 2;
+    return [line([x - S, y - S], [x + S, y + S], s, r, u, 4), line([x + S, y - S * 1.05], [x - S * 0.95, y + S], s + 1, r, u, 4)];
+  },
+  highlight(m, W, H, s, r, u) {
+    // Marker swipe across a word/line: one fat stroke (use the highlighter theme or opacity ~0.5).
+    const y = (m.y + (m.h ?? 0.05) / 2) * H, x0 = m.x * W, x1 = x0 + (m.w ?? 0.3) * W;
+    return [line([x1, y], [x0, y + 2 * u], s, r * 0.5, u, 6)];
+  },
+  burst(m, W, H, s, r, u) {
+    const cx = m.x * W, cy = m.y * H, R0 = (m.w ?? 0.08) * W / 2, R1 = R0 * 1.6, n = m.count ?? 8;
+    return Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2 - Math.PI / 2 + rand(i, s) * 0.2;
+      return line([cx + Math.cos(a) * R0, cy + Math.sin(a) * R0], [cx + Math.cos(a) * R1, cy + Math.sin(a) * R1], s + i, r * 0.4, u, 2);
+    });
+  },
+  scribble(m, W, H, s, r, u) {
+    // Zig-zag fill (crossing something out / filling a shape).
+    const x0 = m.x * W, y0 = m.y * H, w = (m.w ?? 0.2) * W, h = (m.h ?? 0.06) * H, n = Math.max(4, Math.round(w / (22 * u))), pts = [];
+    for (let i = 0; i <= n; i++) pts.push([x0 + w - (w * i) / n, y0 + (i % 2 ? h : 0) + r * u * noise1(i, s)]);
+    return [smooth(pts)];
+  },
+};
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  R.stage.innerHTML = "";
+  R.clearItems();
+  marks = (R.P.marks || []).map((m, i) => {
+    const el = document.createElement("div");
+    el.className = "mark";
+    el.innerHTML = `<svg></svg>`;
+    // An invisible box over the mark so the editor can click it.
+    const hit = document.createElement("div");
+    hit.className = "hitbox";
+    el.appendChild(hit);
+    let lab = null;
+    if (m.label) {
+      lab = document.createElement("div");
+      lab.className = "label";
+      lab.textContent = m.label.text ?? m.label;
+      el.appendChild(lab);
+    }
+    R.stage.appendChild(el);
+    const it = R.item({ id: "mark" + i, label: `${m.type}${m.label ? " · " + (m.label.text ?? m.label) : ""}`, els: [el], in: `marks.${i}.in`, out: `marks.${i}.out`, xf: `marks.${i}.xf` });
+    it.main = hit; // pivot/gizmo = the drawn area, not the full-frame svg
+    return { m, el, svg: el.querySelector("svg"), lab, hit, i };
+  });
+  layout();
+}
+
+function layout() {
+  const P = R.P, T = R.T, u = R.u, W = R.W, H = R.H;
+  for (const k of marks) {
+    const m = k.m, shape = SHAPES[m.type];
+    if (!shape) { console.error("unknown mark", m.type); continue; }
+    const seed = (m.seed ?? k.i) + 1, rough = P.roughness * (m.roughness ?? 1);
+    const paths = shape(m, W, H, seed, rough, u);
+    const color = m.color || T.color, width = (m.width ?? (m.type === "highlight" ? (m.h ?? 0.05) * 1080 : T.width)) * u;
+    const shadow = T.shadow > 0 ? `drop-shadow(0 ${2 * u}px ${4 * u}px rgba(0,0,0,${T.shadow}))` : "none";
+    let html = "";
+    paths.forEach((d, pi) => {
+      html += `<path d="${d}" pathLength="1" stroke="${color}" stroke-width="${width}" data-p="${pi}"/>`;
+      // Second, thinner pass slightly off the first: the "drawn twice" marker look.
+      if (P.double && m.type !== "highlight") html += `<path d="${d}" pathLength="1" stroke="${color}" stroke-width="${width * 0.55}" data-p="${pi}" transform="translate(${1.6 * u} ${-1.2 * u})" opacity=".7"/>`;
+    });
+    k.svg.innerHTML = html;
+    k.svg.style.filter = shadow;
+    k.svg.style.opacity = T.opacity;
+    k.paths = [...k.svg.querySelectorAll("path")];
+    k.count = paths.length;
+    // Hit box = bounds of the drawing.
+    const bb = k.svg.getBBox?.() || { x: 0, y: 0, width: 0, height: 0 };
+    Object.assign(k.hit.style, { left: bb.x + "px", top: bb.y + "px", width: bb.width + "px", height: bb.height + "px" });
+    if (k.lab) {
+      const L = typeof m.label === "object" ? m.label : {};
+      Object.assign(k.lab.style, {
+        fontFamily: `"${L.font || T.font}", Tajawal`, fontSize: (L.size ?? 88) * u + "px", color: L.color || T.label,
+        fontWeight: L.weight ?? 700, textShadow: T.shadow > 0 ? `0 ${2 * u}px ${6 * u}px rgba(0,0,0,${T.shadow})` : "none",
+      });
+      const lx = (L.x ?? (m.x2 ?? m.x)) * W, ly = (L.y ?? ((m.y2 ?? m.y) - 0.06)) * H;
+      k.lab.style.left = lx - k.lab.offsetWidth / 2 + "px";
+      k.lab.style.top = ly - k.lab.offsetHeight / 2 + "px";
+      k.lab.style.rotate = (L.rot ?? -4) + "deg";
+    }
+  }
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { layout(); R._needsLayout = false; }
+  const P = R.P;
+  for (const k of marks) {
+    const m = k.m, tin = m.in ?? R.start, tout = m.out ?? R.end, dur = m.draw ?? P.draw;
+    const vis = t >= tin && t <= tout;
+    k.el.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    // Strokes draw in sequence, each taking an equal share of the draw time.
+    const share = dur / Math.max(1, k.count);
+    for (const p of k.paths) {
+      const i = +p.dataset.p, kk = tw(t, tin + i * share, share, ease.inOutCubic);
+      p.style.strokeDasharray = "1 1";
+      p.style.strokeDashoffset = 1 - kk;
+    }
+    if (k.lab) {
+      const kl = tw(t, tin + dur * 0.85, 0.35, ease.outCubic);
+      k.lab.style.opacity = kl;
+      k.lab.style.translate = `0 ${(1 - kl) * 12 * R.u}px`;
+    }
+    const pOut = tw(t, tout - P.out_dur, P.out_dur, ease.inCubic);
+    k.el.style.opacity = 1 - pOut;
+  }
+}
+
+R.define({ ready: build, renderAt, onParams: () => build() });
+</script>
+</body>
+</html>

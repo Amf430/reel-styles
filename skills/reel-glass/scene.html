@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <link rel="stylesheet" href="/r/engine/web/base.css">
 <style>
+  .card, .card > *, .shadow { corner-shape: var(--corner, round); }
   .card { position: absolute; overflow: hidden; isolation: isolate; }
   .card > .fill { position: absolute; z-index: 0; }
   .card > .tint, .card > .hl { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
@@ -12,7 +13,7 @@
   .card > .content { position: relative; z-index: 3; display: flex; align-items: center; height: 100%; }
   .content .ic { flex: none; display: grid; place-items: center; border-radius: 999px; }
   .content .ic svg { width: 56%; height: 56%; }
-  .content .tx { display: flex; flex-direction: column; min-width: 0; }
+  .content .tx { display: flex; flex-direction: column; min-width: 0; flex: 1; text-align: start; }
   .content .t { line-height: 1.15; white-space: nowrap; }
   .content .s { line-height: 1.25; margin-top: .18em; }
   .content .v { line-height: 1; font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -53,16 +54,14 @@ function build() {
 
 function style() {
   const { glass: G, text: X } = R.P, T = R.T, u = R.u;
+  document.documentElement.style.setProperty("--corner", G.corner || "round");
   for (const k of cards) {
     const c = k.c, el = k.el;
-    const pill = k.kind === "pill";
-    const pad = (pill ? 18 : 28) * u;
-    el.style.left = c.x * R.W + "px";
-    el.style.top = c.y * R.H + "px";
-    el.style.width = c.w ? c.w * R.W + "px" : "auto";
-    el.style.height = c.h ? c.h * R.H + "px" : "auto";
-    el.style.borderRadius = (pill ? 999 : (c.radius ?? G.radius) * u) + "px";
-    el.style.padding = `${pad}px ${pad * (pill ? 1.6 : 1.15)}px`;
+    // One padding and one radius for every kind, so a stack reads as a set.
+    const pad = 26 * u;
+    const radius = c.round ? 999 : (c.radius ?? G.radius) * u;
+    el.style.borderRadius = radius + "px";
+    el.style.padding = `${pad}px ${pad * 1.2}px`;
     el.querySelector(".tint").style.background = c.tint || T.tint;
     el.querySelector(".hl").style.background =
       `linear-gradient(135deg, rgba(255,255,255,${G.highlight}) 0%, rgba(255,255,255,${G.highlight * 0.25}) 28%, rgba(255,255,255,0) 55%)`;
@@ -80,12 +79,35 @@ function style() {
     const t = content.querySelector(".t");
     if (t) Object.assign(t.style, { fontSize: (c.size ?? X.size) * u + "px", fontWeight: X.weight });
     const v = content.querySelector(".v");
-    if (v) { v.style.fontSize = (c.size ?? X.size * 1.7) * u + "px"; v.style.color = T.accent; }
+    if (v) { v.style.fontSize = (c.size ?? X.size * 1.5) * u + "px"; v.style.color = T.accent; }
     const unit = content.querySelector(".unit");
     if (unit) unit.style.fontSize = "0.45em";
     const s = content.querySelector(".s");
     if (s) Object.assign(s.style, { fontSize: (c.sub_size ?? X.sub_size) * u + "px", opacity: X.sub_opacity, fontWeight: 500 });
-    if (c.align === "center") content.style.justifyContent = "center";
+    content.style.justifyContent = c.align === "center" ? "center" : "";
+    el.style.width = c.w ? c.w * R.W + "px" : "auto";
+    el.style.height = c.h ? c.h * R.H + "px" : "auto";
+  }
+  layoutStack();
+}
+
+// Cards without their own x/y flow into one column: equal width, one shared edge, equal gaps.
+function layoutStack() {
+  const S = R.P.stack, u = R.u;
+  const free = cards.filter((k) => k.c.x == null || k.c.y == null);
+  for (const k of cards) if (!free.includes(k)) { k.el.style.left = k.c.x * R.W + "px"; k.el.style.top = k.c.y * R.H + "px"; }
+  if (!free.length) return;
+  // Stats count up: measure with the final value so the width doesn't change mid-count.
+  for (const k of free) if (k.num) k.num.textContent = k.c.value;
+  const maxW = S.width ? S.width * R.W : Math.max(...free.map((k) => k.el.offsetWidth));
+  for (const k of free) k.el.style.width = maxW + "px";
+  const anchor = S.anchor || (document.body.dir === "rtl" ? "right" : "left");
+  const left = anchor === "right" ? S.x * R.W - maxW : anchor === "center" ? S.x * R.W - maxW / 2 : S.x * R.W;
+  let y = S.y * R.H;
+  for (const k of free) {
+    k.el.style.left = left + "px";
+    k.el.style.top = y + "px";
+    y += k.el.offsetHeight + S.gap * u;
   }
 }
 

@@ -46,6 +46,7 @@ python3 "$REEL/engine/player.py"  reel_work/project.json [--t 13]   # المحر
 python3 "$REEL/engine/render.py"  reel_work/project.json --job cards --stills 13.2,15.8   # صور للفحص
 python3 "$REEL/engine/render.py"  reel_work/project.json           # كل الجوبات + برفيو للفيديو كامل
 python3 "$REEL/engine/render.py"  reel_work/project.json --job cards [--workers 6] [--mblur 4]
+python3 "$REEL/engine/transcribe.py" clip.mp4 --out reel_work/words.json   # توقيت كل كلمة (Whisper محلي) أو --srt
 python3 "$REEL/engine/key.py"     clip.mp4 --out reel_work/keyed/subject.mov --start 12 --end 18.5
 python3 "$REEL/engine/shadow.py"  subject.mov --out shadow.mov     # (render.py يسويه تلقائياً)
 python3 "$REEL/engine/composite.py" --out p.mp4 --size 1080,1920 --dur 6 a.mov b.mov@0.1,0,0.8,1
@@ -93,6 +94,9 @@ python3 "$REEL/engine/composite.py" --out p.mp4 --size 1080,1920 --dur 6 a.mov b
 5. commit باسم المستخدم فقط (بدون أي ذكر لـ AI)، `git push -u origin HEAD`، و`gh pr create --base dev`.
 6. لا push مباشر على `dev` أو `main` أبداً. الترقية dev→main فقط لما يقول المستخدم «ارفع».
 - قيمة جديدة بس (ثيم/لون معتمد)؟ أضفها كـ theme في presets.json بدل ما تغيّر الافتراضي.
+
+## أدوات الـ AI
+transcribe.py (وأدوات الفصل الجاية) تشتغل في بيئة Python 3.11 خاصة: `~/.reel-styles/venv` والنماذج في `~/.reel-styles/models` — برا الريبو، تنعمل تلقائياً أول استخدام (تحتاج نت مرة وحدة). لا تثبّت شي في Python النظام.
 
 ## مشاكل معروفة
 - `scene failed to load` → شوف رسائل الكونسول في الخطأ؛ جرّب `player.py` وافتح الكونسول.

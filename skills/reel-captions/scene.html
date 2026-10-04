@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #cap { position: absolute; left: 0; right: 0; display: flex; justify-content: center; }
+  .phrase { position: absolute; white-space: nowrap; text-align: center; line-height: 1.15; }
+  .phrase .w { display: inline-block; transform-origin: 50% 70%; padding: 0 .04em; }
+  .phrase .w.boxed { border-radius: .14em; padding: 0 .18em; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="cap"></div></div>
+<script type="module">
+import { Reel, tw, ease, clamp } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const cap = document.getElementById("cap");
+let words = [], phrases = [];
+
+async function load() {
+  const src = R.P.words;
+  if (!src) return [];
+  const data = await (await fetch(R.asset(src))).json();
+  return data.words || [];
+}
+
+const PUNCT = /[.,،؛;:!?؟"«»()…]+/g;
+const isNumber = (w) => /[0-9٠-٩]/.test(w);
+
+// Group words into short phrases: break on pauses, punctuation, word and character limits.
+function group() {
+  const P = R.P, out = [];
+  let cur = [];
+  const flush = () => { if (cur.length) out.push(cur); cur = []; };
+  const tin = P.in ?? -Infinity, tout = P.out ?? Infinity;
+  const ws = words.filter((w) => w.s >= tin && w.e <= tout + 0.5);
+  ws.forEach((w, i) => {
+    const prev = ws[i - 1];
+    const chars = cur.reduce((n, x) => n + x.w.length + 1, 0) + w.w.length;
+    const newLine = prev && w.g != null && w.g !== prev.g;
+    if (cur.length && (newLine || cur.length >= P.max_words || chars > P.max_chars || (prev && w.s - prev.e > P.pause_break))) flush();
+    cur.push(w);
+    if (/[.!?؟،,]$/.test(w.w)) flush();
+  });
+  flush();
+  return out;
+}
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  cap.innerHTML = "";
+  R.clearItems();
+  const P = R.P;
+  const kw = new Set((P.keywords || []).map((k) => k.replace(PUNCT, "")));
+  phrases = group().map((ws, pi) => {
+    const el = document.createElement("div");
+    el.className = "phrase";
+    const spans = ws.map((w) => {
+      const sp = document.createElement("span");
+      sp.className = "w";
+      let text = P.strip_punct ? w.w.replace(PUNCT, "") : w.w;
+      let hl = false;
+      if (/^\*.*\*$/.test(text)) { text = text.slice(1, -1); hl = true; }
+      const bare = text.replace(PUNCT, "");
+      if (kw.has(bare) || (P.auto_numbers && isNumber(bare))) hl = true;
+      sp.textContent = text;
+      sp.dataset.color = P.colors?.[bare] || "";
+      sp.dataset.hl = hl ? "1" : "";
+      el.appendChild(sp);
+      el.append(" ");
+      return { w, sp };
+    });
+    cap.appendChild(el);
+    return { el, spans, s: ws[0].s - P.lead, e: ws.at(-1).e + P.hold, i: pi };
+  });
+  // A phrase stays until the next one starts (no flicker in short gaps).
+  phrases.forEach((p, i) => { const n = phrases[i + 1]; if (n && n.s - p.e < 0.6) p.e = n.s; });
+  const first = phrases[0]?.s ?? R.start, last = phrases.at(-1)?.e ?? R.end;
+  if (P.in == null) P.in = +first.toFixed(3);
+  if (P.out == null) P.out = +last.toFixed(3);
+  R.item({ id: "captions", label: "captions", els: [cap], in: "in", out: "out", xf: "xf" });
+  style();
+}
+
+function style() {
+  const P = R.P, T = R.T, u = R.u;
+  cap.style.top = P.y * R.H + "px";
+  for (const p of phrases) {
+    Object.assign(p.el.style, {
+      fontSize: T.size * u + "px", fontWeight: T.weight, color: T.text,
+      webkitTextStroke: T.stroke_w > 0 ? `${T.stroke_w * 2}em ${T.stroke}` : "0", paintOrder: "stroke fill",
+    });
+    p.el.style.fontSize = T.size * u + "px";
+    R.fit(p.el, P.max_width * R.W);
+    p.el.style.transform = `translateY(-50%)`;
+  }
+}
+
+function shadowFor(T, glow) {
+  const base = T.shadow > 0 ? `0 ${0.05}em ${0.2}em rgba(0,0,0,${T.shadow})` : "";
+  if (!glow) return base || "none";
+  // seen v6 highlight: soft neon on the keyword
+  return `0 0 .04em rgba(255,248,200,.9), 0 0 .12em rgba(255,214,60,.85), 0 0 .28em rgba(255,196,0,.55), 0 0 .55em rgba(255,170,0,.3)`;
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const P = R.P, T = R.T, u = R.u;
+  const inRange = t >= (P.in ?? -Infinity) && t <= (P.out ?? Infinity);
+  for (const p of phrases) {
+    const vis = inRange && t >= p.s && t < p.e;
+    p.el.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    const pin = tw(t, p.s, 0.18, ease.outCubic);
+    p.el.style.opacity = T.reveal === "phrase" ? clamp(pin * 1.5) : 1;
+    p.el.style.transform = `translateY(calc(-50% + ${(1 - pin) * (T.rise || 0) * u}px))`;
+    for (const { w, sp } of p.spans) {
+      const said = t >= w.s, active = t >= w.s && t < Math.max(w.e, w.s + 0.12);
+      const hl = sp.dataset.hl === "1", own = sp.dataset.color;
+      // Visibility: word reveal shows words as they are spoken; phrase reveal shows all (dimmed before spoken).
+      const shown = T.reveal === "phrase" || said;
+      sp.style.visibility = shown ? "visible" : "hidden";
+      sp.style.opacity = T.reveal === "phrase" && !said ? T.dim : 1;
+      // Colour: own colour > keyword > active > text.
+      let color = T.text;
+      if (active && T.active) color = T.active;
+      if (hl) color = T.hl;
+      if (own) color = own;
+      const boxed = !!T.box && active;
+      sp.classList.toggle("boxed", boxed);
+      sp.style.background = boxed ? T.box : "transparent";
+      sp.style.color = boxed ? T.box_text : color;
+      sp.style.webkitTextStroke = boxed ? "0" : "";
+      sp.style.textShadow = boxed ? "none" : shadowFor(T, T.glow && hl);
+      // Pop: the word lands small and overshoots back to size.
+      const k = clamp((t - w.s) / 0.18);
+      sp.style.transform = T.pop > 0 && said && k < 1 ? `scale(${1 - T.pop * (1 - ease.outBack(k))})` : "";
+    }
+  }
+}
+
+R.define({ ready: async () => { words = await load(); build(); }, renderAt, onParams: () => build() });
+</script>
+</body>
+</html>

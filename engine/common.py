@@ -120,7 +120,10 @@ def load_job(path, video=None):
             themes = presets.get("themes", {})
             if theme not in themes:
                 die(f"theme '{theme}' not in {style}: {', '.join(themes)}")
-            params = deep_merge(params, {"theme": themes[theme]})
+            th = dict(themes[theme])
+            # A theme may set top-level defaults too ("params"); the job's own params still win.
+            params = deep_merge(params, th.pop("params", {}))
+            params = deep_merge(params, {"theme": th})
         job["_tune"] = presets.get("tune", [])
         job["_output"] = presets.get("output", "alpha")
     job["_base_params"] = params

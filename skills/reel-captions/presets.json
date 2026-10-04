@@ -1,0 +1,219 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "hormozi",
+  "defaults": {
+    "dir": "rtl",
+    "words": "words.json",
+    "in": null,
+    "out": null,
+    "x": 0.5,
+    "y": 0.72,
+    "max_width": 0.86,
+    "max_words": 3,
+    "max_chars": 22,
+    "pause_break": 0.35,
+    "lead": 0.04,
+    "hold": 0.25,
+    "keywords": [],
+    "colors": {},
+    "auto_numbers": true,
+    "strip_punct": true
+  },
+  "themes": {
+    "hormozi": {
+      "size": 92,
+      "weight": 900,
+      "text": "#ffffff",
+      "active": "#ffd400",
+      "hl": "#3ddc5c",
+      "stroke": "#000000",
+      "stroke_w": 0.085,
+      "shadow": 0.5,
+      "reveal": "word",
+      "pop": 0.32,
+      "box": null,
+      "box_text": null,
+      "dim": 1,
+      "rise": 0
+    },
+    "mrbeast": {
+      "size": 104,
+      "weight": 900,
+      "text": "#ffffff",
+      "active": "#ffffff",
+      "hl": "#3ddc5c",
+      "stroke": "#000000",
+      "stroke_w": 0.11,
+      "shadow": 0.7,
+      "reveal": "word",
+      "pop": 0.45,
+      "box": null,
+      "box_text": null,
+      "dim": 1,
+      "rise": 0,
+      "params": {
+        "max_words": 2
+      }
+    },
+    "box": {
+      "size": 84,
+      "weight": 800,
+      "text": "#ffffff",
+      "active": "#111111",
+      "hl": "#ffd400",
+      "stroke": "#000000",
+      "stroke_w": 0.07,
+      "shadow": 0.4,
+      "reveal": "phrase",
+      "pop": 0.12,
+      "box": "#ffd400",
+      "box_text": "#111111",
+      "dim": 1,
+      "rise": 0
+    },
+    "karaoke": {
+      "size": 78,
+      "weight": 800,
+      "text": "#ffffff",
+      "active": "#ffd400",
+      "hl": "#ffd400",
+      "stroke": "#000000",
+      "stroke_w": 0.06,
+      "shadow": 0.45,
+      "reveal": "phrase",
+      "pop": 0,
+      "box": null,
+      "box_text": null,
+      "dim": 0.45,
+      "rise": 0,
+      "params": {
+        "max_words": 5,
+        "max_chars": 30
+      }
+    },
+    "clean": {
+      "size": 62,
+      "weight": 700,
+      "text": "#ffffff",
+      "active": "#fff3b0",
+      "hl": "#ffe066",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.75,
+      "reveal": "phrase",
+      "pop": 0,
+      "box": null,
+      "box_text": null,
+      "dim": 1,
+      "rise": 14,
+      "params": {
+        "max_words": 6,
+        "max_chars": 34
+      }
+    },
+    "yellow": {
+      "size": 70,
+      "weight": 800,
+      "text": "#ffd400",
+      "active": "#ffd400",
+      "hl": "#ffffff",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.6,
+      "reveal": "phrase",
+      "pop": 0,
+      "box": null,
+      "box_text": null,
+      "dim": 1,
+      "rise": 10,
+      "params": {
+        "max_words": 7,
+        "max_chars": 38
+      }
+    },
+    "seen": {
+      "size": 66,
+      "weight": 500,
+      "text": "#ffffff",
+      "active": "#ffffff",
+      "hl": "#ffe066",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.35,
+      "reveal": "word",
+      "pop": 0,
+      "box": null,
+      "box_text": null,
+      "dim": 1,
+      "rise": 22,
+      "glow": true,
+      "params": {
+        "max_words": 4
+      }
+    }
+  },
+  "tune": [
+    {
+      "path": "y",
+      "label": "y",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "path": "theme.size",
+      "label": "size",
+      "min": 30,
+      "max": 160,
+      "step": 1
+    },
+    {
+      "path": "max_words",
+      "label": "words per phrase",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "path": "theme.text",
+      "label": "text",
+      "type": "color"
+    },
+    {
+      "path": "theme.active",
+      "label": "active word",
+      "type": "color"
+    },
+    {
+      "path": "theme.hl",
+      "label": "keyword",
+      "type": "color"
+    },
+    {
+      "path": "theme.stroke_w",
+      "label": "outline",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005
+    },
+    {
+      "path": "theme.shadow",
+      "label": "shadow",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "path": "theme.pop",
+      "label": "pop",
+      "min": 0,
+      "max": 0.8,
+      "step": 0.01
+    },
+    {
+      "path": "auto_numbers",
+      "label": "highlight numbers",
+      "type": "bool"
+    }
+  ]
+}

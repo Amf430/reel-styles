@@ -1,0 +1,26 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "newsprint",
+  "defaults": {
+    "dir": "rtl",
+    "google_fonts": ["Amiri", "Lalezar", "Reem Kufi"],
+    "boil": { "fps": 10, "amount": 1 },
+    "slap": 0.35,
+    "pieces": []
+  },
+  "themes": {
+    "newsprint": { "paper": "#f1ead8", "ink": "#1b1b1b", "accent": "#d7261e", "tape": "rgba(240,228,190,0.82)", "chips": ["#f1ead8", "#ffffff", "#1b1b1b", "#d7261e", "#f5d547", "#9fc5e8"], "chip_ink": ["#1b1b1b", "#1b1b1b", "#f1ead8", "#ffffff", "#1b1b1b", "#1b1b1b"] },
+    "kraft":     { "paper": "#c9a77c", "ink": "#2a1d12", "accent": "#7b1e12", "tape": "rgba(250,245,230,0.75)", "chips": ["#c9a77c", "#efe2c8", "#2a1d12", "#7b1e12", "#e9d18c"], "chip_ink": ["#2a1d12", "#2a1d12", "#efe2c8", "#efe2c8", "#2a1d12"] },
+    "pop":       { "paper": "#ffffff", "ink": "#111111", "accent": "#ff2e63", "tape": "rgba(255,240,120,0.8)", "chips": ["#ffffff", "#ffe600", "#111111", "#ff2e63", "#00b8ff"], "chip_ink": ["#111111", "#111111", "#ffffff", "#ffffff", "#111111"] },
+    "seen":      { "paper": "#efe6dc", "ink": "#240215", "accent": "#6b1734", "tape": "rgba(178,135,100,0.55)", "chips": ["#efe6dc", "#ffffff", "#320012", "#b28764"], "chip_ink": ["#240215", "#240215", "#efe6dc", "#ffffff"] }
+  },
+  "tune": [
+    { "path": "theme.paper", "label": "paper", "type": "color" },
+    { "path": "theme.ink", "label": "ink", "type": "color" },
+    { "path": "theme.accent", "label": "accent", "type": "color" },
+    { "path": "boil.amount", "label": "stop-motion jitter", "min": 0, "max": 3, "step": 0.1 },
+    { "path": "boil.fps", "label": "jitter fps", "min": 2, "max": 24, "step": 1 },
+    { "path": "slap", "label": "slap-in time", "min": 0.1, "max": 1, "step": 0.05 }
+  ]
+}

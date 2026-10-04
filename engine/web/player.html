@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>reel editor</title>
+<style>
+  :root {
+    --bg: #111214; --panel: #18191c; --line: #2a2c31; --text: #e6e6e6; --dim: #8a8d94;
+    --accent: #4f8cff; --bar: #3a4a6b; --bar-sel: #4f8cff; --job: #2a2f3a; --cut: #ff5a5a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 12px/1.4 ui-sans-serif, system-ui, -apple-system, sans-serif; overflow: hidden; }
+  #app { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: 1fr var(--tl-h, 300px); height: 100%; }
+  #view { position: relative; overflow: hidden; background: #0b0b0c; }
+  #box { position: absolute; background: #000; }
+  #box > * { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
+  #box iframe { pointer-events: none; background: transparent; }
+  #gz-layer { cursor: default; }
+  #gz { position: absolute; left: 0; top: 0; transform-origin: 0 0; outline: 1.5px solid var(--accent); pointer-events: none; display: none; }
+  #gz .h { position: absolute; width: 12px; height: 12px; background: #fff; border: 2px solid var(--accent); border-radius: 50%; pointer-events: auto; }
+  #gz .rot { left: 50%; top: -34px; margin-left: -6px; cursor: grab; }
+  #gz .rot::after { content: ""; position: absolute; left: 3px; top: 10px; width: 2px; height: 22px; background: var(--accent); }
+  #gz .scl { right: -7px; bottom: -7px; cursor: nwse-resize; border-radius: 2px; }
+  #side { grid-row: 1 / 3; grid-column: 2; background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 12px; }
+  #side h3 { margin: 14px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); font-weight: 600; }
+  #side h2 { margin: 0 0 4px; font-size: 13px; }
+  .field { display: grid; grid-template-columns: 82px 1fr 58px; gap: 6px; align-items: center; margin: 5px 0; }
+  .field label { color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .field input[type=range] { width: 100%; }
+  .field input[type=number], .field input[type=text] { width: 100%; background: #0f1012; color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 3px 4px; font: inherit; }
+  .field.wide { grid-template-columns: 82px 1fr; }
+  button { background: #23252a; color: var(--text); border: 1px solid #33363c; border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; }
+  button:hover { border-color: #4a4e56; } button.on { border-color: var(--accent); color: #fff; }
+  .muted { color: var(--dim); }
+  .joblist div { padding: 5px 8px; border-radius: 6px; cursor: pointer; } .joblist div:hover, .joblist div.sel { background: #23252a; }
+  #tl { grid-column: 1; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--panel); min-height: 0; }
+  #tl-bar { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  #tl-bar .time { font: 12px ui-monospace, Menlo, monospace; min-width: 150px; }
+  #tl-bar .grow { flex: 1; }
+  #status { color: var(--dim); min-width: 70px; text-align: right; } #status.dirty { color: #ffcf6a; }
+  #tl-resize { height: 5px; cursor: ns-resize; background: transparent; margin-top: -3px; position: relative; z-index: 5; }
+  #tl-scroll { flex: 1; overflow: auto; position: relative; }
+  #tl-inner { position: relative; min-height: 100%; }
+  .row { display: flex; height: 26px; border-bottom: 1px solid #1f2024; }
+  .row.tall { height: 46px; } .row.job { background: #15161a; }
+  .lab { position: sticky; left: 0; z-index: 3; width: 150px; flex: none; padding: 0 8px; display: flex; align-items: center; gap: 6px;
+         background: var(--panel); border-right: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
+  .row.job .lab { color: var(--text); font-weight: 600; }
+  .track { position: relative; flex: none; }
+  .bar { position: absolute; top: 3px; bottom: 3px; background: var(--bar); border: 1px solid #50628a; border-radius: 4px; color: #fff; font-size: 11px;
+         padding: 0 8px; display: flex; align-items: center; overflow: hidden; white-space: nowrap; cursor: grab; user-select: none; }
+  .bar.sel { background: var(--bar-sel); border-color: #9fc0ff; }
+  .bar.static { background: #2b2f38; border-style: dashed; cursor: pointer; }
+  .bar.jobbar { background: var(--job); border-color: #3b4252; color: var(--dim); }
+  .bar .h { position: absolute; top: 0; bottom: 0; width: 7px; cursor: ew-resize; } .bar .h.l { left: 0; } .bar .h.r { right: 0; }
+  .bar .h:hover { background: rgba(255,255,255,.25); }
+  #ruler { cursor: text; }
+  #playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: #ff4d4d; z-index: 4; pointer-events: none; }
+  #playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 5px solid transparent; border-top-color: #ff4d4d; }
+  .cut { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cut); opacity: .35; z-index: 1; pointer-events: none; }
+  #snapline { position: absolute; top: 0; bottom: 0; width: 1px; background: #ffe066; z-index: 4; display: none; pointer-events: none; }
+  .ui-hidden #side, .ui-hidden #tl { display: none; } .ui-hidden #app { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+  kbd { background: #23252a; border: 1px solid #33363c; border-radius: 3px; padding: 0 4px; font: 11px ui-monospace, Menlo, monospace; }
+  #help { color: var(--dim); line-height: 1.9; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view"><div id="box"></div></div>
+  <aside id="side"></aside>
+  <section id="tl">
+    <div id="tl-resize"></div>
+    <div id="tl-bar">
+      <button id="b-play">▶</button>
+      <span class="time" id="time">0.00</span>
+      <button id="b-before">after</button>
+      <button id="b-wipe">wipe</button>
+      <span class="grow"></span>
+      <span class="muted">zoom</span><input id="zoom" type="range" min="10" max="400" value="60">
+      <button id="b-undo" title="Ctrl/Cmd+Z">↶</button><button id="b-redo" title="Ctrl/Cmd+Shift+Z">↷</button>
+      <button id="b-save" title="Ctrl/Cmd+S">save</button><span id="status">saved</span>
+    </div>
+    <div id="tl-scroll"><div id="tl-inner"></div></div>
+  </section>
+</div>
+<script type="module" src="/r/engine/web/player.js"></script>
+</body>
+</html>

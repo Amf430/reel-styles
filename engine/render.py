@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Render a style job to frames, a ProRes layer, and a preview.
+"""Render a style job (or every job of a project) to ProRes layers and a preview.
 
+  render.py project.json                  every job + one preview of the whole video with all layers
+  render.py project.json --job cards      one job of the project (by name or file stem)
   render.py JOB.json                      full render: layer .mov + preview .mp4
   render.py JOB.json --stills 1.2,3.5     a few stills (+ composited over the video) to check quickly
   render.py JOB.json --range 2,4          only part of the job's range
@@ -183,6 +185,8 @@ def subject_layers(job, meta, plate, name, dur, no_preview):
         pv = composite.stack(os.path.join(out, name + "_preview.mp4"), job["size"], job["fps"], dur, layers,
                              audio=st.get("video"), audio_start=st.get("start", 0))
         print(f"preview: {pv}")
+        return pv
+    return None
 
 
 def style_output(job):
@@ -191,26 +195,10 @@ def style_output(job):
     return pr.get("output", "alpha") == "alpha", pr.get("needs_frames", False)
 
 
-def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("job")
-    ap.add_argument("--stills", help="comma-separated times (s) on the video timeline")
-    ap.add_argument("--range", help="a,b sub-range to render")
-    ap.add_argument("--workers", type=int, default=4)
-    ap.add_argument("--mblur", type=int, default=1, help="sub-frames per frame for motion blur")
-    ap.add_argument("--no-preview", action="store_true")
-    ap.add_argument("--keep-frames", action="store_true")
-    a = ap.parse_args()
-
-    common.need("ffmpeg")
-    job = common.load_job(a.job)
+def render_job(job, a):
+    """Full render of one job; returns (layer, meta)."""
     alpha, needs_frames = style_output(job)
     os.makedirs(job["out"], exist_ok=True)
-
-    if a.stills:
-        stills(job, [float(x) for x in a.stills.split(",")], alpha, needs_frames, a.workers)
-        return
-
     t0, t1 = job["start"], job["end"]
     if a.range:
         t0, t1 = [float(x) for x in a.range.split(",")]
@@ -226,19 +214,76 @@ def main():
     name = f"{job.get('name') or job['style']}_{common.timecode(t0)}"
     layer = os.path.join(job["out"], name + ".mov")
     encode(job, frames_dir, layer, alpha, fps, sub)
-    meta.update({"layer": layer, "start": t0, "end": t1, "fps": fps, "size": job["size"], "alpha": alpha})
+    meta.update({"layer": layer, "start": t0, "end": t1, "fps": fps, "size": job["size"], "alpha": alpha, "name": name})
     with open(os.path.join(job["out"], name + ".meta.json"), "w") as f:
         json.dump(meta, f, indent=2)
     print(f"layer:   {layer}  (place at {t0:.3f}s on the timeline)")
     if not alpha and job.get("subject"):
-        subject_layers(job, meta, layer, name, t1 - t0, a.no_preview)
+        meta["preview"] = subject_layers(job, meta, layer, name, t1 - t0, a.no_preview)
     elif not a.no_preview:
         pv = os.path.join(job["out"], name + "_preview.mp4")
-        job_seg = dict(job, start=t0, end=t1)
-        preview(job_seg, layer, pv, alpha)
+        preview(dict(job, start=t0, end=t1), layer, pv, alpha)
+        meta["preview"] = pv
         print(f"preview: {pv}")
     if not a.keep_frames:
         shutil.rmtree(frames_dir, ignore_errors=True)
+    return layer, meta
+
+
+def project_preview(project, results, out):
+    """The whole video with every job's result laid over it at its own time (with the original audio)."""
+    v = project["video"]
+    info = common.probe(v)
+    W, H = info["w"], info["h"]
+    inputs, parts, last = ["-i", v], [f"[0:v]scale={W}:{H},format=yuv420p[b0]"], "b0"
+    for k, (job, layer, meta) in enumerate(results, start=1):
+        src = layer if meta.get("alpha") else meta.get("preview", layer)
+        inputs += ["-itsoffset", f"{meta['start']:.4f}", "-i", src]
+        parts.append(f"[{k}:v]scale={W}:{H},format=yuva420p[l{k}]")
+        parts.append(f"[{last}][l{k}]overlay=eof_action=pass:enable='between(t,{meta['start']:.4f},{meta['end']:.4f})'[b{k}]")
+        last = f"b{k}"
+    cmd = ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(parts), "-map", f"[{last}]"]
+    if info["has_audio"]:
+        cmd += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "192k"]
+    common.run(cmd + ["-c:v", "libx264", "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out])
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("job", help="project.json or a job .json")
+    ap.add_argument("--job", dest="only", help="project mode: render only this job (name or file stem)")
+    ap.add_argument("--stills", help="comma-separated times (s) on the video timeline")
+    ap.add_argument("--range", help="a,b sub-range to render")
+    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--mblur", type=int, default=1, help="sub-frames per frame for motion blur")
+    ap.add_argument("--no-preview", action="store_true")
+    ap.add_argument("--keep-frames", action="store_true")
+    a = ap.parse_args()
+    common.need("ffmpeg")
+
+    project = common.load_project(a.job)
+    jobs = project["jobs"]
+    if a.only:
+        jobs = [j for j in jobs if a.only in (j.get("name"), os.path.splitext(os.path.basename(j["_path"]))[0])]
+        if not jobs:
+            common.die(f"no job '{a.only}' in {a.job}")
+
+    if a.stills:
+        for job in jobs:
+            alpha, needs_frames = style_output(job)
+            os.makedirs(job["out"], exist_ok=True)
+            stills(job, [float(x) for x in a.stills.split(",")], alpha, needs_frames, a.workers)
+        return
+
+    results = []
+    for job in jobs:
+        layer, meta = render_job(job, a)
+        results.append((job, layer, meta))
+    if len(project["jobs"]) > 1 and not a.only and not a.no_preview and project.get("video"):
+        out = os.path.join(project["_dir"], "out", "project_preview.mp4")
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        print(f"project: {project_preview(project, results, out)}")
 
 
 if __name__ == "__main__":

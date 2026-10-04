@@ -6,7 +6,10 @@
 <style>
   .card, .card > *, .shadow { corner-shape: var(--corner, round); }
   .card { position: absolute; overflow: hidden; isolation: isolate; }
-  .card > .fill { position: absolute; z-index: 0; }
+  .card > .fill, .card > .refr { position: absolute; z-index: 0; }
+  .card > .refr { z-index: 0; }
+  .card > .spec { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
   .card > .tint, .card > .hl { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
   .card > .stroke { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
@@ -46,11 +49,12 @@ function build() {
     } else {
       tx = `<div class="tx"><div class="t">${c.text ?? ""}</div>${c.sub ? `<div class="s">${c.sub}</div>` : ""}</div>`;
     }
-    el.innerHTML = `<canvas class="fill"></canvas><div class="tint"></div><div class="hl"></div><div class="stroke"></div><div class="content">${ic}${tx}</div>`;
+    el.innerHTML = `<canvas class="fill"></canvas><canvas class="refr"></canvas><div class="tint"></div><div class="spec"></div><div class="hl"></div><div class="stroke"></div><div class="content">${ic}${tx}</div>`;
     R.stage.append(sh, el);
     R.item({ id: "card" + i, label: c.text || `${c.value ?? ""} ${c.label ?? ""}`.trim(), els: [sh, el],
              in: `cards.${i}.in`, out: `cards.${i}.out`, xf: `cards.${i}.xf` });
-    return { c, el, sh, kind, canvas: el.querySelector(".fill"), content: el.querySelector(".content"), num: el.querySelector(".num") };
+    return { c, el, sh, kind, canvas: el.querySelector(".fill"), refr: el.querySelector(".refr"), spec: el.querySelector(".spec"),
+             content: el.querySelector(".content"), num: el.querySelector(".num") };
   });
   style();
 }
@@ -154,9 +158,49 @@ function renderAt(t) {
     if (k.num) k.num.textContent = countUp(c.value, tw(t, tin, c.count_dur ?? 1.4, ease.outCubic));
 
     // Glass: the footage behind the card, blurred and darkened, clipped to the card (follows the item transform).
-    const pad = G.pad * u + G.blur * u;
-    const r = R.drawSourceFor(k.el, k.canvas, `blur(${G.blur * u}px) brightness(${G.brightness}) saturate(${G.saturate})`, pad);
-    Object.assign(k.canvas.style, { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
+    const liquid = G.material === "liquid", L = G.liquid || {};
+    let blur = (liquid ? L.blur ?? 3 : G.blur) * u, pad = G.pad * u + blur;
+    const glassFilter = () => `blur(${blur}px) brightness(${G.brightness}) saturate(${G.saturate})`;
+    let r = R.drawSourceFor(k.el, k.canvas, glassFilter(), pad);
+    let dark = 0;
+    if (liquid && L.adapt !== false) {
+      // Legibility (like iOS): measure what's behind — 12×12 sample — and on busy or bright footage
+      // redraw with more blur and darken. Per frame, no history: parallel render workers agree.
+      const sc = (k.sample ??= Object.assign(document.createElement("canvas"), { width: 12, height: 12 }));
+      const sx = sc.getContext("2d", { willReadFrequently: true });
+      sx.clearRect(0, 0, 12, 12); sx.drawImage(k.canvas, 0, 0, 12, 12);
+      const d = sx.getImageData(0, 0, 12, 12).data;
+      let sum = 0, sq = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4) { if (d[i + 3] < 10) continue; const l = (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]) / 255; sum += l; sq += l * l; n++; }
+      const mean = n ? sum / n : 0.5, std = n ? Math.sqrt(Math.max(0, sq / n - mean * mean)) : 0;
+      const busy = clamp((std - 0.08) * 2.2, 0, 0.6);
+      dark = clamp((mean - 0.6) * 0.9 + busy * 0.5, 0, 0.45);
+      if (busy > 0.02) { blur += busy * 60 * u; pad = G.pad * u + blur; r = R.drawSourceFor(k.el, k.canvas, glassFilter(), pad); }
+    }
+    k.el.querySelector(".tint").style.background = dark > 0
+      ? `linear-gradient(rgba(0,0,0,${dark.toFixed(3)}), rgba(0,0,0,${dark.toFixed(3)})), ${c.tint || R.T.tint}` : (c.tint || R.T.tint);
+    const box = { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" };
+    Object.assign(k.canvas.style, box);
+    k.refr.style.display = k.spec.style.display = liquid ? "" : "none";
+    if (liquid) {
+      // Refraction: a magnified copy of what's behind, seen only in a soft band along the edge,
+      // with a little colour fringing — the bent-glass edge of Apple's Liquid Glass.
+      const edge = (L.edge ?? 22) * u;
+      R.drawSourceFor(k.el, k.refr, `blur(${blur * 0.5}px) brightness(${G.brightness * 1.08}) saturate(${G.saturate * 1.15})`, pad, 1 + (L.refract ?? 0.09));
+      // Soft band: strongest at the rim, fading to nothing `edge` px inside (no visible seam).
+      const band = (dir) => `linear-gradient(${dir}, #000 ${pad}px, transparent ${pad + edge}px, transparent calc(100% - ${pad + edge}px), #000 calc(100% - ${pad}px))`;
+      Object.assign(k.refr.style, box, {
+        webkitMaskImage: `${band("to right")}, ${band("to bottom")}`, webkitMaskComposite: "source-over",
+        filter: `drop-shadow(${(L.chroma ?? 0.6) * u}px 0 0 rgba(255,60,60,.35)) drop-shadow(${-(L.chroma ?? 0.6) * u}px 0 0 rgba(60,140,255,.35))`,
+      });
+      // Specular rim: a bright arc that slowly travels around the edge.
+      const a = (L.spin ?? 25) * t + 120, sp = L.spec ?? 0.85;
+      Object.assign(k.spec.style, {
+        padding: (L.rim ?? 1.6) * u + "px",
+        background: `conic-gradient(from ${a}deg, rgba(255,255,255,${sp}) 0deg, rgba(255,255,255,${sp * 0.15}) 70deg, rgba(255,255,255,0) 140deg, rgba(255,255,255,${sp * 0.5}) 200deg, rgba(255,255,255,${sp * 0.1}) 260deg, rgba(255,255,255,${sp}) 360deg)`,
+        boxShadow: `inset 0 ${1.5 * u}px ${10 * u}px rgba(255,255,255,${sp * 0.35}), inset 0 ${-6 * u}px ${18 * u}px rgba(0,0,0,.12)`,
+      });
+    }
 
     // Soft drop shadow under the card (part of the alpha layer).
     Object.assign(k.sh.style, {

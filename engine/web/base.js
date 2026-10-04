@@ -233,9 +233,10 @@ class ReelRuntime {
   /**
    * Fill `canvas` (a child of `el`, offset by -pad) with the frame behind `el`, through a CSS filter.
    * Accounts for the item transform, so a moved/rotated/scaled glass card still blurs what is
-   * really behind it. Returns el's box without the item transform (size the canvas from it).
+   * really behind it. `zoom` > 1 magnifies around el's centre. Returns el's box without the item
+   * transform (size the canvas from it).
    */
-  drawSourceFor(el, canvas, filter = "none", pad = 0) {
+  drawSourceFor(el, canvas, filter = "none", pad = 0, zoom = 1) {
     const it = el.__reelItem, wrap = it?.wrap;
     let r0;
     if (wrap && wrap.style.transform) {
@@ -253,6 +254,11 @@ class ReelRuntime {
     ctx.filter = filter;
     ctx.setTransform(dpr, 0, 0, dpr, (pad - r0.left) * dpr, (pad - r0.top) * dpr);
     if (it) { const inv = this.xfMatrix(it).inverse(); ctx.transform(inv.a, inv.b, inv.c, inv.d, inv.e, inv.f); }
+    if (zoom !== 1) {
+      // Magnify what's behind around el's centre (refraction / lens look).
+      const cx = r0.left + r0.width / 2, cy = r0.top + r0.height / 2;
+      ctx.translate(cx, cy); ctx.scale(zoom, zoom); ctx.translate(-cx, -cy);
+    }
     ctx.drawImage(src, 0, 0, this.W, this.H);
     return r0;
   }

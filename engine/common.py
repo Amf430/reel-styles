@@ -237,6 +237,7 @@ def project_info(project):
         "video": v, "size": [info["w"], info["h"]], "fps": info["fps"], "duration": info["duration"], "has_audio": info["has_audio"],
         "jobs": [{"i": i, "style": j["style"], "name": j.get("name") or os.path.splitext(os.path.basename(j["_path"]))[0],
                   "start": j["start"], "end": j["end"], "output": j.get("_output", "alpha"), "subject": j.get("subject"),
+                  "behind": j.get("behind"),
                   "file": j["_path"]} for i, j in enumerate(project["jobs"])],
     }
 

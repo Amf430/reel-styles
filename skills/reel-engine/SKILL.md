@@ -38,6 +38,7 @@ reel_work/
 ```
 - الجوب داخل مجلد فيه project.json ياخذ الفيديو من المشروع (أو حط `"video"` فيه).
 - كل المقاسات بوحدة `u` = 1px على ضلع قصير 1080، والمواقع نسب من الإطار (0..1) ⇒ نفس الجوب يطلع صح طولي وعرضي. 4K يترندر بـ device scale 2 تلقائياً.
+- `"behind": { "layer": "keyed/subject.mov" }` على أي جوب = الطبقة تمر ورا الموضوع المفصول (شوف `reel-behind`).
 - كل قطعة متحركة (كرت، عنوان، عنصر ديكور) لها `xf`: `{ "x": 0.05, "y": -0.02, "rot": 6, "scale": 1.1, "opacity": 0.9 }` (x/y إزاحة كنسبة من الإطار). المحرّر يكتبها؛ تقدر تكتبها يدوي.
 
 ## الأوامر
@@ -47,7 +48,8 @@ python3 "$REEL/engine/render.py"  reel_work/project.json --job cards --stills 13
 python3 "$REEL/engine/render.py"  reel_work/project.json           # كل الجوبات + برفيو للفيديو كامل
 python3 "$REEL/engine/render.py"  reel_work/project.json --job cards [--workers 6] [--mblur 4]
 python3 "$REEL/engine/transcribe.py" clip.mp4 --out reel_work/words.json   # توقيت كل كلمة (Whisper محلي) أو --srt
-python3 "$REEL/engine/key.py"     clip.mp4 --out reel_work/keyed/subject.mov --start 12 --end 18.5
+python3 "$REEL/engine/key.py"     clip.mp4 --out reel_work/keyed/subject.mov --start 12 --end 18.5   # كروما
+python3 "$REEL/engine/segment.py" clip.mp4 --out reel_work/keyed/subject.mov --start 12 --end 18.5 --quality fast|balanced|best  # تصوير عادي (AI)
 python3 "$REEL/engine/shadow.py"  subject.mov --out shadow.mov     # (render.py يسويه تلقائياً)
 python3 "$REEL/engine/composite.py" --out p.mp4 --size 1080,1920 --dur 6 a.mov b.mov@0.1,0,0.8,1
 ```
@@ -74,7 +76,7 @@ python3 "$REEL/engine/composite.py" --out p.mp4 --size 1080,1920 --dur 6 a.mov b
 
 ## فصل المقدّم (key.py)
 - يشتغل فقط إذا الخلفية تنفصل: كروما خضراء/زرقاء، أو استوديو بخلفية سادة وكاميرا ثابتة (`--mode plate --plate empty.png` = فريم للمكان فاضي).
-- **تصوير في موقع حقيقي = لا تفصل.** استخدم الستايلات اللي فوق الفيديو (glass, neon) بس.
+- **تصوير في موقع حقيقي:** `segment.py` يفصل بالـ AI (للنص ورا الشخص — reel-behind). لتبديل الخلفية كاملة (backdrop/studio3d) يبقى الكروما أنظف بكثير.
 - المفتاح difference key (`G − max(R,B)`): الثوب الأبيض والرمادي والبشرة تبقى صلبة. لو بقى أخضر: `--similarity 0.1`. لو الأطراف تنأكل: `--similarity -0.05`. حوامل/إضاءات على الأطراف: `--matte x,y,w,h`.
 - دايماً افتح `_qc.jpg` (الماجنتا = اللي انشال) قبل ما تكمل، وشغّله على نفس `--start/--end` حق الجوب.
 

@@ -1,0 +1,35 @@
+{
+  "output": "alpha",
+  "needs_frames": true,
+  "default_theme": "frost",
+  "defaults": {
+    "dir": "rtl",
+    "glass": { "blur": 26, "brightness": 0.85, "saturate": 1.3, "radius": 34, "stroke": 2.2, "stroke_opacity": 0.6, "highlight": 0.32, "shadow": 0.35, "pad": 30 },
+    "text": { "size": 46, "weight": 700, "sub_size": 27, "sub_opacity": 0.78, "icon_size": 54 },
+    "motion": { "in": 0.75, "out": 0.4, "dist": 110, "content_delay": 0.1 },
+    "cards": []
+  },
+  "themes": {
+    "frost": { "tint": "rgba(255,255,255,0.10)", "text": "#ffffff", "accent": "#ffffff", "icon_bg": "rgba(255,255,255,0.14)" },
+    "smoke": { "tint": "rgba(8,10,14,0.42)", "text": "#ffffff", "accent": "#ffffff", "icon_bg": "rgba(255,255,255,0.10)" },
+    "seen":  { "tint": "rgba(50,0,18,0.30)", "text": "#ffffff", "accent": "#e2c3a4", "icon_bg": "rgba(178,135,100,0.28)" },
+    "warm":  { "tint": "rgba(255,190,110,0.10)", "text": "#fffaf2", "accent": "#ffd58a", "icon_bg": "rgba(255,213,138,0.18)" },
+    "ice":   { "tint": "rgba(140,200,255,0.10)", "text": "#f4fbff", "accent": "#9fd6ff", "icon_bg": "rgba(159,214,255,0.18)" }
+  },
+  "tune": [
+    { "path": "glass.blur", "label": "blur", "min": 0, "max": 80, "step": 1 },
+    { "path": "glass.brightness", "label": "darken (brightness)", "min": 0.2, "max": 1.4, "step": 0.01 },
+    { "path": "glass.saturate", "label": "saturate", "min": 0, "max": 2.5, "step": 0.05 },
+    { "path": "glass.radius", "label": "corner radius", "min": 0, "max": 80, "step": 1 },
+    { "path": "glass.stroke", "label": "stroke width", "min": 0, "max": 8, "step": 0.1 },
+    { "path": "glass.stroke_opacity", "label": "stroke opacity", "min": 0, "max": 1 },
+    { "path": "glass.highlight", "label": "highlight", "min": 0, "max": 1 },
+    { "path": "glass.shadow", "label": "drop shadow", "min": 0, "max": 1 },
+    { "path": "theme.tint", "label": "tint (css color)", "type": "text" },
+    { "path": "theme.accent", "label": "accent", "type": "color" },
+    { "path": "text.size", "label": "title size", "min": 20, "max": 110, "step": 1 },
+    { "path": "text.weight", "label": "title weight", "min": 300, "max": 900, "step": 100 },
+    { "path": "motion.in", "label": "in duration", "min": 0.2, "max": 2, "step": 0.05 },
+    { "path": "motion.dist", "label": "in distance", "min": 0, "max": 400, "step": 5 }
+  ]
+}

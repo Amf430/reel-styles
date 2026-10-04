@@ -1,0 +1,356 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<script type="importmap">{ "imports": { "three": "/r/engine/vendor/three/three.module.js", "three/addons/": "/r/engine/vendor/three/addons/" } }</script>
+<style> #stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; } body { background: #000; } </style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { BokehPass } from "three/addons/postprocessing/BokehPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
+import { Reel, rand } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+let renderer, scene, camera, composer, bokeh, bloom, keyLight, haloLight, hemi, subjectPlane, subjectTex, subjectInfo, propRoot, cyc;
+
+const std = (color, roughness = 0.6, metalness = 0, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, metalness, ...extra });
+const shadowy = (m) => { m.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } }); return m; };
+
+// ---------------------------------------------------------------- the cyc (floor + cove + wall, one surface)
+function buildCyc() {
+  const P = R.P.room, T = R.T;
+  const D = P.wall_dist, r = P.cove, Wd = P.width, Hh = P.height;
+  const prof = [[8, 0], [-D + r, 0]];
+  for (let i = 1; i <= 16; i++) { const f = (i / 16) * Math.PI / 2; prof.push([-D + r - r * Math.sin(f), r - r * Math.cos(f)]); }
+  prof.push([-D, Hh]);
+  const pos = [], col = [], idx = [];
+  const cf = new THREE.Color(T.floor), cw = new THREE.Color(T.wall), c = new THREE.Color();
+  prof.forEach(([z, y], i) => {
+    const k = THREE.MathUtils.smoothstep(y, 0, r * 1.6);
+    c.copy(cf).lerp(cw, k);
+    for (const x of [-Wd / 2, Wd / 2]) { pos.push(x, y, z); col.push(c.r, c.g, c.b); }
+    if (i > 0) { const a = (i - 1) * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  });
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx);
+  // Subdivide along x so lighting interpolates smoothly.
+  g.computeVertexNormals();
+  const m = new THREE.Mesh(g, std(0xffffff, P.roughness, 0, { vertexColors: true, side: THREE.DoubleSide }));
+  m.receiveShadow = true;
+  return m;
+}
+
+// ---------------------------------------------------------------- procedural props
+function lathe(points, color, rough = 0.35) {
+  return new THREE.Mesh(new THREE.LatheGeometry(points.map(([x, y]) => new THREE.Vector2(x, y)), 48), std(color, rough));
+}
+const BOOK = (T, i, s) => new THREE.Color(T.books[(i + s) % T.books.length]);
+
+const PROPS = {
+  vase(T, o) {
+    const g = new THREE.Group();
+    const body = lathe([[0, 0], [0.09, 0.005], [0.15, 0.12], [0.16, 0.25], [0.11, 0.42], [0.055, 0.5], [0.06, 0.53], [0.05, 0.53]], o.color || T.ceramic, 0.3);
+    g.add(body);
+    if (o.branches !== false) {
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2, tilt = 0.25 + rand(i, 3) * 0.35, len = 0.55 + rand(i, 5) * 0.3;
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, len, 5), std(T.wood, 0.8));
+        stem.position.set(Math.sin(a) * Math.sin(tilt) * len / 2, 0.5 + Math.cos(tilt) * len / 2, Math.cos(a) * Math.sin(tilt) * len / 2);
+        stem.rotation.set(Math.cos(a) * tilt, 0, -Math.sin(a) * tilt);
+        const plume = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 10), std(o.plume || T.ceramic, 0.95));
+        plume.scale.set(0.035, 0.11, 0.035);
+        plume.position.set(Math.sin(a) * Math.sin(tilt) * len, 0.5 + Math.cos(tilt) * len, Math.cos(a) * Math.sin(tilt) * len);
+        plume.rotation.copy(stem.rotation);
+        g.add(stem, plume);
+      }
+    }
+    return g;
+  },
+  pedestal(T, o) {
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.9, 48), std(o.color || T.ceramic, 0.5));
+    m.position.y = 0.45;
+    return new THREE.Group().add(m);
+  },
+  sphere(T, o) {
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.25, 48, 32), std(o.color || T.accent, 0.2, o.metal ?? 0.6));
+    m.position.y = 0.25;
+    return new THREE.Group().add(m);
+  },
+  table(T, o) {
+    const g = new THREE.Group(), w = std(o.color || T.wood, 0.55);
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.035, 48), w); top.position.y = 0.55;
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.55, 16), w); leg.position.y = 0.275;
+    const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.02, 32), w); foot.position.y = 0.01;
+    return g.add(top, leg, foot);
+  },
+  lamp(T, o) {
+    const g = new THREE.Group(), c = new THREE.Color(o.color || T.accent);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.5, 12), std("#222", 0.4, 0.8)); stem.position.y = 0.75;
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.17, 0.025, 32), std("#222", 0.4, 0.8));
+    const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.24, 0.32, 40, 1, true),
+      std(c, 0.8, 0, { emissive: c, emissiveIntensity: 1.6, side: THREE.DoubleSide }));
+    shade.position.y = 1.55;
+    const bulb = new THREE.PointLight(c, o.intensity ?? 4, 4, 2); bulb.position.y = 1.5;
+    return g.add(stem, base, shade, bulb);
+  },
+  plant(T, o) {
+    const g = new THREE.Group();
+    g.add(lathe([[0, 0], [0.13, 0], [0.17, 0.32], [0.18, 0.34], [0.0, 0.34]], o.pot || T.ceramic, 0.6));
+    const leafShape = new THREE.Shape(); leafShape.moveTo(0, 0); leafShape.quadraticCurveTo(0.09, 0.25, 0, 0.55); leafShape.quadraticCurveTo(-0.09, 0.25, 0, 0);
+    const leafGeo = new THREE.ShapeGeometry(leafShape, 12);
+    for (let i = 0; i < 14; i++) {
+      const leaf = new THREE.Mesh(leafGeo, std(new THREE.Color(o.color || T.leaf).offsetHSL(0, 0, (rand(i, 9) - 0.5) * 0.12), 0.6, 0, { side: THREE.DoubleSide }));
+      const a = (i / 14) * Math.PI * 2 + rand(i) * 0.4, tilt = 0.35 + rand(i, 2) * 0.55, s = 0.8 + rand(i, 4) * 0.6;
+      leaf.scale.setScalar(s);
+      leaf.position.y = 0.3;
+      leaf.rotation.set(0, a, 0); leaf.rotateX(-tilt);
+      g.add(leaf);
+    }
+    return g;
+  },
+  bookcase(T, o) {
+    const g = new THREE.Group(), w = std(o.color || T.wood, 0.6), W = 1.0, H = 1.9, Dp = 0.32;
+    const box = (sx, sy, sz, x, y, z, m = w) => { const b = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), m); b.position.set(x, y, z); g.add(b); return b; };
+    box(W, H, 0.02, 0, H / 2, -Dp / 2 + 0.01, std(new THREE.Color(o.color || T.wood).multiplyScalar(0.5), 0.8));
+    box(0.03, H, Dp, -W / 2, H / 2, 0); box(0.03, H, Dp, W / 2, H / 2, 0);
+    for (let s = 0; s < 5; s++) {
+      const y = 0.05 + s * 0.45;
+      box(W, 0.03, Dp, 0, y, 0);
+      if (s === 4) break;
+      let x = -W / 2 + 0.05;
+      for (let i = 0; x < W / 2 - 0.08; i++) {
+        if (rand(i, s, 7) < 0.12) { x += 0.08; continue; }
+        const bw = 0.025 + rand(i, s) * 0.03, bh = 0.24 + rand(i, s, 2) * 0.1;
+        box(bw, bh, 0.2, x + bw / 2, y + 0.015 + bh / 2, 0.01, std(BOOK(T, i, s), 0.75));
+        x += bw + 0.004;
+      }
+    }
+    return g;
+  },
+  shelf(T, o) {
+    // Wall shelf (pos = [x, y]): mounted on the wall.
+    const g = new THREE.Group(), w = std(o.color || T.wood, 0.6), L = o.length || 1.2;
+    const board = new THREE.Mesh(new THREE.BoxGeometry(L, 0.035, 0.24), w); g.add(board);
+    let x = -L / 2 + 0.05;
+    for (let i = 0; i < 12 && x < L * 0.15; i++) {
+      const bw = 0.025 + rand(i, 1) * 0.025, bh = 0.2 + rand(i, 2) * 0.08;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, 0.17), std(BOOK(T, i, 0), 0.75)); b.position.set(x + bw / 2, bh / 2 + 0.017, 0);
+      g.add(b); x += bw + 0.004;
+    }
+    const v = PROPS.vase(T, { branches: false }); v.scale.setScalar(0.45); v.position.set(L * 0.3, 0.017, 0); g.add(v);
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.06, 24, 16), std(T.accent, 0.3, 0.5)); s.position.set(L * 0.42, 0.077, 0); g.add(s);
+    g.userData.wall = true;
+    return g;
+  },
+  frame(T, o) {
+    const g = new THREE.Group(), w = o.w || 0.7, h = o.h || 0.9;
+    const cv = document.createElement("canvas"); cv.width = 256; cv.height = 320;
+    const x = cv.getContext("2d"), gr = x.createLinearGradient(0, 0, 256, 320);
+    gr.addColorStop(0, o.art || T.glow); gr.addColorStop(1, T.wall); x.fillStyle = gr; x.fillRect(0, 0, 256, 320);
+    x.fillStyle = T.accent; x.globalAlpha = 0.85; x.beginPath(); x.arc(160, 110, 46, 0, 7); x.fill();
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.04), std(o.color || T.wood, 0.5)));
+    const art = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.86, h * 0.88), std(0xffffff, 0.7, 0, { map: tex })); art.position.z = 0.021; g.add(art);
+    g.userData.wall = true;
+    return g;
+  },
+  arch(T, o) {
+    // Glowing LED arch on the wall (pos = [x, y_bottom]).
+    const g = new THREE.Group(), c = new THREE.Color(o.color || T.accent), w = o.w || 1.1, h = o.h || 2.1, r = w / 2;
+    const m = std(c, 0.4, 0, { emissive: c, emissiveIntensity: o.glow ?? 3 });
+    const arc = new THREE.Mesh(new THREE.TorusGeometry(r, 0.012, 8, 64, Math.PI), m); arc.position.y = h - r;
+    const l = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, h - r, 8), m); l.position.set(-r, (h - r) / 2, 0);
+    const rt = l.clone(); rt.position.x = r;
+    g.add(arc, l, rt);
+    g.userData.wall = true;
+    return g;
+  },
+};
+
+async function buildProps() {
+  const T = R.T, loader = new GLTFLoader();
+  loader.setDRACOLoader(new DRACOLoader().setDecoderPath("/r/engine/vendor/three/addons/libs/draco/"));
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  propRoot = new THREE.Group();
+  for (const p of R.P.props || []) {
+    let obj;
+    if (p.type === "glb") {
+      const gltf = await loader.loadAsync(R.asset(p.src));
+      obj = gltf.scene;
+      if (p.height) { // normalise to a real-world height, base on the floor
+        const b = new THREE.Box3().setFromObject(obj), s = p.height / (b.max.y - b.min.y);
+        obj.scale.setScalar(s); const b2 = new THREE.Box3().setFromObject(obj); obj.position.y -= b2.min.y;
+        obj = new THREE.Group().add(obj);
+      }
+    } else if (PROPS[p.type]) obj = PROPS[p.type](T, p);
+    else { console.error("unknown prop", p.type); continue; }
+    shadowy(obj);
+    obj.rotation.y = THREE.MathUtils.degToRad(p.rot || 0);
+    if (p.scale) obj.scale.multiplyScalar(p.scale);
+    obj.userData.spec = p;
+    obj.userData.isWall = !!(obj.userData.wall || p.wall);
+    propRoot.add(obj);
+  }
+  scene.add(propRoot);
+}
+
+// ---------------------------------------------------------------- subject stand-in (casts the shadow, invisible)
+async function buildSubject() {
+  const sub = R.job.subject;
+  if (!sub) return;
+  const stem = sub.layer.replace(/\.[^.]+$/, "");
+  subjectInfo = await (await fetch(R.asset(stem + ".json"))).json();
+  subjectTex = await new THREE.TextureLoader().loadAsync(R.asset(stem + "_still.png"));
+  subjectTex.colorSpace = THREE.SRGBColorSpace;
+  const S = R.P.subject, [sw, sh] = subjectInfo.size;
+  const ph = S.height_m / subjectInfo.bbox[3], pw = ph * (sw / sh);
+  const geo = new THREE.PlaneGeometry(pw, ph);
+  const mat = new THREE.MeshBasicMaterial({ map: subjectTex, alphaTest: 0.5, transparent: false, colorWrite: false, depthWrite: false, side: THREE.DoubleSide });
+  subjectPlane = new THREE.Mesh(geo, mat);
+  subjectPlane.castShadow = S.shadow === "plate";
+  subjectPlane.customDepthMaterial = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: subjectTex, alphaTest: 0.5, side: THREE.DoubleSide });
+  subjectPlane.userData = { pw, ph };
+  scene.add(subjectPlane);
+}
+
+function placeCameraAndSubject() {
+  const C = R.P.camera, S = R.P.subject;
+  camera.fov = C.fov; camera.aspect = R.W / R.H; camera.updateProjectionMatrix();
+  // Distance so the person fills `screen_height` of the frame.
+  const dist = S.height_m / (C.screen_height * 2 * Math.tan(THREE.MathUtils.degToRad(C.fov) / 2));
+  camera.position.set(S.x + C.x, C.height, S.z + dist);
+  camera.lookAt(S.x + C.x + C.lens_shift, C.look_y, S.z);
+  camera.updateMatrixWorld();
+  placeProps();
+  if (!subjectPlane) return;
+  // Billboard parallel to the image plane → its projection is an exact rectangle we can composite into.
+  subjectPlane.quaternion.copy(camera.quaternion);
+  const { pw, ph } = subjectPlane.userData, fi = subjectInfo;
+  const feetLocal = new THREE.Vector3((fi.feet_x - 0.5) * pw, (0.5 - fi.feet_y) * ph, 0);
+  subjectPlane.position.set(0, 0, 0); subjectPlane.updateMatrixWorld();
+  const feetW = feetLocal.clone().applyQuaternion(subjectPlane.quaternion);
+  subjectPlane.position.set(S.x - feetW.x, -feetW.y, S.z - feetW.z);
+  subjectPlane.updateMatrixWorld();
+}
+
+// Half the visible width (m) at depth z, so props can be placed in frame units (−1 left edge … +1 right edge).
+function halfWidthAt(z) {
+  return (camera.position.z - z) * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) * camera.aspect;
+}
+function placeProps() {
+  if (!propRoot) return;
+  const D = R.P.room.wall_dist, cx = camera.position.x;
+  for (const obj of propRoot.children) {
+    const p = obj.userData.spec, [a, b, c] = p.pos || [0, 0];
+    if (obj.userData.isWall) {
+      const z = -D + 0.02 + (p.type === "shelf" ? 0.12 : 0.02) + (c || 0);
+      obj.position.set(cx + a * halfWidthAt(z), b, z);
+    } else obj.position.set(cx + a * halfWidthAt(b), 0, b);
+  }
+}
+
+function subjectRect() {
+  if (!subjectPlane) return null;
+  const { pw, ph } = subjectPlane.userData;
+  const pts = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([sx, sy]) =>
+    new THREE.Vector3(sx * pw / 2, sy * ph / 2, 0).applyMatrix4(subjectPlane.matrixWorld).project(camera));
+  const xs = pts.map((p) => (p.x + 1) / 2), ys = pts.map((p) => (1 - p.y) / 2);
+  const x0 = Math.min(...xs), y0 = Math.min(...ys);
+  return [x0, y0, Math.max(...xs) - x0, Math.max(...ys) - y0].map((v) => +v.toFixed(5));
+}
+
+// ---------------------------------------------------------------- lights + post
+function applyLook() {
+  const P = R.P, T = R.T, K = P.key, Hl = P.halo;
+  renderer.toneMappingExposure = P.exposure;
+  scene.environmentIntensity = P.env;
+  hemi.intensity = P.fill;
+  hemi.color.set(T.wall).lerp(new THREE.Color("#ffffff"), 0.6); hemi.groundColor.set(T.floor);
+  keyLight.position.set(...K.pos); keyLight.intensity = K.intensity; keyLight.angle = K.angle; keyLight.penumbra = K.penumbra;
+  keyLight.shadow.radius = K.shadow_radius; keyLight.shadow.intensity = K.shadow_opacity;
+  keyLight.target.position.set(P.subject.x, 1, P.subject.z);
+  haloLight.visible = Hl.on; haloLight.color.set(T.glow); haloLight.intensity = Hl.intensity;
+  haloLight.angle = Hl.size * 0.5; haloLight.target.position.set(Hl.x, Hl.y, -P.room.wall_dist);
+  bokeh.enabled = P.dof.on;
+  bokeh.uniforms.aperture.value = P.dof.aperture; bokeh.uniforms.maxblur.value = P.dof.maxblur;
+  bokeh.uniforms.focus.value = camera.position.distanceTo(new THREE.Vector3(P.subject.x, 1.2, P.subject.z));
+  bloom.strength = P.bloom.strength; bloom.radius = P.bloom.radius; bloom.threshold = P.bloom.threshold;
+  if (cyc) { scene.remove(cyc); cyc.geometry.dispose(); }
+  cyc = buildCyc(); scene.add(cyc);
+}
+
+async function ready() {
+  renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(devicePixelRatio);
+  renderer.setSize(R.W, R.H, false);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  R.stage.appendChild(renderer.domElement);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color("#000");
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  camera = new THREE.PerspectiveCamera(32, R.W / R.H, 0.05, 60);
+
+  hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.5); scene.add(hemi);
+  keyLight = new THREE.SpotLight(0xfff4e8, 50, 0, 0.6, 0.8, 1.6);
+  keyLight.castShadow = true; keyLight.shadow.mapSize.set(4096, 4096); keyLight.shadow.bias = -0.0003; keyLight.shadow.normalBias = 0.025;
+  keyLight.shadow.camera.near = 0.5; keyLight.shadow.camera.far = 20;
+  scene.add(keyLight, keyLight.target);
+  haloLight = new THREE.SpotLight(0xffffff, 60, 0, 0.15, 1.0, 1.2);
+  haloLight.position.set(0, 2.4, 2.2);
+  scene.add(haloLight, haloLight.target);
+
+  composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(R.W * devicePixelRatio, R.H * devicePixelRatio, { type: THREE.HalfFloatType, samples: 4 }));
+  composer.setPixelRatio(devicePixelRatio); composer.setSize(R.W, R.H);
+  composer.addPass(new RenderPass(scene, camera));
+  bokeh = new BokehPass(scene, camera, { focus: 4, aperture: 0.003, maxblur: 0.008 });
+  composer.addPass(bokeh);
+  bloom = new UnrealBloomPass(new THREE.Vector2(R.W, R.H), 0.35, 0.5, 0.85);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
+  await buildSubject();
+  await buildProps();
+  placeCameraAndSubject();
+  applyLook();
+}
+
+let lastSrc = null;
+function renderAt(t) {
+  if (R._needsLayout) {
+    renderer.setSize(R.W, R.H, false); composer.setSize(R.W, R.H);
+    placeCameraAndSubject(); applyLook(); R._needsLayout = false;
+  }
+  // Moving shadow: in renders the engine hands us the keyed frame for t (PNG with alpha).
+  if (subjectPlane && R.mode === "render" && R.source && R.source !== lastSrc) {
+    subjectTex.image = R.source; subjectTex.needsUpdate = true; lastSrc = R.source;
+  }
+  composer.render();
+}
+
+R.define({
+  ready, renderAt,
+  onParams: () => { placeCameraAndSubject(); applyLook(); },
+  meta: () => ({
+    subject_rect: subjectRect(), shadow_in_plate: R.P.subject.shadow === "plate",
+    view: { camera_z: +camera.position.z.toFixed(2), half_width_subject_m: +halfWidthAt(0).toFixed(2), half_width_wall_m: +halfWidthAt(-R.P.room.wall_dist).toFixed(2) },
+  }),
+});
+</script>
+</body>
+</html>

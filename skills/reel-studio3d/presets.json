@@ -1,0 +1,44 @@
+{
+  "output": "opaque",
+  "needs_frames": "subject",
+  "default_theme": "teal",
+  "defaults": {
+    "room": { "wall_dist": 2.6, "width": 12, "height": 5, "cove": 0.9, "roughness": 0.9 },
+    "camera": { "fov": 38, "height": 1.25, "screen_height": 0.62, "x": 0, "look_y": 0.95, "lens_shift": 0 },
+    "subject": { "height_m": 1.75, "x": 0, "z": 0, "shadow": "plate" },
+    "key": { "pos": [-2.4, 3.4, 3.2], "intensity": 45, "angle": 0.62, "penumbra": 0.85, "shadow_radius": 9, "shadow_opacity": 1 },
+    "fill": 0.55,
+    "env": 0.35,
+    "halo": { "on": true, "x": 0, "y": 1.55, "size": 0.32, "intensity": 70 },
+    "exposure": 0.9,
+    "dof": { "on": true, "aperture": 0.0035, "maxblur": 0.008 },
+    "bloom": { "strength": 0.25, "radius": 0.45, "threshold": 0.97 },
+    "props": []
+  },
+  "themes": {
+    "teal":  { "wall": "#3f8580", "floor": "#2b605c", "glow": "#bff7ea", "accent": "#ffd38a", "wood": "#9b6b45", "ceramic": "#ece7df", "leaf": "#2e7d4f", "books": ["#e9dcc3", "#d7a54a", "#2b5550", "#a6503a", "#f4efe6"] },
+    "navy":  { "wall": "#16308a", "floor": "#0d1d55", "glow": "#7fa2ff", "accent": "#ffb54a", "wood": "#8a5a3a", "ceramic": "#e9e4dc", "leaf": "#2f6b45", "books": ["#c9a227", "#e8e2d0", "#2a4a8a", "#a33b2f", "#3f6e5a"] },
+    "blush": { "wall": "#f0b9c6", "floor": "#e2a3b2", "glow": "#fff3f6", "accent": "#ffffff", "wood": "#d9a07e", "ceramic": "#fff8f6", "leaf": "#7aa57a", "books": ["#ffffff", "#f3d9a6", "#e38aa0", "#b86b7d", "#fbe7ec"] },
+    "seen":  { "wall": "#4a0a24", "floor": "#2a0010", "glow": "#d9b48f", "accent": "#e2c3a4", "wood": "#7a4b30", "ceramic": "#efe6dc", "leaf": "#3f6a49", "books": ["#b28764", "#efe6dc", "#6b1734", "#d9b48f", "#3a0a1c"] },
+    "charcoal": { "wall": "#2a2d33", "floor": "#17181b", "glow": "#e6e9f0", "accent": "#ffcf7a", "wood": "#6e5038", "ceramic": "#e6e3dd", "leaf": "#3d6648", "books": ["#d8d2c4", "#9a8c74", "#40464f", "#b5523b", "#efe9df"] },
+    "sand":  { "wall": "#e2cfb2", "floor": "#c9b08c", "glow": "#fff6e6", "accent": "#ffffff", "wood": "#9a6a44", "ceramic": "#fbf7f0", "leaf": "#6c8f5e", "books": ["#fffaf0", "#c79c63", "#7d6a52", "#b0583f", "#e9dcc5"] }
+  },
+  "tune": [
+    { "path": "theme.wall", "label": "wall", "type": "color" },
+    { "path": "theme.floor", "label": "floor", "type": "color" },
+    { "path": "theme.glow", "label": "halo color", "type": "color" },
+    { "path": "key.intensity", "label": "key light", "min": 0, "max": 200, "step": 1 },
+    { "path": "fill", "label": "fill light", "min": 0, "max": 3, "step": 0.05 },
+    { "path": "env", "label": "reflections", "min": 0, "max": 2, "step": 0.05 },
+    { "path": "halo.intensity", "label": "halo", "min": 0, "max": 300, "step": 1 },
+    { "path": "halo.size", "label": "halo size", "min": 0.05, "max": 0.8, "step": 0.01 },
+    { "path": "halo.y", "label": "halo height", "min": 0.3, "max": 3.5, "step": 0.05 },
+    { "path": "exposure", "label": "exposure", "min": 0.3, "max": 2.5, "step": 0.05 },
+    { "path": "camera.screen_height", "label": "subject size", "min": 0.2, "max": 1.1, "step": 0.01 },
+    { "path": "camera.height", "label": "camera height", "min": 0.3, "max": 3, "step": 0.05 },
+    { "path": "camera.fov", "label": "fov", "min": 15, "max": 70, "step": 1 },
+    { "path": "dof.on", "label": "depth of field", "type": "bool" },
+    { "path": "dof.aperture", "label": "aperture", "min": 0, "max": 0.02, "step": 0.0005 },
+    { "path": "bloom.strength", "label": "bloom", "min": 0, "max": 2, "step": 0.05 }
+  ]
+}

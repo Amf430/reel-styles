@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+out/
+reel_work/
+_frames/
+_src/
+*.mov
+*.mp4

@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #title { position: absolute; white-space: nowrap; transform-origin: 50% 50%; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="title"></div></div>
+<script type="module">
+// Template: one title that rises in and fades out. Replace with the new style.
+// Rules: renderAt(t) is a pure function of t; sizes × R.u; positions as fractions of R.W/R.H.
+import { Reel, tw, ease, clamp } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const el = document.getElementById("title");
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  el.textContent = R.P.text;
+  style();
+}
+
+function style() {
+  const P = R.P;
+  el.style.fontSize = P.size * R.u + "px";
+  el.style.fontWeight = 800;
+  el.style.color = R.T.color;
+  R.fit(el, R.W * 0.9);
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const P = R.P, tout = P.out ?? R.end;
+  const pin = tw(t, P.in, P.anim_dur, ease.outExpo);
+  const pout = tw(t, tout - P.out_dur, P.out_dur, ease.inCubic);
+  el.style.left = P.x * R.W - el.offsetWidth / 2 + "px";
+  el.style.top = P.y * R.H - el.offsetHeight / 2 + "px";
+  el.style.opacity = clamp(pin * 1.8) * (1 - pout);
+  el.style.transform = `translateY(${(1 - pin) * 50 * R.u}px)`;
+}
+
+R.define({ ready: build, renderAt, onParams: build });
+</script>
+</body>
+</html>

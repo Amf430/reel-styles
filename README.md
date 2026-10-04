@@ -1,0 +1,48 @@
+# reel-styles
+
+ستايلات موشن للريلز والفيديوهات كمهارات لـ Claude Code. كل ستايل مهارة تطلبها بالاسم، وكلها على محرّك واحد: HTML حتمي ← طبقات ProRes 4444 شفافة للبريمير + برفيو مباشر في المتصفح.
+
+| المهارة | وش تسوي | التصوير |
+|---|---|---|
+| `reel-glass` | كروت زجاجية تبلّر الفيديو اللي وراها: نص، أيقونة، رقم يعدّ | أي تصوير |
+| `reel-neon` | عنوان نيون عربي متوهج | أي تصوير (أحلى على غامق) |
+| `reel-backdrop` | خلفية استوديو 2.5D بديكور مرسوم بالكود + ظل المقدّم | كروما / خلفية سادة |
+| `reel-studio3d` | استوديو 3D حقيقي (Three.js): إضاءة، ظلال تتحرك مع المقدّم، DOF، موديلات GLB — بديل Blender | كروما / خلفية سادة |
+| `reel-style-new` | يحلل فيديو مرجعي ويطلع منه ستايل جديد | — |
+| `reel-engine` | المحرّك المشترك: الرندر، البرفيو، فصل المقدّم، الظل، التركيب | — |
+
+## التثبيت (كل جهاز)
+```bash
+git clone https://github.com/Amf430/reel-styles.git ~/Coding/reel-styles
+bash ~/Coding/reel-styles/install.sh
+```
+يربط المهارات في `~/.claude/skills/` ويفحص: Python 3 + `playwright`، Chromium، ffmpeg فيه `prores_ks`.
+بعد أي `git pull` شغّل `install.sh` مرة ثانية عشان تنربط الستايلات الجديدة.
+
+## الاستخدام
+اطلب من Claude بالاسم، مثلاً: «سو كروت reel-glass على الشقة من ثانية 24 لـ 31: ٣ غرف، 180م²، جاهزة للسكن».
+
+يدوياً:
+```bash
+python3 engine/render.py job.json --stills 25,27   # صور للفحص
+python3 engine/player.py job.json                  # برفيو مباشر + سلايدرات
+python3 engine/render.py job.json                  # الطبقة + البرفيو
+```
+البرفيو: `space` تشغيل · `←/→` ثانية · `,` `.` فريم · `l` تكرار · `b` قبل/بعد · `w` wipe · `h` إخفاء.
+
+## البنية
+```
+engine/        render.py · player.py · key.py · shadow.py · composite.py · common.py
+  web/         base.js (الزمن، المصدر، البرفيو) · base.css · icons.js · decor.js
+  fonts/       Tajawal (OFL)
+  vendor/three Three.js r186 (MIT)
+skills/<name>/ SKILL.md · scene.html · presets.json · examples/
+skills/_template/  قالب الستايل الجديد
+```
+
+## التحديث
+فرع من `dev` ← PR إلى `dev` ← الترقية لـ `main` يدوياً. التفاصيل في `skills/reel-engine/SKILL.md`.
+
+## الرخص
+- Tajawal: SIL Open Font License (`engine/fonts/OFL.txt`).
+- Three.js: MIT (`engine/vendor/three/LICENSE`).

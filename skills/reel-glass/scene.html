@@ -1,0 +1,147 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .card { position: absolute; overflow: hidden; isolation: isolate; }
+  .card > .fill { position: absolute; z-index: 0; }
+  .card > .tint, .card > .hl { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  .card > .stroke { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .card > .content { position: relative; z-index: 3; display: flex; align-items: center; height: 100%; }
+  .content .ic { flex: none; display: grid; place-items: center; border-radius: 999px; }
+  .content .ic svg { width: 56%; height: 56%; }
+  .content .tx { display: flex; flex-direction: column; min-width: 0; }
+  .content .t { line-height: 1.15; white-space: nowrap; }
+  .content .s { line-height: 1.25; margin-top: .18em; }
+  .content .v { line-height: 1; font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .shadow { position: absolute; border-radius: 40px; z-index: -1; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp } from "/r/engine/web/base.js";
+import { icon } from "/r/engine/web/icons.js";
+
+const R = await Reel.init();
+let cards = [];
+
+function build() {
+  R.stage.innerHTML = "";
+  document.body.dir = R.P.dir || "rtl";
+  cards = (R.P.cards || []).map((c, i) => {
+    const sh = document.createElement("div");
+    sh.className = "shadow";
+    const el = document.createElement("div");
+    el.className = "card";
+    const kind = c.kind || "card";
+    const ic = c.icon ? `<div class="ic">${icon(c.icon)}</div>` : "";
+    let tx;
+    if (kind === "stat") {
+      tx = `<div class="tx"><div class="v"><bdi dir="ltr" class="num">${c.value ?? ""}</bdi><span class="unit"> ${c.unit ?? ""}</span></div>${c.label ? `<div class="s">${c.label}</div>` : ""}</div>`;
+    } else {
+      tx = `<div class="tx"><div class="t">${c.text ?? ""}</div>${c.sub ? `<div class="s">${c.sub}</div>` : ""}</div>`;
+    }
+    el.innerHTML = `<canvas class="fill"></canvas><div class="tint"></div><div class="hl"></div><div class="stroke"></div><div class="content">${ic}${tx}</div>`;
+    R.stage.append(sh, el);
+    return { c, el, sh, kind, canvas: el.querySelector(".fill"), content: el.querySelector(".content"), num: el.querySelector(".num") };
+  });
+  style();
+}
+
+function style() {
+  const { glass: G, text: X } = R.P, T = R.T, u = R.u;
+  for (const k of cards) {
+    const c = k.c, el = k.el;
+    const pill = k.kind === "pill";
+    const pad = (pill ? 18 : 28) * u;
+    el.style.left = c.x * R.W + "px";
+    el.style.top = c.y * R.H + "px";
+    el.style.width = c.w ? c.w * R.W + "px" : "auto";
+    el.style.height = c.h ? c.h * R.H + "px" : "auto";
+    el.style.borderRadius = (pill ? 999 : (c.radius ?? G.radius) * u) + "px";
+    el.style.padding = `${pad}px ${pad * (pill ? 1.6 : 1.15)}px`;
+    el.querySelector(".tint").style.background = c.tint || T.tint;
+    el.querySelector(".hl").style.background =
+      `linear-gradient(135deg, rgba(255,255,255,${G.highlight}) 0%, rgba(255,255,255,${G.highlight * 0.25}) 28%, rgba(255,255,255,0) 55%)`;
+    const st = el.querySelector(".stroke");
+    st.style.padding = G.stroke * u + "px";
+    st.style.background = `linear-gradient(140deg, rgba(255,255,255,${G.stroke_opacity}), rgba(255,255,255,${G.stroke_opacity * 0.25}) 45%, rgba(255,255,255,${G.stroke_opacity * 0.6}))`;
+    const content = k.content;
+    content.style.gap = 22 * u + "px";
+    content.style.color = T.text;
+    const icEl = content.querySelector(".ic");
+    if (icEl) {
+      const s = (c.icon_size ?? X.icon_size) * u;
+      Object.assign(icEl.style, { width: s + "px", height: s + "px", background: T.icon_bg, color: T.accent });
+    }
+    const t = content.querySelector(".t");
+    if (t) Object.assign(t.style, { fontSize: (c.size ?? X.size) * u + "px", fontWeight: X.weight });
+    const v = content.querySelector(".v");
+    if (v) { v.style.fontSize = (c.size ?? X.size * 1.7) * u + "px"; v.style.color = T.accent; }
+    const unit = content.querySelector(".unit");
+    if (unit) unit.style.fontSize = "0.45em";
+    const s = content.querySelector(".s");
+    if (s) Object.assign(s.style, { fontSize: (c.sub_size ?? X.sub_size) * u + "px", opacity: X.sub_opacity, fontWeight: 500 });
+    if (c.align === "center") content.style.justifyContent = "center";
+  }
+}
+
+// "+250,000" → counts up keeping prefix/suffix and thousands separators.
+function countUp(str, k) {
+  const m = String(str).match(/^(\D*)([\d٠-٩][\d٠-٩,.\s]*)(.*)$/);
+  if (!m) return str;
+  const ar = /[٠-٩]/.test(m[2]);
+  const toLatin = (s) => s.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  const raw = toLatin(m[2]).replace(/[,\s]/g, "");
+  const target = parseFloat(raw), dec = (raw.split(".")[1] || "").length;
+  let s = (target * k).toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  if (!/,/.test(m[2])) s = s.replace(/,/g, "");
+  if (ar) s = s.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[d]);
+  return m[1] + s + m[3];
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const { glass: G, motion: M } = R.P, u = R.u;
+  for (const k of cards) {
+    const c = k.c;
+    const tin = c.in ?? 0, tout = c.out ?? R.end, din = c.in_dur ?? M.in, dout = c.out_dur ?? M.out;
+    const pIn = tw(t, tin, din, ease.outExpo);
+    const pOut = tw(t, tout - dout, dout, ease.inExpo);
+    const vis = t >= tin && t <= tout;
+    k.el.style.display = k.sh.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    const d = (c.dist ?? M.dist) * u;
+    const from = c.from || "bottom";
+    const off = (1 - pIn) * d - pOut * d * 0.35;
+    const [dx, dy] = { bottom: [0, off], top: [0, -off], left: [-off, 0], right: [off, 0] }[from];
+    const op = clamp(pIn * 2.2) * (1 - pOut);
+    k.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    k.el.style.opacity = op;
+    const pc = tw(t, tin + (M.content_delay ?? 0.1), din, ease.outCubic);
+    k.content.style.opacity = clamp(pc * 1.6) * (1 - pOut);
+    k.content.style.transform = `translateY(${(1 - pc) * 14 * u}px)`;
+    if (k.num) k.num.textContent = countUp(c.value, tw(t, tin, c.count_dur ?? 1.4, ease.outCubic));
+
+    // Glass: the footage behind the card, blurred and darkened, clipped to the card.
+    const r = R.rect(k.el);
+    const pad = G.pad * u + G.blur * u;
+    Object.assign(k.canvas.style, { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
+    R.drawSource(k.canvas, r, `blur(${G.blur * u}px) brightness(${G.brightness}) saturate(${G.saturate})`, pad);
+
+    // Soft drop shadow under the card (part of the alpha layer).
+    Object.assign(k.sh.style, {
+      left: r.left + 10 * u + "px", top: r.top + 26 * u + "px", width: r.width - 20 * u + "px", height: r.height - 10 * u + "px",
+      borderRadius: k.el.style.borderRadius, opacity: op * G.shadow,
+      background: "#000", filter: `blur(${34 * u}px)`,
+    });
+  }
+}
+
+R.define({ ready: build, renderAt, onParams: () => style() });
+</script>
+</body>
+</html>

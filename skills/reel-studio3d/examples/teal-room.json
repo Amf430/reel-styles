@@ -1,0 +1,68 @@
+{
+  "style": "reel-studio3d",
+  "video": "../chroma.mp4",
+  "start": 0,
+  "end": 6,
+  "theme": "teal",
+  "subject": {
+    "layer": "keyed/subject.mov"
+  },
+  "params": {
+    "props": [
+      {
+        "type": "bookcase",
+        "pos": [
+          -0.78,
+          -2.35
+        ]
+      },
+      {
+        "type": "plant",
+        "pos": [
+          -0.62,
+          -1.2
+        ],
+        "scale": 1.3
+      },
+      {
+        "type": "vase",
+        "pos": [
+          -0.25,
+          -2.1
+        ],
+        "scale": 1.2
+      },
+      {
+        "type": "lamp",
+        "pos": [
+          0.8,
+          -1.9
+        ]
+      },
+      {
+        "type": "table",
+        "pos": [
+          0.55,
+          -1.1
+        ]
+      },
+      {
+        "type": "shelf",
+        "pos": [
+          0.55,
+          1.5
+        ],
+        "length": 1.0
+      },
+      {
+        "type": "frame",
+        "pos": [
+          0.55,
+          2.2
+        ],
+        "w": 0.55,
+        "h": 0.7
+      }
+    ]
+  }
+}

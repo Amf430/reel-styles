@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #world { position: absolute; inset: 0; transform-origin: 50% 60%; }
+  #world > div, .prop, .cshadow { position: absolute; }
+  #wall, #floor { left: -5%; right: -5%; }
+  .prop svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .prop img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  #vig, #grain { position: absolute; inset: 0; pointer-events: none; }
+  #grain { mix-blend-mode: overlay; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="world"></div><div id="vig"></div><div id="grain"></div></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp, rand } from "/r/engine/web/base.js";
+import { DECOR } from "/r/engine/web/decor.js";
+
+const R = await Reel.init();
+const world = document.getElementById("world");
+let props = [], els = {};
+
+function build() {
+  const P = R.P, T = R.T;
+  world.innerHTML = `<div id="wall"></div><div id="floor"></div><div id="cove"></div><div id="beam"></div><div id="glow"></div>`;
+  els = Object.fromEntries(["wall", "beam", "glow", "cove", "floor"].map((k) => [k, document.getElementById(k)]));
+  // Far props first so near ones overlap them.
+  props = [...(P.props || [])].map((p, i) => ({ ...p, _i: i })).sort((a, b) => (b.depth ?? 0.5) - (a.depth ?? 0.5)).map((p) => {
+    let d;
+    if (p.type === "png") d = { aspect: p.aspect || 1, mount: p.mount || "floor", svg: `<img src="${R.asset(p.src)}">` };
+    else if (DECOR[p.type]) d = DECOR[p.type](T, p);
+    else { console.error("unknown prop type", p.type); return null; }
+    const el = document.createElement("div");
+    el.className = "prop";
+    el.innerHTML = d.svg;
+    const cs = document.createElement("div");
+    cs.className = "cshadow";
+    if (d.mount === "floor" && p.contact !== false) world.appendChild(cs);
+    world.appendChild(el);
+    return { p, d, el, cs };
+  }).filter(Boolean);
+  layout();
+  return Promise.all([...world.querySelectorAll("img")].map((im) => im.decode().catch(() => {})));
+}
+
+function layout() {
+  const P = R.P, T = R.T, W = R.W, H = R.H, u = R.u, F = P.floor;
+  Object.assign(els.wall.style, { top: "-5%", height: F * 100 + 5 + "%", background: `linear-gradient(180deg, ${T.wall_top}, ${T.wall_bottom})` });
+  Object.assign(els.floor.style, { top: F * 100 + "%", bottom: "-5%", background: `linear-gradient(180deg, ${T.floor_far}, ${T.floor_near})` });
+  // Cove: blurred seam so wall and floor read as one curved cyc.
+  Object.assign(els.cove.style, { left: "-5%", right: "-5%", top: (F - P.cove / 2) * 100 + "%", height: P.cove * 100 + "%",
+    background: `linear-gradient(180deg, transparent, ${T.wall_bottom} 45%, ${T.floor_far} 55%, transparent)`, filter: `blur(${P.cove * H * 0.35}px)` });
+  const g = P.glow, gr = g.r * Math.max(W, H);
+  Object.assign(els.glow.style, { left: g.x * W - gr + "px", top: g.y * H - gr + "px", width: gr * 2 + "px", height: gr * 2 + "px",
+    background: `radial-gradient(closest-side, ${T.glow} 0%, ${T.glow}aa 18%, ${T.glow}33 48%, transparent 100%)`, opacity: g.intensity, mixBlendMode: "screen" });
+  const b = P.beam;
+  Object.assign(els.beam.style, { display: b.on ? "" : "none", left: (b.x - b.width / 2) * W + "px", top: -0.1 * H + "px", width: b.width * W + "px", height: (F + 0.15) * H + "px",
+    background: `linear-gradient(180deg, ${T.glow}, transparent 85%)`, clipPath: "polygon(38% 0, 62% 0, 100% 100%, 0 100%)",
+    opacity: b.intensity, filter: `blur(${18 * u}px)`, transform: `rotate(${b.angle}deg)`, transformOrigin: "50% 0", mixBlendMode: "screen" });
+
+  for (const k of props) {
+    const p = k.p, d = k.d, depth = p.depth ?? 0.5;
+    const h = (p.h ?? 0.3) * H, w = h * d.aspect;
+    const baseY = d.mount === "floor" ? (p.y ?? F + (1 - depth) * 0.045) * H : null;
+    const top = d.mount === "floor" ? baseY - h : (p.y ?? 0.3) * H;
+    k.base = { left: p.x * W - w / 2, top, w, h, depth, baseY };
+    Object.assign(k.el.style, { width: w + "px", height: h + "px", transform: p.flip ? "scaleX(-1)" : "" });
+    // Shadow falls away from the glow; deeper props are softer and dimmer.
+    const away = Math.sign(p.x - P.glow.x) || 1;
+    const blur = P.depth_blur * depth * u;
+    const filters = [];
+    if (d.mount === "wall") filters.push(`drop-shadow(${away * 10 * u}px ${14 * u}px ${18 * u}px rgba(0,0,0,.38))`);
+    else filters.push(`drop-shadow(${away * 6 * u}px ${4 * u}px ${10 * u}px rgba(0,0,0,.25))`);
+    filters.push(`brightness(${1 - depth * 0.22})`);
+    if (blur > 0.3) filters.push(`blur(${blur}px)`);
+    k.el.style.filter = filters.join(" ");
+    if (k.cs.isConnected) Object.assign(k.cs.style, {
+      width: w * 1.15 + "px", height: Math.max(6, h * 0.06) + "px", borderRadius: "50%",
+      background: "radial-gradient(closest-side, rgba(0,0,0,.55), transparent)", filter: `blur(${(4 + blur) * u}px)`,
+    });
+  }
+  Object.assign(document.getElementById("vig").style, {
+    background: `radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(0,0,0,${P.vignette}) 100%)` });
+}
+
+const grainCv = document.createElement("canvas");
+grainCv.width = grainCv.height = 192;
+function grain(t) {
+  const P = R.P, el = document.getElementById("grain");
+  if (P.grain <= 0) { el.style.background = "none"; return; }
+  const ctx = grainCv.getContext("2d"), img = ctx.createImageData(192, 192), f = Math.round(t * R.fps);
+  for (let i = 0; i < img.data.length; i += 4) {
+    const v = rand(i, f) * 255;
+    img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  Object.assign(el.style, { background: `url(${grainCv.toDataURL()})`, backgroundSize: 192 * Math.max(1, R.u) + "px", opacity: P.grain * 3 });
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { layout(); R._needsLayout = false; }
+  const P = R.P, C = P.camera, u = R.u;
+  const k = tw(t, R.start, R.end - R.start, ease.inOutCubic);
+  const zoom = lerp(C.zoom_from, C.zoom_to, k), pan = C.pan * k * R.W;
+  world.style.transform = `scale(${zoom})`;
+  for (const p of props) {
+    const b = p.base, par = pan * (1 - b.depth);   // near props drift more → parallax
+    p.el.style.left = b.left + par + "px";
+    p.el.style.top = b.top + "px";
+    if (p.cs.isConnected) { p.cs.style.left = b.left + par - b.w * 0.075 + "px"; p.cs.style.top = b.baseY - Math.max(6, b.h * 0.06) * 0.55 + "px"; }
+  }
+  grain(t);
+}
+
+R.define({ ready: build, renderAt, onParams: () => { build(); } });
+</script>
+</body>
+</html>

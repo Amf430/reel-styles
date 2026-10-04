@@ -1,0 +1,20 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "default",
+  "defaults": {
+    "dir": "rtl",
+    "text": "عنوان",
+    "x": 0.5, "y": 0.5, "size": 110,
+    "in": 0, "out": null, "anim_dur": 0.7, "out_dur": 0.35
+  },
+  "themes": {
+    "default": { "color": "#ffffff" }
+  },
+  "tune": [
+    { "path": "theme.color", "label": "color", "type": "color" },
+    { "path": "size", "label": "size", "min": 20, "max": 300, "step": 1 },
+    { "path": "x", "label": "x", "min": 0, "max": 1 },
+    { "path": "y", "label": "y", "min": 0, "max": 1 }
+  ]
+}

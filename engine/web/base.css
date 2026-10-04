@@ -1,0 +1,13 @@
+@font-face { font-family: "Tajawal"; font-weight: 200; src: url("/r/engine/fonts/Tajawal-ExtraLight.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 300; src: url("/r/engine/fonts/Tajawal-Light.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 400; src: url("/r/engine/fonts/Tajawal-Regular.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 500; src: url("/r/engine/fonts/Tajawal-Medium.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 700; src: url("/r/engine/fonts/Tajawal-Bold.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 800; src: url("/r/engine/fonts/Tajawal-ExtraBold.ttf"); }
+@font-face { font-family: "Tajawal"; font-weight: 900; src: url("/r/engine/fonts/Tajawal-Black.ttf"); }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: transparent; }
+body { font-family: "Tajawal", system-ui, sans-serif; color: #fff; -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+#stage * { will-change: auto; }

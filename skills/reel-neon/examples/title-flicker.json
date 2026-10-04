@@ -1,0 +1,24 @@
+{
+  "style": "reel-neon",
+  "video": "../reel.mp4",
+  "start": 0,
+  "end": 5,
+  "theme": "amber",
+  "params": {
+    "y": 0.16,
+    "anim": "flicker",
+    "in": 0.4,
+    "lines": [
+      {
+        "text": "كل مدرسة",
+        "size": 120,
+        "weight": 800
+      },
+      {
+        "text": "نـاجـحـة",
+        "size": 150,
+        "weight": 900
+      }
+    ]
+  }
+}

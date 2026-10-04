@@ -1,0 +1,61 @@
+{
+  "style": "reel-backdrop",
+  "video": "../chroma.mp4",
+  "start": 0,
+  "end": 6,
+  "theme": "navy",
+  "subject": {
+    "layer": "keyed/subject.mov",
+    "height": 0.62,
+    "x": 0.5
+  },
+  "params": {
+    "floor": 0.8,
+    "props": [
+      {
+        "type": "bookcase",
+        "x": 0.14,
+        "h": 0.42,
+        "depth": 0.7
+      },
+      {
+        "type": "shelf",
+        "x": 0.8,
+        "y": 0.34,
+        "h": 0.07,
+        "depth": 0.6
+      },
+      {
+        "type": "frame",
+        "x": 0.8,
+        "y": 0.13,
+        "h": 0.15,
+        "depth": 0.65
+      },
+      {
+        "type": "lamp",
+        "x": 0.84,
+        "h": 0.36,
+        "depth": 0.45
+      },
+      {
+        "type": "plant",
+        "x": 0.3,
+        "h": 0.22,
+        "depth": 0.35
+      },
+      {
+        "type": "vase",
+        "x": 0.66,
+        "h": 0.2,
+        "depth": 0.4
+      },
+      {
+        "type": "table",
+        "x": 0.68,
+        "h": 0.1,
+        "depth": 0.42
+      }
+    ]
+  }
+}

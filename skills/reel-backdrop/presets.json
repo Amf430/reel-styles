@@ -1,0 +1,40 @@
+{
+  "output": "opaque",
+  "needs_frames": false,
+  "default_theme": "navy",
+  "defaults": {
+    "floor": 0.8,
+    "cove": 0.06,
+    "glow": { "x": 0.5, "y": 0.42, "r": 0.55, "intensity": 0.85 },
+    "beam": { "on": false, "x": 0.5, "angle": 0, "width": 0.35, "intensity": 0.25 },
+    "depth_blur": 10,
+    "camera": { "zoom_from": 1.0, "zoom_to": 1.0, "pan": 0.0 },
+    "vignette": 0.45,
+    "grain": 0.035,
+    "props": []
+  },
+  "themes": {
+    "navy":  { "wall_top": "#070f2e", "wall_bottom": "#13308a", "floor_far": "#0e2163", "floor_near": "#050b22", "glow": "#3d6bff", "accent": "#ffb54a", "wood": "#8a5a3a", "ceramic": "#e9e4dc", "leaf": "#2f6b45", "books": ["#c9a227", "#e8e2d0", "#2a4a8a", "#a33b2f", "#3f6e5a"] },
+    "blush": { "wall_top": "#e8a3b4", "wall_bottom": "#f6cfd8", "floor_far": "#eab8c4", "floor_near": "#c98596", "glow": "#fff1f4", "accent": "#ffffff", "wood": "#d9a07e", "ceramic": "#fff8f6", "leaf": "#7aa57a", "books": ["#ffffff", "#f3d9a6", "#e38aa0", "#b86b7d", "#fbe7ec"] },
+    "teal":  { "wall_top": "#16413f", "wall_bottom": "#3f8580", "floor_far": "#2c6a65", "floor_near": "#123532", "glow": "#9ef0de", "accent": "#ffd38a", "wood": "#9b6b45", "ceramic": "#ece7df", "leaf": "#2e7d4f", "books": ["#e9dcc3", "#d7a54a", "#2b5550", "#a6503a", "#f4efe6"] },
+    "seen":  { "wall_top": "#1a0009", "wall_bottom": "#4a0a24", "floor_far": "#320012", "floor_near": "#140007", "glow": "#b28764", "accent": "#e2c3a4", "wood": "#7a4b30", "ceramic": "#efe6dc", "leaf": "#3f6a49", "books": ["#b28764", "#efe6dc", "#6b1734", "#d9b48f", "#3a0a1c"] },
+    "charcoal": { "wall_top": "#0d0e10", "wall_bottom": "#2a2d33", "floor_far": "#1f2125", "floor_near": "#08090a", "glow": "#d9dde6", "accent": "#ffcf7a", "wood": "#6e5038", "ceramic": "#e6e3dd", "leaf": "#3d6648", "books": ["#d8d2c4", "#9a8c74", "#40464f", "#b5523b", "#efe9df"] },
+    "sand":  { "wall_top": "#c9b293", "wall_bottom": "#ead9bf", "floor_far": "#d8c1a0", "floor_near": "#a98c68", "glow": "#fff6e6", "accent": "#ffffff", "wood": "#9a6a44", "ceramic": "#fbf7f0", "leaf": "#6c8f5e", "books": ["#fffaf0", "#c79c63", "#7d6a52", "#b0583f", "#e9dcc5"] }
+  },
+  "tune": [
+    { "path": "theme.wall_top", "label": "wall top", "type": "color" },
+    { "path": "theme.wall_bottom", "label": "wall bottom", "type": "color" },
+    { "path": "theme.floor_far", "label": "floor far", "type": "color" },
+    { "path": "theme.floor_near", "label": "floor near", "type": "color" },
+    { "path": "theme.glow", "label": "glow color", "type": "color" },
+    { "path": "floor", "label": "floor line", "min": 0.4, "max": 1, "step": 0.005 },
+    { "path": "glow.x", "label": "glow x", "min": 0, "max": 1 },
+    { "path": "glow.y", "label": "glow y", "min": 0, "max": 1 },
+    { "path": "glow.r", "label": "glow size", "min": 0.1, "max": 1.5 },
+    { "path": "glow.intensity", "label": "glow intensity", "min": 0, "max": 1.5 },
+    { "path": "beam.on", "label": "light beam", "type": "bool" },
+    { "path": "depth_blur", "label": "depth blur", "min": 0, "max": 30, "step": 0.5 },
+    { "path": "vignette", "label": "vignette", "min": 0, "max": 1 },
+    { "path": "grain", "label": "grain", "min": 0, "max": 0.15, "step": 0.005 }
+  ]
+}

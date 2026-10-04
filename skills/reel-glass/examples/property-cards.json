@@ -1,0 +1,40 @@
+{
+  "style": "reel-glass",
+  "video": "../property.mp4",
+  "start": 0,
+  "end": 7,
+  "theme": "frost",
+  "params": {
+    "cards": [
+      {
+        "kind": "stat",
+        "value": "+180",
+        "unit": "م²",
+        "label": "مساحة الشقة",
+        "icon": "area",
+        "x": 0.62,
+        "y": 0.18,
+        "in": 0.4,
+        "out": 6.6
+      },
+      {
+        "text": "٣ غرف نوم",
+        "sub": "ماستر بدورة مياه خاصة",
+        "icon": "bed",
+        "x": 0.62,
+        "y": 0.47,
+        "in": 0.7,
+        "out": 6.6
+      },
+      {
+        "kind": "pill",
+        "text": "جاهزة للسكن",
+        "icon": "check",
+        "x": 0.62,
+        "y": 0.72,
+        "in": 1.0,
+        "out": 6.6
+      }
+    ]
+  }
+}

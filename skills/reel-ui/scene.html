@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .el { position: absolute; }
+  .mat { position: relative; overflow: hidden; isolation: isolate; corner-shape: squircle; }
+  .mat > canvas.fill { position: absolute; z-index: -1; }
+  .mat > .tint { position: absolute; inset: 0; z-index: -1; }
+  .notif { display: flex; gap: .7em; align-items: center; padding: .8em .9em; }
+  .notif .app { width: 2.4em; height: 2.4em; border-radius: .6em; flex: none; display: grid; place-items: center; color: #fff; font-weight: 900; overflow: hidden; }
+  .notif .app img { width: 100%; height: 100%; object-fit: cover; }
+  .notif .body { flex: 1; min-width: 0; }
+  .notif .top { display: flex; justify-content: space-between; gap: 1em; }
+  .notif .title { font-weight: 800; white-space: nowrap; }
+  .notif .time { opacity: .55; font-size: .8em; white-space: nowrap; }
+  .notif .msg { opacity: .85; margin-top: .1em; line-height: 1.3; }
+  .chat { display: flex; flex-direction: column; gap: .35em; }
+  .bubble { max-width: 78%; padding: .5em .8em; border-radius: 1.1em; line-height: 1.35; transform-origin: bottom; }
+  /* Sender ends up on the trailing side: left in Arabic (RTL), right in LTR — like WhatsApp/iMessage. */
+  .bubble.me { align-self: flex-end; } .bubble.them { align-self: flex-start; }
+  .typing { display: inline-flex; gap: .25em; padding: .7em .9em; border-radius: 1.1em; align-self: flex-start; }
+  .typing i { width: .45em; height: .45em; border-radius: 50%; background: currentColor; opacity: .5; display: block; }
+  .search { display: flex; align-items: center; gap: .6em; padding: .7em 1em; border-radius: 999px; }
+  .search svg { width: 1.1em; height: 1.1em; flex: none; opacity: .6; }
+  .search .q { white-space: nowrap; overflow: hidden; }
+  .search .caret { display: inline-block; width: .08em; height: 1.1em; vertical-align: middle; margin-inline-start: .05em; }
+  .btn { display: inline-flex; align-items: center; gap: .5em; padding: .6em 1.4em; border-radius: 999px; font-weight: 800; white-space: nowrap; }
+  .cursor { position: absolute; width: 1.6em; height: 1.6em; pointer-events: none; }
+  .progress { height: .32em; border-radius: 999px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; border-radius: inherit; }
+  .badge { display: inline-block; padding: .35em .9em; border-radius: 999px; font-weight: 900; white-space: nowrap; }
+  .check { display: flex; flex-direction: column; gap: .55em; padding: 1em 1.2em; }
+  .check .row { display: flex; align-items: center; gap: .6em; }
+  .check .box { width: 1.25em; height: 1.25em; border-radius: 50%; flex: none; display: grid; place-items: center; }
+  .check .box svg { width: 70%; height: 70%; }
+  .stars { display: inline-flex; gap: .15em; }
+  .stars svg { width: 1.2em; height: 1.2em; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+let els = [];
+
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const STAR = (fill, col) => `<svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" fill="${fill ? col : "none"}" stroke="${col}" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const TICK = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const CURSOR = `<svg viewBox="0 0 24 24"><path d="M5 3l14 8-6.2 1.6L10 19z" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/></svg>`;
+const SEARCH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>`;
+
+// Each type: html(c, T) → inner markup; update(k, t, p) → per-frame animation (p = entrance 0..1).
+const TYPES = {
+  notification: {
+    mat: true,
+    html: (c, T) => `<div class="notif"><div class="app" style="background:${c.app_color || T.accent}">${c.icon ? `<img src="${R.asset(c.icon)}">` : esc(c.app_letter || "س")}</div>
+      <div class="body"><div class="top"><span class="title">${esc(c.title)}</span><span class="time">${esc(c.time ?? "الآن")}</span></div><div class="msg">${esc(c.text)}</div></div></div>`,
+    enter: (p, u) => ({ ty: -(1 - ease.outBack(p)) * 140, op: clamp(p * 3) }),
+  },
+  chat: {
+    html: (c, T) => `<div class="chat">${(c.messages || []).map((m, i) => `<div class="bubble ${m.me ? "me" : "them"}" data-i="${i}"
+        style="background:${m.me ? T.bubble_me : T.bubble_them};color:${m.me ? T.bubble_me_text : T.bubble_them_text}">${esc(m.text)}</div>`).join("")}
+      <div class="typing" style="background:${T.bubble_them};color:${T.bubble_them_text}"><i></i><i></i><i></i></div></div>`,
+    update(k, t) {
+      // Messages appear one by one (every `gap` s); a typing indicator precedes the other side's replies.
+      const c = k.c, gap = c.gap ?? 1.1, t0 = c.in ?? R.start;
+      const bubbles = [...k.el.querySelectorAll(".bubble")], typing = k.el.querySelector(".typing");
+      let typingOn = false;
+      bubbles.forEach((b, i) => {
+        const at = t0 + i * gap + (c.messages[i].me ? 0 : 0.5), p = tw(t, at, 0.35, ease.outBack);
+        b.style.display = t >= at ? "" : "none";
+        b.style.transform = `scale(${0.6 + 0.4 * p})`; b.style.opacity = clamp(p * 2);
+        if (!c.messages[i].me && t >= at - 0.6 && t < at) typingOn = true;
+      });
+      typing.style.display = typingOn ? "" : "none";
+      [...typing.children].forEach((d, i) => (d.style.opacity = 0.3 + 0.7 * Math.max(0, Math.sin(t * 8 - i * 0.9))));
+    },
+  },
+  search: {
+    mat: true,
+    html: (c, T) => `<div class="search">${SEARCH}<span class="q"></span><span class="caret" style="background:${T.accent}"></span></div>`,
+    update(k, t) {
+      const c = k.c, t0 = (c.in ?? R.start) + 0.4, cps = c.speed ?? 12, txt = String(c.text ?? "");
+      const n = clamp(Math.floor((t - t0) * cps), 0, txt.length);
+      k.el.querySelector(".q").textContent = [...txt].slice(0, n).join("");
+      k.el.querySelector(".caret").style.opacity = Math.floor(t * 2.2) % 2 || n < txt.length ? 1 : 0;
+    },
+  },
+  button: {
+    html: (c, T) => `<div class="btn" style="background:${c.color || T.accent};color:#fff">${esc(c.text ?? "متابعة")}</div><div class="cursor">${CURSOR}</div>`,
+    update(k, t) {
+      // A cursor glides in and taps; the button squishes and switches to its done state.
+      const c = k.c, tap = (c.tap ?? (c.in ?? R.start) + 1.0), btn = k.el.querySelector(".btn"), cur = k.el.querySelector(".cursor");
+      const pc = tw(t, tap - 0.7, 0.6, ease.inOutCubic), press = Math.max(0, 1 - Math.abs(t - tap) / 0.12);
+      cur.style.left = `calc(60% + ${(1 - pc) * 2.5}em)`; cur.style.top = `calc(55% + ${(1 - pc) * 2}em)`;
+      cur.style.opacity = t < tap + 0.6 ? clamp(pc * 3) : clamp(1 - (t - tap - 0.6) * 3);
+      cur.style.transform = `scale(${1 - press * 0.2})`;
+      btn.style.transform = `scale(${1 - press * 0.08})`;
+      const done = t >= tap;
+      btn.textContent = done ? (c.done_text ?? "✓ تمت المتابعة") : (c.text ?? "متابعة");
+      btn.style.background = done ? (c.done_color || "rgba(120,120,128,.55)") : (c.color || R.T.accent);
+    },
+  },
+  progress: {
+    html: (c, T) => `<div class="progress" style="background:${T.track}"><i style="background:${c.color || T.accent}"></i></div>`,
+    update(k, t) {
+      const c = k.c, a = c.from ?? c.in ?? R.start, b = c.to ?? c.out ?? R.end;
+      k.el.querySelector("i").style.width = clamp((t - a) / Math.max(0.01, b - a)) * 100 + "%";
+    },
+  },
+  badge: {
+    html: (c, T) => `<div class="badge" style="background:${c.color || T.accent};color:${c.text_color || "#fff"}">${esc(c.text)}</div>`,
+    enter: (p) => ({ sx: 0.4 + 0.6 * ease.outBack(p), op: clamp(p * 3), rot: (1 - p) * -12 }),
+  },
+  checklist: {
+    mat: true,
+    html: (c, T) => `<div class="check">${(c.items || []).map((x, i) => `<div class="row" data-i="${i}"><div class="box">${TICK}</div><span>${esc(x)}</span></div>`).join("")}</div>`,
+    update(k, t) {
+      const c = k.c, gap = c.gap ?? 0.5, t0 = (c.in ?? R.start) + 0.35;
+      k.el.querySelectorAll(".row").forEach((r, i) => {
+        const p = tw(t, t0 + i * gap, 0.3, ease.outBack), box = r.querySelector(".box");
+        box.style.background = p > 0 ? R.T.good : "transparent";
+        box.style.border = p > 0 ? "none" : `2px solid ${R.T.sub}`;
+        box.firstElementChild.style.transform = `scale(${p})`;
+        r.style.opacity = 0.45 + 0.55 * clamp(p * 2);
+      });
+    },
+  },
+  rating: {
+    html: (c, T) => `<div class="stars">${[0, 1, 2, 3, 4].map(() => STAR(false, T.star)).join("")}</div>`,
+    update(k, t) {
+      const c = k.c, n = c.value ?? 5, t0 = (c.in ?? R.start) + 0.3;
+      k.el.querySelectorAll(".stars svg").forEach((s, i) => {
+        const p = tw(t, t0 + i * 0.12, 0.3, ease.outBack), on = i < Math.round(n) && p > 0;
+        s.querySelector("path").setAttribute("fill", on ? R.T.star : "none");
+        s.style.transform = `scale(${on ? 0.6 + 0.4 * p : 1})`;
+      });
+    },
+  },
+};
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  R.stage.innerHTML = "";
+  R.clearItems();
+  els = (R.P.elements || []).map((c, i) => {
+    const type = TYPES[c.type];
+    if (!type) { console.error("unknown element", c.type); return null; }
+    const el = document.createElement("div");
+    el.className = "el";
+    const inner = type.html(c, R.T);
+    el.innerHTML = type.mat ? `<div class="mat"><canvas class="fill"></canvas><div class="tint"></div>${inner}</div>` : inner;
+    R.stage.appendChild(el);
+    R.item({ id: "el" + i, label: `${c.type}${c.title || c.text ? " · " + (c.title || c.text) : ""}`, els: [el], in: `elements.${i}.in`, out: `elements.${i}.out`, xf: `elements.${i}.xf` });
+    return { c, el, type, mat: el.querySelector(".mat"), i };
+  }).filter(Boolean);
+  layout();
+}
+
+function layout() {
+  const T = R.T, u = R.u;
+  for (const k of els) {
+    const c = k.c;
+    Object.assign(k.el.style, { fontSize: (c.size ?? 34) * u + "px", color: T.text, width: c.w ? c.w * R.W + "px" : "auto" });
+    if (k.mat) { k.mat.style.borderRadius = T.radius * u + "px"; k.mat.querySelector(".tint").style.background = T.surface; }
+    if (c.type === "progress") k.el.style.width = (c.w ?? 0.9) * R.W + "px";
+    // x,y = centre of the element.
+    k.el.style.left = c.x * R.W - k.el.offsetWidth / 2 + "px";
+    k.el.style.top = c.y * R.H - k.el.offsetHeight / 2 + "px";
+    k.el.style.boxShadow = "none";
+    if (k.mat) k.mat.style.boxShadow = `0 ${12 * u}px ${40 * u}px rgba(0,0,0,.22)`;
+  }
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { layout(); R._needsLayout = false; }
+  const u = R.u;
+  for (const k of els) {
+    const c = k.c, tin = c.in ?? R.start, tout = c.out ?? R.end;
+    const vis = t >= tin && t <= tout;
+    k.el.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    const p = tw(t, tin, c.in_dur ?? 0.45, ease.linear), q = tw(t, tout - 0.3, 0.3, ease.inCubic);
+    const e = k.type.enter ? k.type.enter(p, u) : { ty: (1 - ease.outExpo(p)) * 40, op: clamp(p * 2.5) };
+    k.el.style.transform = `translate(0, ${(e.ty || 0) * u - q * 30 * u}px) scale(${e.sx ?? 1}) rotate(${e.rot || 0}deg)`;
+    k.el.style.opacity = (e.op ?? 1) * (1 - q);
+    k.type.update?.(k, t, p);
+    if (k.mat) {
+      const pad = (R.P.material_blur + 10) * u, cv = k.mat.querySelector("canvas");
+      const r = R.drawSourceFor(k.mat, cv, `blur(${R.P.material_blur * u}px) saturate(1.6)`, pad);
+      Object.assign(cv.style, { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
+    }
+  }
+}
+
+R.define({ ready: build, renderAt, onParams: () => build() });
+</script>
+</body>
+</html>

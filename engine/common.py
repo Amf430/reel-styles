@@ -69,11 +69,21 @@ def deep_merge(base, over):
     return out
 
 
-def load_job(path):
+def load_job(path, video=None):
     """Load a job JSON and fill size/fps/range from the video when present."""
     path = os.path.abspath(path)
     with open(path) as f:
         job = json.load(f)
+    if not video and not job.get("video"):
+        # A job inside a project folder takes the project's video.
+        pj = os.path.join(os.path.dirname(path), "project.json")
+        if os.path.exists(pj):
+            with open(pj) as f:
+                pv = json.load(f).get("video")
+            if pv:
+                video = pv if os.path.isabs(pv) else os.path.normpath(os.path.join(os.path.dirname(pj), pv))
+    if video and not job.get("video"):
+        job["video"] = video
     job["_path"] = path
     job["_dir"] = os.path.dirname(path)
     style = job.get("style") or die("job needs a 'style' (e.g. reel-glass)")
@@ -113,6 +123,7 @@ def load_job(path):
             params = deep_merge(params, {"theme": themes[theme]})
         job["_tune"] = presets.get("tune", [])
         job["_output"] = presets.get("output", "alpha")
+    job["_base_params"] = params
     job["params"] = deep_merge(params, job.get("params", {}))
     job.setdefault("out", os.path.join(job["_dir"], "out", style))
     job["out"] = absp(job["out"])
@@ -181,19 +192,125 @@ def launch_args():
     return args
 
 
+def deep_diff(cur, base):
+    """What `cur` changes relative to `base` (saved jobs keep only the user's edits)."""
+    out = {}
+    for k, v in cur.items():
+        b = base.get(k) if isinstance(base, dict) else None
+        if isinstance(v, dict) and isinstance(b, dict):
+            d = deep_diff(v, b)
+            if d:
+                out[k] = d
+        elif v != b:
+            out[k] = v
+    return out
+
+
+# ---------------------------------------------------------------- projects
+# A project is one video and every job on it (reel_work/project.json):
+#   { "video": "../clip.mp4", "jobs": ["glass.json", "neon.json"] }
+# A single job file works as a one-job project.
+
+def load_project(path):
+    path = os.path.abspath(path)
+    with open(path) as f:
+        raw = json.load(f)
+    d = os.path.dirname(path)
+    if "jobs" not in raw:
+        job = load_job(path)
+        return {"_path": path, "_dir": d, "video": job.get("video"), "jobs": [job]}
+    video = raw.get("video")
+    if video and not os.path.isabs(video):
+        video = os.path.normpath(os.path.join(d, video))
+    jobs = [load_job(j if os.path.isabs(j) else os.path.join(d, j), video) for j in raw["jobs"]]
+    return {"_path": path, "_dir": d, "video": video, "jobs": jobs}
+
+
+def project_info(project):
+    """What the editor needs to lay out the whole video."""
+    v = project.get("video")
+    info = probe(v) if v else {"w": 1920, "h": 1080, "fps": 30, "duration": max(j["end"] for j in project["jobs"]), "has_audio": False}
+    return {
+        "video": v, "size": [info["w"], info["h"]], "fps": info["fps"], "duration": info["duration"], "has_audio": info["has_audio"],
+        "jobs": [{"i": i, "style": j["style"], "name": j.get("name") or os.path.splitext(os.path.basename(j["_path"]))[0],
+                  "start": j["start"], "end": j["end"], "output": j.get("_output", "alpha"), "subject": j.get("subject"),
+                  "file": j["_path"]} for i, j in enumerate(project["jobs"])],
+    }
+
+
+def _cache_dir(project):
+    d = os.path.join(project["_dir"], ".reel_cache")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def audio_peaks(project, per_sec=50):
+    """Peak envelope of the soundtrack (0..1, per_sec values per second) for the timeline."""
+    out = os.path.join(_cache_dir(project), f"peaks_{per_sec}.json")
+    v = project.get("video")
+    if os.path.exists(out) and os.path.getmtime(out) > os.path.getmtime(v):
+        return out
+    r = subprocess.run(["ffmpeg", "-v", "error", "-i", v, "-vn", "-ac", "1", "-ar", str(per_sec * 80), "-f", "s16le", "-"], capture_output=True)
+    import array
+    a = array.array("h", r.stdout)
+    peaks = [max(1, max((abs(x) for x in a[i:i + 80]), default=0)) / 32768 for i in range(0, len(a), 80)]
+    top = max(peaks or [1])
+    with open(out, "w") as f:
+        json.dump({"per_sec": per_sec, "peaks": [round(p / top, 3) for p in peaks]}, f)
+    return out
+
+
+def thumb_strip(project, n=48, h=72):
+    out = os.path.join(_cache_dir(project), f"thumbs_{n}.jpg")
+    v = project.get("video")
+    if os.path.exists(out) and os.path.getmtime(out) > os.path.getmtime(v):
+        return out
+    dur = probe(v)["duration"]
+    run(["ffmpeg", "-y", "-v", "error", "-i", v, "-vf", f"fps={n / max(dur, 0.1):.5f},scale=-2:{h},tile={n}x1", "-frames:v", "1", "-q:v", "4", out])
+    return out
+
+
+def scene_cuts(project, threshold=0.32):
+    out = os.path.join(_cache_dir(project), "cuts.json")
+    v = project.get("video")
+    if os.path.exists(out) and os.path.getmtime(out) > os.path.getmtime(v):
+        return out
+    r = subprocess.run(["ffmpeg", "-v", "info", "-i", v, "-an", "-vf", f"scale=320:-2,select='gt(scene,{threshold})',showinfo", "-f", "null", "-"],
+                       capture_output=True, text=True)
+    import re
+    cuts = [round(float(m), 3) for m in re.findall(r"pts_time:([\d.]+)", r.stderr)]
+    with open(out, "w") as f:
+        json.dump(cuts, f)
+    return out
+
+
 # ---------------------------------------------------------------- server
 # Routes:
-#   /r/<path>     repo files (engine, skills)
-#   /f/<abspath>  any local file under $HOME or /tmp, /private, /Volumes (job assets, frames)
-#   /job.json     the current job (params resolved)
-#   /scene        the style's scene.html
+#   /player            the editor (engine/web/player.html)
+#   /project.json      video + jobs overview        /job.json?j=N   job N (params resolved)
+#   /scene?j=N         style scene of job N         /subject_rect?j=N
+#   /peaks.json /thumbs.jpg /cuts.json              timeline helpers (cached in reel_work/.reel_cache)
+#   POST /save?j=N     {params, start, end} → job file (only the user's edits are written)
+#   /r/<path>          repo files     /f/<abspath>  local files under $HOME, /tmp, /private, /Volumes
 
 class _Handler(http.server.SimpleHTTPRequestHandler):
-    job = None
+    project = None
     allowed = (os.path.expanduser("~"), "/tmp", "/private", "/Volumes")
 
     def log_message(self, *a):
         pass
+
+    def _job(self, q):
+        i = int((q.get("j") or ["0"])[0])
+        return self.project["jobs"][i]
+
+    def _json(self, obj):
+        body = json.dumps(obj, ensure_ascii=False).encode()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
 
     def _send_file(self, path):
         if not os.path.isfile(path):
@@ -234,22 +351,25 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         url = urllib.parse.urlparse(self.path)
-        p = urllib.parse.unquote(url.path)
+        p, q = urllib.parse.unquote(url.path), urllib.parse.parse_qs(url.query)
         if p == "/job.json":
-            body = json.dumps({k: v for k, v in self.job.items() if not k.startswith("_") or k in ("_tune", "_video_info", "_dir", "_output")}).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
-            self.wfile.write(body)
+            job = self._job(q)
+            self._json({k: v for k, v in job.items() if not k.startswith("_") or k in ("_tune", "_video_info", "_dir", "_output")})
+        elif p == "/project.json":
+            self._json(project_info(self.project))
         elif p == "/subject_rect":
-            body = json.dumps(subject_rect(self.job) if self.job.get("subject") else None).encode()
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(body)
+            job = self._job(q)
+            self._json(subject_rect(job) if job.get("subject") else None)
         elif p == "/scene":
-            self._send_file(os.path.join(self.job["_style_dir"], "scene.html"))
+            self._send_file(os.path.join(self._job(q)["_style_dir"], "scene.html"))
+        elif p == "/player":
+            self._send_file(os.path.join(ENGINE, "web", "player.html"))
+        elif p == "/peaks.json":
+            self._send_file(audio_peaks(self.project))
+        elif p == "/thumbs.jpg":
+            self._send_file(thumb_strip(self.project))
+        elif p == "/cuts.json":
+            self._send_file(scene_cuts(self.project))
         elif p.startswith("/r/"):
             full = os.path.normpath(os.path.join(REPO, p[3:]))
             if not full.startswith(REPO):
@@ -261,23 +381,24 @@ class _Handler(http.server.SimpleHTTPRequestHandler):
                 return self.send_error(403)
             self._send_file(full)
         else:
-            extra = getattr(self.server, "extra_routes", {})
-            if p in extra:
-                return self._send_file(extra[p])
             self.send_error(404)
 
-
     def do_POST(self):
-        """Player 'save to job': write tuned params back into the job file."""
-        if urllib.parse.urlparse(self.path).path != "/save":
+        url = urllib.parse.urlparse(self.path)
+        if url.path != "/save":
             return self.send_error(404)
-        params = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
-        with open(self.job["_path"]) as f:
+        job = self._job(urllib.parse.parse_qs(url.query))
+        body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
+        with open(job["_path"]) as f:
             raw = json.load(f)
-        raw["params"] = params
-        with open(self.job["_path"], "w") as f:
+        raw["params"] = deep_diff(body["params"], job["_base_params"])
+        for k in ("start", "end"):
+            if body.get(k) is not None:
+                raw[k] = round(float(body[k]), 3)
+                job[k] = raw[k]
+        with open(job["_path"], "w") as f:
             json.dump(raw, f, ensure_ascii=False, indent=2)
-        self.job["params"] = params
+        job["params"] = body["params"]
         self.send_response(204)
         self.end_headers()
 
@@ -288,11 +409,13 @@ class _Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
     allow_reuse_address = True
 
 
-def serve(job, port=0, extra_routes=None):
-    """Start the asset server in a background thread; returns (server, base_url)."""
-    handler = type("H", (_Handler,), {"job": job})
+def serve(project, port=0):
+    """Start the asset server in a background thread; returns (server, base_url).
+    Accepts a project (load_project) or a single job (load_job)."""
+    if "jobs" not in project:
+        project = {"_path": project["_path"], "_dir": project["_dir"], "video": project.get("video"), "jobs": [project]}
+    handler = type("H", (_Handler,), {"project": project})
     srv = _Server(("127.0.0.1", port), handler)
-    srv.extra_routes = extra_routes or {}
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return srv, f"http://127.0.0.1:{srv.server_address[1]}"
 

@@ -22,18 +22,18 @@ bash ~/Coding/reel-styles/install.sh
 ## الاستخدام
 اطلب من Claude بالاسم، مثلاً: «سو كروت reel-glass على الشقة من ثانية 24 لـ 31: ٣ غرف، 180م²، جاهزة للسكن».
 
-يدوياً:
+يدوياً (فيديو واحد = مشروع: `reel_work/project.json` = `{"video": "../clip.mp4", "jobs": ["cards.json"]}`):
 ```bash
-python3 engine/render.py job.json --stills 25,27   # صور للفحص
-python3 engine/player.py job.json                  # برفيو مباشر + سلايدرات
-python3 engine/render.py job.json                  # الطبقة + البرفيو
+python3 engine/player.py reel_work/project.json               # المحرّر: الفيديو كامل + تايملاين + transform
+python3 engine/render.py reel_work/project.json --stills 25,27 # صور للفحص
+python3 engine/render.py reel_work/project.json               # الطبقات + برفيو للفيديو كامل
 ```
-البرفيو: `space` تشغيل · `←/→` ثانية · `,` `.` فريم · `l` تكرار · `b` قبل/بعد · `w` wipe · `h` إخفاء.
+المحرّر: تسحب القطع على التايملاين (تقديم/تأخير/دخول/خروج)، وتسحب/تدوّر/تكبّر كل قطعة على الفيديو، opacity من اللوحة، `⌘Z` تراجع، `⌘S` يحفظ في ملفات الجوب.
 
 ## البنية
 ```
 engine/        render.py · player.py · key.py · shadow.py · composite.py · common.py
-  web/         base.js (الزمن، المصدر، البرفيو) · base.css · icons.js · decor.js
+  web/         base.js (الزمن، القطع، transform) · player.html/js (المحرّر) · base.css · icons.js · decor.js
   fonts/       Tajawal (OFL)
   vendor/three Three.js r186 (MIT)
 skills/<name>/ SKILL.md · scene.html · presets.json · examples/

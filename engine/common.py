@@ -125,10 +125,15 @@ def load_job(path, video=None):
             params = deep_merge(params, th.pop("params", {}))
             params = deep_merge(params, {"theme": th})
         job["_tune"] = presets.get("tune", [])
+        job["_prepare"] = presets.get("prepare")
         job["_output"] = presets.get("output", "alpha")
     job["_base_params"] = params
     job["params"] = deep_merge(params, job.get("params", {}))
     job.setdefault("out", os.path.join(job["_dir"], "out", style))
+    if job.get("_prepare"):
+        # Style-specific one-time data (e.g. map tiles), cached; see the module's prepare().
+        import importlib
+        importlib.import_module(job["_prepare"]).prepare(job)
     job["out"] = absp(job["out"])
     return job
 

@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #map { position: absolute; overflow: hidden; }
+  #map canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #vig { position: absolute; inset: 0; pointer-events: none; }
+  .pin { position: absolute; width: 0; height: 0; }
+  .pin .ring { position: absolute; left: 0; top: 0; border-radius: 50%; border: .12em solid; transform: translate(-50%, -50%); }
+  .pin .head { position: absolute; left: 0; top: 0; width: 1.6em; height: 2.2em; transform-origin: 50% 100%; }
+  .pin .head svg { width: 100%; height: 100%; overflow: visible; }
+  .card { position: absolute; left: 0; top: 0; padding: .55em .9em .6em; border-radius: .6em; white-space: nowrap; backdrop-filter: blur(8px); corner-shape: squircle; }
+  .card .t { font-weight: 800; } .card .s { font-size: .62em; opacity: .75; margin-top: .1em; }
+  .poi { position: absolute; width: 0; height: 0; }
+  .poi .dot { position: absolute; width: .6em; height: .6em; border-radius: 50%; transform: translate(-50%, -50%); border: .14em solid #fff; }
+  .poi .card { font-size: .7em; transform: translate(-50%, calc(-100% - .7em)); }
+  #credit { position: absolute; font-size: 11px; opacity: .7; direction: ltr; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="map"><canvas id="cv"></canvas><div id="vig"></div><div id="over"></div><div id="credit"></div></div></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const mapEl = document.getElementById("map"), cv = document.getElementById("cv"), over = document.getElementById("over");
+let M = null, levels = {}, pin = null, pois = [];
+
+// Web Mercator, matches maptiles.py.
+function worldPx(lat, lon, z) {
+  const s = 256 * 2 ** z, r = (lat * Math.PI) / 180;
+  return [((lon + 180) / 360) * s, ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * s];
+}
+const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+
+async function loadLevels() {
+  M = await (await fetch(R.asset(R.job.map_manifest))).json();
+  const [d0, d1, d2] = hex(R.T.dark), [l0, l1, l2] = hex(R.T.light);
+  for (const [L, lv] of Object.entries(M.levels)) {
+    const c = document.createElement("canvas");
+    c.width = lv.nx * 256; c.height = lv.ny * 256;
+    const x = c.getContext("2d", { willReadFrequently: true });
+    await Promise.all(lv.files.map((f, i) => new Promise((res) => {
+      const img = new Image();
+      img.onload = () => { x.drawImage(img, (i % lv.nx) * 256, Math.floor(i / lv.nx) * 256); res(); };
+      img.onerror = res; img.src = R.asset(f);
+    })));
+    // Duotone in the theme's colours: map brightness → dark…light (roads/land become a clean graphic).
+    const im = x.getImageData(0, 0, c.width, c.height), a = im.data, g = R.T.road ?? 1;
+    for (let i = 0; i < a.length; i += 4) {
+      let k = (0.3 * a[i] + 0.59 * a[i + 1] + 0.11 * a[i + 2]) / 255;
+      k = clamp((k - 0.55) * (1.8 * g) + 0.55);
+      a[i] = d0 + (l0 - d0) * k; a[i + 1] = d1 + (l1 - d1) * k; a[i + 2] = d2 + (l2 - d2) * k;
+    }
+    x.putImageData(im, 0, 0);
+    levels[L] = { ...lv, canvas: c };
+  }
+}
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  R.clearItems();
+  over.innerHTML = "";
+  const T = R.T, P = R.P;
+  pin = document.createElement("div");
+  pin.className = "pin";
+  pin.innerHTML = `<div class="ring"></div><div class="ring"></div><div class="head"><svg viewBox="0 0 32 44"><path d="M16 43C16 43 2 26 2 16a14 14 0 0 1 28 0c0 10-14 27-14 27z" fill="${T.accent}" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg></div>
+    ${P.pin.label ? `<div class="card"><div class="t">${P.pin.label}</div>${P.pin.sub ? `<div class="s">${P.pin.sub}</div>` : ""}</div>` : ""}`;
+  over.appendChild(pin);
+  pois = (P.pois || []).map((p, i) => {
+    const el = document.createElement("div");
+    el.className = "poi";
+    el.innerHTML = `<div class="dot"></div><div class="card"><div class="t">${p.label ?? ""}</div>${p.sub ? `<div class="s">${p.sub}</div>` : ""}</div>`;
+    over.appendChild(el);
+    return { p, el, i };
+  });
+  document.getElementById("credit").textContent = M?.attribution || "© OpenStreetMap";
+  R.item({ id: "map", label: "map", els: [mapEl], in: "in", out: "out", xf: "xf" });
+  layout();
+}
+
+function layout() {
+  const P = R.P, T = R.T, u = R.u, full = P.frame !== "card";
+  const box = full ? { x: 0, y: 0, w: R.W, h: R.H } : { x: (P.card.x - P.card.w / 2) * R.W, y: (P.card.y - P.card.h / 2) * R.H, w: P.card.w * R.W, h: P.card.h * R.H };
+  Object.assign(mapEl.style, { left: box.x + "px", top: box.y + "px", width: box.w + "px", height: box.h + "px",
+    borderRadius: full ? "0" : P.card.radius * u + "px", boxShadow: full ? "none" : `0 ${20 * u}px ${60 * u}px rgba(0,0,0,.4)`, cornerShape: "squircle" });
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  cv.width = Math.round(box.w * dpr); cv.height = Math.round(box.h * dpr);
+  document.getElementById("vig").style.background = `radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,${T.vignette}) 100%)`;
+  over.style.fontSize = 40 * u + "px";
+  Object.assign(document.getElementById("credit").style, { right: 10 * u + "px", bottom: 8 * u + "px", color: T.text, fontSize: Math.max(10, 13 * u) + "px" });
+  for (const c of over.querySelectorAll(".card")) Object.assign(c.style, { background: T.card, color: T.text });
+  for (const r of pin.querySelectorAll(".ring")) r.style.borderColor = T.accent;
+  for (const p of pois) p.el.querySelector(".dot").style.background = p.p.color || T.accent;
+  R._box = box;
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { layout(); R._needsLayout = false; }
+  const P = R.P, T = R.T, u = R.u, box = R._box;
+  const tin = P.in ?? R.start, tout = P.out ?? R.end;
+  const vis = t >= tin && t <= tout;
+  mapEl.style.display = vis ? "" : "none";
+  if (!vis || !M) return;
+  const fade = tw(t, tin, 0.35, ease.outCubic) * (1 - tw(t, tout - 0.35, 0.35, ease.inCubic));
+  mapEl.style.opacity = fade;
+
+  // Camera: zoom in on the centre.
+  const C = P.camera, cs = C.start ?? tin;
+  const z = lerp(C.zoom_from, C.zoom_to, tw(t, cs, C.dur, ease.inOutCubic));
+  const [lat, lon] = M.places.center;
+  const dpr = cv.width / box.w, ctx = cv.getContext("2d");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = T.dark; ctx.fillRect(0, 0, cv.width, cv.height);
+  const avail = Object.keys(levels).map(Number).sort((a, b) => a - b);
+  const Lbest = avail.reduce((b, L) => (Math.abs(L - z) < Math.abs(b - z) ? L : b), avail[0]);
+  for (const L of avail.filter((L) => L <= Lbest).slice(-2)) {          // coarser level underneath for coverage
+    const lv = levels[L], [cx, cy] = worldPx(lat, lon, L), s = 2 ** (z - L);
+    ctx.imageSmoothingQuality = "high";
+    ctx.setTransform(s * dpr, 0, 0, s * dpr, (box.w / 2 - (cx - lv.tx0 * 256) * s) * dpr, (box.h / 2 - (cy - lv.ty0 * 256) * s) * dpr);
+    ctx.drawImage(lv.canvas, 0, 0);
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  const [ccx, ccy] = worldPx(lat, lon, z);
+  const proj = (p) => { const [x, y] = worldPx(p[0], p[1], z); return [box.w / 2 + (x - ccx), box.h / 2 + (y - ccy)]; };
+
+  // Route: drawn progressively, glow + core + a dot at the head.
+  const route = Object.keys(M.places).filter((k) => k.startsWith("route")).sort((a, b) => +a.slice(5) - +b.slice(5)).map((k) => proj(M.places[k]));
+  if (route.length) {
+    const pts = [...route, proj(M.places.center)];
+    const segs = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1])), total = segs.reduce((a, b) => a + b, 0);
+    let left = total * tw(t, P.route.start, P.route.dur, ease.inOutCubic);
+    ctx.save(); ctx.scale(dpr, dpr); ctx.lineCap = ctx.lineJoin = "round";
+    const path = new Path2D(); path.moveTo(...pts[0]); let head = pts[0];
+    for (let i = 0; i < segs.length && left > 0; i++) {
+      const k = Math.min(1, left / segs[i]); head = [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * k, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * k];
+      path.lineTo(...head); left -= segs[i];
+    }
+    ctx.strokeStyle = T.accent; ctx.globalAlpha = 0.25; ctx.lineWidth = P.route.width * 3 * u; ctx.stroke(path);
+    ctx.globalAlpha = 1; ctx.lineWidth = P.route.width * u; ctx.stroke(path);
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(head[0], head[1], P.route.width * 0.9 * u, 0, 7); ctx.fill();
+    ctx.restore();
+  }
+
+  // Pin: drops in with a bounce, then pulses.
+  const [px, py] = proj(M.places.center), pa = P.pin.at ?? cs + C.dur * 0.6;
+  pin.style.left = px + "px"; pin.style.top = py + "px";
+  const pd = tw(t, pa, 0.55, ease.outBack), head = pin.querySelector(".head");
+  head.style.opacity = clamp(pd * 3);
+  head.style.transform = `translate(-50%, -100%) translateY(${(1 - pd) * -90 * u}px) scale(${0.6 + 0.4 * pd})`;
+  pin.querySelectorAll(".ring").forEach((r, i) => {
+    const ph = ((t - pa - 0.4 - i * 0.6) % 1.2 + 1.2) % 1.2 / 1.2, on = t > pa + 0.4;
+    Object.assign(r.style, { width: 0.6 + ph * 3.2 + "em", height: 0.6 + ph * 3.2 + "em", opacity: on ? (1 - ph) * 0.9 : 0 });
+  });
+  const card = pin.querySelector(".card");
+  if (card) {
+    const pc = tw(t, pa + 0.35, 0.4, ease.outCubic);
+    Object.assign(card.style, { opacity: pc, transform: `translate(-50%, calc(-100% - 2.6em + ${(1 - pc) * 10}px))` });
+  }
+  // POIs: appear one by one after the pin.
+  for (const k of pois) {
+    const at = M.places["poi" + k.i]; if (!at) continue;
+    const [x, y] = proj(at), pp = tw(t, (k.p.time ?? pa + 0.6 + k.i * 0.35), 0.35, ease.outBack);
+    Object.assign(k.el.style, { left: x + "px", top: y + "px", opacity: clamp(pp * 2), transform: `scale(${0.5 + 0.5 * pp})` });
+  }
+}
+
+R.define({ ready: async () => { await loadLevels(); build(); }, renderAt, onParams: () => build() });
+</script>
+</body>
+</html>

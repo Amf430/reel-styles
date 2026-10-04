@@ -31,6 +31,7 @@ let cards = [];
 
 function build() {
   R.stage.innerHTML = "";
+  R.clearItems();
   document.body.dir = R.P.dir || "rtl";
   cards = (R.P.cards || []).map((c, i) => {
     const sh = document.createElement("div");
@@ -47,6 +48,8 @@ function build() {
     }
     el.innerHTML = `<canvas class="fill"></canvas><div class="tint"></div><div class="hl"></div><div class="stroke"></div><div class="content">${ic}${tx}</div>`;
     R.stage.append(sh, el);
+    R.item({ id: "card" + i, label: c.text || `${c.value ?? ""} ${c.label ?? ""}`.trim(), els: [sh, el],
+             in: `cards.${i}.in`, out: `cards.${i}.out`, xf: `cards.${i}.xf` });
     return { c, el, sh, kind, canvas: el.querySelector(".fill"), content: el.querySelector(".content"), num: el.querySelector(".num") };
   });
   style();
@@ -97,18 +100,20 @@ function layoutStack() {
   const free = cards.filter((k) => k.c.x == null || k.c.y == null);
   for (const k of cards) if (!free.includes(k)) { k.el.style.left = k.c.x * R.W + "px"; k.el.style.top = k.c.y * R.H + "px"; }
   if (!free.length) return;
-  // Stats count up: measure with the final value so the width doesn't change mid-count.
-  for (const k of free) if (k.num) k.num.textContent = k.c.value;
+  // Measure visible and with the final stat value, so the width never depends on the frame we're on.
+  const hidden = free.map((k) => k.el.style.display);
+  for (const k of free) { k.el.style.display = ""; if (k.num) k.num.textContent = k.c.value; }
   const maxW = S.width ? S.width * R.W : Math.max(...free.map((k) => k.el.offsetWidth));
   for (const k of free) k.el.style.width = maxW + "px";
   const anchor = S.anchor || (document.body.dir === "rtl" ? "right" : "left");
   const left = anchor === "right" ? S.x * R.W - maxW : anchor === "center" ? S.x * R.W - maxW / 2 : S.x * R.W;
   let y = S.y * R.H;
-  for (const k of free) {
+  free.forEach((k, i) => {
     k.el.style.left = left + "px";
     k.el.style.top = y + "px";
     y += k.el.offsetHeight + S.gap * u;
-  }
+    k.el.style.display = hidden[i];
+  });
 }
 
 // "+250,000" → counts up keeping prefix/suffix and thousands separators.
@@ -148,11 +153,10 @@ function renderAt(t) {
     k.content.style.transform = `translateY(${(1 - pc) * 14 * u}px)`;
     if (k.num) k.num.textContent = countUp(c.value, tw(t, tin, c.count_dur ?? 1.4, ease.outCubic));
 
-    // Glass: the footage behind the card, blurred and darkened, clipped to the card.
-    const r = R.rect(k.el);
+    // Glass: the footage behind the card, blurred and darkened, clipped to the card (follows the item transform).
     const pad = G.pad * u + G.blur * u;
+    const r = R.drawSourceFor(k.el, k.canvas, `blur(${G.blur * u}px) brightness(${G.brightness}) saturate(${G.saturate})`, pad);
     Object.assign(k.canvas.style, { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" });
-    R.drawSource(k.canvas, r, `blur(${G.blur * u}px) brightness(${G.brightness}) saturate(${G.saturate})`, pad);
 
     // Soft drop shadow under the card (part of the alpha layer).
     Object.assign(k.sh.style, {

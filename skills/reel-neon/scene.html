@@ -27,6 +27,7 @@ const hexA = (hex, a) => {
 function build() {
   document.body.dir = R.P.dir || "rtl";
   block.innerHTML = "";
+  R.clearItems();
   lines = (R.P.lines || []).map((l) => {
     const el = document.createElement("div");
     el.className = "line";
@@ -36,6 +37,7 @@ function build() {
     block.appendChild(el);
     return { l, el, main: el.querySelector(".main"), bloom: el.querySelector(".bloom") };
   });
+  R.item({ id: "title", label: (R.P.lines || []).map((l) => l.text).join(" / ") || "title", els: [block], in: "in", out: "out", xf: "xf" });
   style();
 }
 

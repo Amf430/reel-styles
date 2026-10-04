@@ -20,6 +20,9 @@ const el = document.getElementById("title");
 function build() {
   document.body.dir = R.P.dir || "rtl";
   el.textContent = R.P.text;
+  R.clearItems();
+  // Every movable piece: its timing paths (timeline) and transform path (position/rotation/scale/opacity).
+  R.item({ id: "title", label: R.P.text, els: [el], in: "in", out: "out", xf: "xf" });
   style();
 }
 

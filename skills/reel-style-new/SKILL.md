@@ -28,7 +28,7 @@ REEL="$(cd ~/.claude/skills/reel-engine && pwd -P)/../.."
 cd "$REEL" && git switch dev && git pull && git switch -c style/reel-<name>
 cp -R skills/_template skills/reel-<name> && mv skills/reel-<name>/SKILL.template.md skills/reel-<name>/SKILL.md
 ```
-- `scene.html`: `renderAt(t)` دالة نقية للزمن (لا CSS animations/transitions/timers). كل المقاسات `× R.u`، المواقع نسب من `R.W/R.H`. استخدم `tw()`/`ease`/`rand()`/`noise1()` من base.js. للزجاج/البلور على الفيديو: `R.drawSource()` + `"needs_frames": true`.
+- `scene.html`: `renderAt(t)` دالة نقية للزمن (لا CSS animations/transitions/timers). **سجّل كل قطعة متحركة** في build: `R.clearItems()` ثم `R.item({ id, label, els, in: "path.in", out: "path.out", xf: "path.xf" })` — هذا اللي يخليها تظهر في تايملاين المحرّر وتنسحب/تدور/تكبر. للبلور على الفيديو: `R.drawSourceFor(el, canvas, filter, pad)`. كل المقاسات `× R.u`، المواقع نسب من `R.W/R.H`. استخدم `tw()`/`ease`/`rand()`/`noise1()` من base.js. البلور يحتاج `"needs_frames": true` في presets.json.
 - `presets.json`: `output` (`alpha` لطبقة فوق الفيديو / `opaque` لخلفية)، `defaults`، `themes`، `tune` (السلايدرات).
 - أعِد الاستخدام: `engine/web/icons.js`, `engine/web/decor.js`, أو أضف لها (تفيد كل الستايلات).
 - `SKILL.md`: frontmatter بوصف واضح (متى يُستخدم، بالعربي + كلمات إنجليزية للبحث)، الحقول، الثيمات، الحدود، «معتمد/مرفوض» فاضية، سجل التغييرات v1.

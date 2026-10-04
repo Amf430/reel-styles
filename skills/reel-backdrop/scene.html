@@ -25,6 +25,7 @@ let props = [], els = {};
 
 function build() {
   const P = R.P, T = R.T;
+  R.clearItems();
   world.innerHTML = `<div id="wall"></div><div id="floor"></div><div id="cove"></div><div id="beam"></div><div id="glow"></div>`;
   els = Object.fromEntries(["wall", "beam", "glow", "cove", "floor"].map((k) => [k, document.getElementById(k)]));
   // Far props first so near ones overlap them.
@@ -40,6 +41,7 @@ function build() {
     cs.className = "cshadow";
     if (d.mount === "floor" && p.contact !== false) world.appendChild(cs);
     world.appendChild(el);
+    R.item({ id: "prop" + p._i, label: `${p.type} ${p._i + 1}`, els: [cs.isConnected ? cs : null, el], xf: `props.${p._i}.xf` });
     return { p, d, el, cs };
   }).filter(Boolean);
   layout();

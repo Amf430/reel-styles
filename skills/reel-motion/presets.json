@@ -16,23 +16,33 @@
       "weight": 400,
       "line": 1.4,
       "stagger": 0.16,
-      "word_dur": 0.5,
-      "blur": 14,
-      "rise": 16,
+      "word_dur": 0.55,
+      "blur": 16,
+      "rise": 10,
       "dim": 0.4,
       "glow": 0,
       "kashida": 0.15,
-      "justify": true
+      "justify": true,
+      "slide": 70
     },
     "bg": {
-      "speed": 1,
+      "speed": 1.6,
       "rays": 4,
       "ray_strength": 0.75,
       "ray_len": 0.7,
       "shade": 0.75
     },
     "tones": [],
-    "beats": []
+    "beats": [],
+    "cam": {
+      "scale": 1.2,
+      "rot": -6,
+      "dur": 3,
+      "drift": 0.012,
+      "sway": 0.6
+    },
+    "float": 1,
+    "camera": []
   },
   "themes": {
     "blue": {
@@ -165,6 +175,13 @@
       "step": 1
     },
     {
+      "path": "text.slide",
+      "label": "word slide",
+      "min": 0,
+      "max": 200,
+      "step": 1
+    },
+    {
       "path": "text.dim",
       "label": "grey step",
       "min": 0,
@@ -220,6 +237,34 @@
       "path": "theme.hl",
       "label": "highlight",
       "type": "color"
+    },
+    {
+      "path": "cam.scale",
+      "label": "camera push-in",
+      "min": 1,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "path": "cam.rot",
+      "label": "camera tilt",
+      "min": -15,
+      "max": 15,
+      "step": 0.5
+    },
+    {
+      "path": "cam.dur",
+      "label": "camera settle (s)",
+      "min": 0.3,
+      "max": 4,
+      "step": 0.05
+    },
+    {
+      "path": "float",
+      "label": "handheld float",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
     }
   ]
 }

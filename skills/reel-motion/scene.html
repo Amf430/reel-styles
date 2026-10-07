@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="/r/engine/web/base.css">
 <style>
   #bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #cam { position: absolute; inset: 0; transform-origin: 50% 50%; }
   #grain { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: overlay; pointer-events: none; }
   .beat { position: absolute; left: 0; top: 0; }
   .tb { position: absolute; line-height: var(--lh, 1.35); white-space: normal; }
@@ -36,7 +37,7 @@
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute"><defs id="defs"></defs></svg>
-<div id="stage"><canvas id="bg"></canvas></div>
+<div id="stage"><canvas id="bg"></canvas><div id="cam"></div></div>
 <script type="module">
 // reel-motion: a full-frame motion-graphics piece (opaque) built from a list of beats on top of an
 // animated light-shaft background. Every beat is a timeline item; renderAt(t) is pure in t.
@@ -45,6 +46,7 @@ import { Reel, tw, ease, clamp, lerp, rand, noise1, richWords } from "/r/engine/
 const R = await Reel.init();
 const defs = document.getElementById("defs");
 const bg = document.getElementById("bg");
+const cam = document.getElementById("cam");
 let beats = [];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -146,7 +148,8 @@ function setBlur(el, id, bx, by) {
 
 /**
  * Entrance/exit look for progress k (0 = hidden, 1 = settled). Returns transform parts + blur.
- * kinds: blur, rise, fade, zoom, pop, up, down, whip-left, whip-right, none.
+ * Blur follows speed (sin(πk) on the eased progress), along the direction of travel.
+ * kinds: blur, rise, fade, zoom, pop, through, up, down, below, above, whip-left, whip-right, none.
  */
 function motion(kind, k, dist = 1) {
   const v = Math.sin(Math.PI * clamp(k)); // speed proxy → motion blur
@@ -154,15 +157,20 @@ function motion(kind, k, dist = 1) {
   switch (kind) {
     case "none": return { op: 1, x: 0, y: 0, s: 1, bx: 0, by: 0 };
     case "fade": return { op: k, x: 0, y: 0, s: 1, bx: 0, by: 0 };
-    case "rise": return { op: clamp(k * 1.6), x: 0, y: (1 - k) * U(70) * dist, s: 1, bx: 0, by: (1 - k) * U(10) };
-    case "zoom": return { op: clamp(k * 1.5), x: 0, y: 0, s: lerp(0.6, 1, k), bx: (1 - k) * U(16), by: (1 - k) * U(16) };
-    case "pop": return { op: clamp(k * 2), x: 0, y: 0, s: lerp(0.4, 1, ease.outBack(k)), bx: 0, by: 0 };
-    case "up": return { op: clamp(k * 1.2), x: 0, y: (1 - k) * -H * 0.22 * dist, s: 1, bx: 0, by: v * U(26) + (1 - k) * U(8) };
-    case "down": return { op: clamp(k * 1.2), x: 0, y: (1 - k) * H * 0.22 * dist, s: 1, bx: 0, by: v * U(26) + (1 - k) * U(8) };
-    case "whip-left": return { op: 1, x: (1 - k) * -W * 1.05 * dist, y: 0, s: 1, bx: v * U(60), by: 0 };
-    case "whip-right": return { op: 1, x: (1 - k) * W * 1.05 * dist, y: 0, s: 1, bx: v * U(60), by: 0 };
+    case "rise": return { op: clamp(k * 1.6), x: 0, y: (1 - k) * U(140) * dist, s: 1, bx: 0, by: v * U(22) + (1 - k) * U(10) };
+    case "zoom": return { op: clamp(k * 2), x: 0, y: 0, s: lerp(0.2, 1, k), bx: (1 - k) * U(30), by: (1 - k) * U(30) };
+    case "pop": return { op: clamp(k * 2), x: 0, y: 0, s: lerp(0.3, 1, ease.outBack(k)), bx: (1 - k) * U(12), by: (1 - k) * U(12) };
+    // Fly through the lens: big and blurred ↔ settled.
+    case "through": return { op: clamp(k * 2), x: 0, y: 0, s: lerp(2.4, 1, k), bx: (1 - k) * U(45), by: (1 - k) * U(45) };
+    // Scroll out of / into the frame (the reference's camera pan between lines).
+    case "up": return { op: clamp(k * 3), x: 0, y: (1 - k) * -H * 0.65 * dist, s: 1, bx: v * U(3), by: v * U(40) };
+    case "down": return { op: clamp(k * 3), x: 0, y: (1 - k) * H * 0.65 * dist, s: 1, bx: v * U(3), by: v * U(40) };
+    case "below": return { op: clamp(k * 2.5), x: 0, y: (1 - k) * H * 0.45 * dist, s: 1, bx: 0, by: v * U(36) };
+    case "above": return { op: clamp(k * 2.5), x: 0, y: (1 - k) * -H * 0.45 * dist, s: 1, bx: 0, by: v * U(36) };
+    case "whip-left": return { op: 1, x: (1 - k) * -W * 1.1 * dist, y: 0, s: lerp(1.15, 1, k), bx: v * U(110), by: v * U(6) };
+    case "whip-right": return { op: 1, x: (1 - k) * W * 1.1 * dist, y: 0, s: lerp(1.15, 1, k), bx: v * U(110), by: v * U(6) };
     case "blur":
-    default: return { op: clamp(k * 1.4), x: 0, y: (1 - k) * U(14), s: lerp(0.97, 1, k), bx: (1 - k) * U(18), by: (1 - k) * U(18) };
+    default: return { op: clamp(k * 1.6), x: 0, y: (1 - k) * U(30), s: lerp(1.08, 1, k), bx: (1 - k) * U(28), by: (1 - k) * U(28) };
   }
 }
 /** Combined entrance × exit for a beat at t. */
@@ -261,6 +269,12 @@ function measureText(tx, b, t0) {
   });
   lines.sort((a, b2) => a.top - b2.top);
   if (b.justify ?? TX.justify ?? true) justify(tx, lines);
+  for (const L of lines) {
+    let a = Infinity, z = -Infinity, sum = 0;
+    for (const i of L.idx) { const w = ws[i]; a = Math.min(a, w.offsetLeft); z = Math.max(z, w.offsetLeft + w.offsetWidth); sum += w.offsetWidth; }
+    L.span = z - a; L.gap = L.idx.length > 1 ? (L.span - sum) / (L.idx.length - 1) : 0;
+  }
+  tx.recenter = (b.recenter ?? TX.recenter ?? true) && tx.el.style.textAlign === "center";
   tx.lines = lines;
 }
 /** Visible height of the block at t (lines ease in as they start). */
@@ -272,13 +286,25 @@ function textHeight(tx, t) {
   return h;
 }
 function renderWords(tx, t, id) {
-  const TX = tx.TX, dur = TX.word_dur ?? 0.45, bl = TX.blur ?? 12, rise = TX.rise ?? 16, dim = TX.dim ?? 0.35;
+  const TX = tx.TX, dur = TX.word_dur ?? 0.5, bl = TX.blur ?? 14, rise = TX.rise ?? 10, dim = TX.dim ?? 0.4;
+  const rtl = (R.P.dir || "rtl") === "rtl", slide = U(TX.slide ?? 70) * (rtl ? -1 : 1);
+  const ks = tx.words.map((_, i) => tw(t, tx.times[i], dur, ease.outQuint));
+  // Line re-centring: a centred line only takes the width of its revealed words, so earlier words
+  // ease aside as each new one arrives (instead of new words popping into reserved gaps).
+  const shift = new Array(tx.words.length).fill(0);
+  if (tx.recenter) for (const L of tx.lines) {
+    let vw = 0, n = 0;
+    for (const i of L.idx) { vw += tx.words[i].offsetWidth * ks[i]; n += ks[i]; }
+    vw += L.gap * Math.max(0, n - 1);
+    const dx = ((rtl ? 1 : -1) * (vw - L.span)) / 2;
+    for (const i of L.idx) shift[i] = dx;
+  }
   tx.words.forEach((w, i) => {
-    const k = tw(t, tx.times[i], dur, ease.outCubic);
+    const k = ks[i];
     w.style.visibility = k <= 0 ? "hidden" : "";
     // Fades up to a dim grey quickly, then settles to full white (the reference's two-step reveal).
     w.style.opacity = k < 0.3 ? (k / 0.3) * dim : lerp(dim, 1, (k - 0.3) / 0.7);
-    w.style.transform = k < 1 ? `translateY(${(1 - k) * U(rise)}px)` : "";
+    w.style.transform = k < 1 || shift[i] ? `translate(${shift[i] + (1 - k) * slide}px, ${(1 - k) * U(rise)}px) scale(${lerp(1.12, 1, k)})` : "";
     w.style.filter = k < 1 && bl > 0 ? `blur(${((1 - k) * U(bl)).toFixed(2)}px)` : "";
   });
 }
@@ -671,7 +697,7 @@ const pending = [];
 async function build() {
   document.body.dir = R.P.dir || "rtl";
   R.clearItems();
-  for (const el of [...R.stage.children]) if (el !== bg) el.remove();
+  cam.innerHTML = "";
   defs.innerHTML = "";
   beats = (R.P.beats || []).map((b, i) => {
     const T = TYPES[b.type || "text"];
@@ -679,7 +705,7 @@ async function build() {
     const root = document.createElement("div");
     root.className = "beat";
     root.style.zIndex = b.z ?? i + 1;
-    R.stage.appendChild(root);
+    cam.appendChild(root);
     const st = {};
     T.build(b, root, st);
     const what = b.text ?? (b.items ? b.items.join(" · ") : b.src ? b.src.split("/").pop() : "");
@@ -697,6 +723,35 @@ function layout() {
     k.T.layout(k.b, k.root, k.st);
   }
   R._needsLayout = false;
+}
+
+/**
+ * Per-beat camera (every shot in the reference): it opens pushed-in and tilted, eases out with a long
+ * settle, then keeps drifting back slowly. `cam: false` turns it off; `cam: {scale, rot, dur, drift}`.
+ */
+const CAM_DEFAULT = { text: true, image: true, clip: true, logo: true, card: false, band: false, follow: false, tabs: false };
+function beatCam(b, t) {
+  const on = b.cam ?? CAM_DEFAULT[b.type || "text"];
+  if (!on) return null;
+  const C = { ...(R.P.cam || {}), ...(typeof on === "object" ? on : {}) };
+  const t0 = b.in ?? R.start, k = tw(t, t0, C.dur ?? 3, ease.outCubic), age = Math.max(0, t - t0);
+  return {
+    s: lerp(C.scale ?? 1.2, 1, k) * (1 - (C.drift ?? 0.012) * age),
+    r: lerp(C.rot ?? -5, 0, k) + (C.sway ?? 0.6) * noise1(age * 0.35 + (b.in ?? 0), 7),
+  };
+}
+/** Whole-frame camera: `camera` keyframes [{at, scale, rot, x, y, dur}] (absolute times) + handheld float. */
+function frameCam(t) {
+  let s = 1, r = 0, x = 0, y = 0;
+  for (const c of R.P.camera || []) {
+    const k = tw(t, c.at, c.dur ?? 1, ease.inOutCubic);
+    if (c.scale != null) s = lerp(s, c.scale, k);
+    if (c.rot != null) r = lerp(r, c.rot, k);
+    if (c.x != null) x = lerp(x, c.x, k);
+    if (c.y != null) y = lerp(y, c.y, k);
+  }
+  const f = R.P.float ?? 1;
+  return { s, r: r + f * 0.35 * noise1(t * 0.4, 91), x: x * R.W + f * U(6) * noise1(t * 0.3, 92), y: y * R.H + f * U(6) * noise1(t * 0.3, 93) };
 }
 
 /** `moves`: [{ at (s after in), x?, y?, dur? }] — the beat glides to a new spot (fractions of the frame). */
@@ -720,7 +775,15 @@ async function renderAt(t) {
     await k.T.render(b, k.root, t, k.id, k.st);
     const [dx, dy] = moveOffset(b, t);
     k.root.style.translate = dx || dy ? `${dx}px ${dy}px` : "";
+    const c = beatCam(b, t);
+    k.root.style.transformOrigin = `${(b.x ?? 0.5) * R.W}px ${(b.y ?? 0.5) * R.H}px`;
+    k.root.style.scale = c ? c.s : "";
+    k.root.style.rotate = c ? `${c.r}deg` : "";
   }
+  const f = frameCam(t);
+  cam.style.transform = `translate(${f.x}px, ${f.y}px) rotate(${f.r}deg) scale(${f.s})`;
+  // Background moves less than the foreground (depth).
+  bg.style.transform = `translate(${f.x * 0.3}px, ${f.y * 0.3}px) scale(${1.06 + (f.s - 1) * 0.3})`;
 }
 
 R.define({ ready: build, renderAt, onParams: build });

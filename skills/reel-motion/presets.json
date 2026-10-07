@@ -21,7 +21,8 @@
       "rise": 16,
       "dim": 0.4,
       "glow": 0,
-      "kashida": 0.28
+      "kashida": 0.15,
+      "justify": true
     },
     "bg": {
       "speed": 1,
@@ -51,15 +52,21 @@
       "hl": "#9fb4ff",
       "glass": "rgba(16,26,100,0.28)",
       "glass_alert": "rgba(150,30,45,0.28)",
-      "stroke": "rgba(200,212,255,0.42)",
+      "stroke": "rgba(210,220,255,0.55)",
       "spark": "#ffffff",
       "tab": "#18191c",
       "tab_text": "#ffffff",
       "band": "linear-gradient(180deg, rgba(8,14,60,0.55), rgba(12,20,80,0.35))",
       "line": "#cdd8ff",
-      "pill": "rgba(10,16,60,0.65)",
+      "pill": "rgba(28,44,150,0.45)",
       "ray": "#3355ff",
-      "logo": "#eef1ff"
+      "logo": "#eef1ff",
+      "purple": {
+        "deep": "#1a0630",
+        "mid": "#4b1067",
+        "ray": "#8a32d6",
+        "shade": "#0a0218"
+      }
     },
     "seen": {
       "base": {
@@ -86,7 +93,13 @@
       "line": "#e2c3a4",
       "pill": "rgba(40,4,20,0.65)",
       "ray": "#b28764",
-      "logo": "#f3dcc4"
+      "logo": "#f3dcc4",
+      "purple": {
+        "deep": "#1a0420",
+        "mid": "#4a0a3a",
+        "ray": "#a03070",
+        "shade": "#08010a"
+      }
     },
     "mono": {
       "base": {
@@ -113,7 +126,13 @@
       "line": "#e4e6ef",
       "pill": "rgba(20,20,26,0.65)",
       "ray": "#8a8fa8",
-      "logo": "#f2f3f7"
+      "logo": "#f2f3f7",
+      "purple": {
+        "deep": "#120a18",
+        "mid": "#2a1a36",
+        "ray": "#6a4a8a",
+        "shade": "#050208"
+      }
     }
   },
   "tune": [
@@ -154,7 +173,7 @@
     },
     {
       "path": "text.kashida",
-      "label": "kashida (em per ـ)",
+      "label": "kashida base (em per ـ)",
       "min": 0.05,
       "max": 1,
       "step": 0.01

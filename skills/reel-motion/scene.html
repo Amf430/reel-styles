@@ -10,9 +10,10 @@
   .tb { position: absolute; line-height: var(--lh, 1.35); white-space: normal; }
   .tb .w { display: inline-block; white-space: pre; }
   .tb .w.hl { color: var(--hl); }
-  /* Stretched kashida: one tatweel glyph scaled to the run's width; ZWJs keep the neighbours joined. */
+  /* Stretched kashida: a bar with the font's own tatweel stroke (measured), any length; ZWJs keep the
+     neighbours in their joining forms. The empty inline-block's bottom sits on the text baseline. */
   .tb .k { display: inline-block; position: relative; height: 1em; vertical-align: baseline; }
-  .tb .k > i { position: absolute; inset-inline-start: -.02em; font-style: normal; transform-origin: right center; }
+  .tb .k > b { position: absolute; left: -.03em; right: -.03em; bottom: calc(-1 * var(--kd)); height: calc(var(--ka) + var(--kd)); background: currentColor; }
   .glass { position: absolute; overflow: hidden; isolation: isolate; corner-shape: squircle; }
   .glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
     background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,0) 38%, rgba(255,255,255,0) 70%, rgba(255,255,255,.07)); }
@@ -191,7 +192,7 @@ function makeText(parent, b, opts = {}) {
   const el = document.createElement("div");
   el.className = "tb";
   const src = String(b.text ?? "").split("\n").map((l) => richWords(l).html).join("<br>")
-    .replace(/ـ+/g, (m) => `\u200d<span class="k" data-n="${m.length}"><i>ـ</i></span>\u200d`);
+    .replace(/ـ+/g, (m) => `\u200d<span class="k" data-n="${m.length}"><b></b></span>\u200d`);
   el.innerHTML = src;
   parent.appendChild(el);
   return { el, TX, b, opts, words: [...el.querySelectorAll(".w")], lines: [] };
@@ -208,16 +209,41 @@ function styleText(tx) {
   el.style.textAlign = b.align || opts.align || "center";
   // Kashida runs: n tatweels → n × text.kashida em, drawn by stretching the font's own tatweel.
   const ks = el.querySelectorAll(".k");
+  tx.em = parseFloat(el.style.fontSize);
   if (ks.length) {
-    const probe = ks[0].firstChild, gw = probe.getBoundingClientRect().width / (parseFloat(probe.style.transform?.match(/scaleX\(([\d.]+)/)?.[1]) || 1);
-    const em = parseFloat(el.style.fontSize);
-    for (const k of ks) {
-      const w = +k.dataset.n * (TX.kashida ?? 0.28) * em;
-      k.style.width = w + "px";
-      k.firstChild.style.transform = `scaleX(${(w + em * 0.04) / Math.max(gw, 1e-3)})`;
-    }
+    // Tatweel stroke: top/bottom of its ink relative to the baseline, from the real font.
+    const c = (styleText.cv ??= document.createElement("canvas")).getContext("2d");
+    c.font = `${el.style.fontWeight} ${tx.em}px ${el.style.fontFamily}`;
+    const m = c.measureText("ـ");
+    el.style.setProperty("--ka", m.actualBoundingBoxAscent + "px");
+    el.style.setProperty("--kd", m.actualBoundingBoxDescent + "px");
+    for (const k of ks) setKashida(tx, k, +k.dataset.n * (TX.kashida ?? 0.15) * tx.em);
   }
   if (TX.glow) el.style.textShadow = `0 0 ${U(TX.glow)}px ${rgb(hex(R.T.text), 0.35)}`;
+}
+function setKashida(tx, k, w) {
+  k.dataset.w = w;
+  k.style.width = w + "px";
+}
+/**
+ * Kashida justification (the reference's signature): every line of a block is stretched to the
+ * widest line by lengthening its ـ runs. Lines without ـ keep their natural width.
+ */
+function justify(tx, lines) {
+  if (lines.length < 2) return;
+  const span = (L) => {
+    let a = Infinity, z = -Infinity;
+    for (const i of L.idx) { const w = tx.words[i]; a = Math.min(a, w.offsetLeft); z = Math.max(z, w.offsetLeft + w.offsetWidth); }
+    return z - a;
+  };
+  const max = Math.min(tx.el.clientWidth, Math.max(...lines.map(span)));
+  for (const L of lines) {
+    const runs = L.idx.flatMap((i) => [...tx.words[i].querySelectorAll(".k")]);
+    const extra = max - span(L);
+    if (!runs.length || extra < 1) continue;
+    const n = runs.reduce((a, k) => a + +k.dataset.n, 0);
+    for (const k of runs) setKashida(tx, k, +k.dataset.w + extra * (+k.dataset.n / n));
+  }
 }
 /** After layout: group words into visual lines and fix each word's reveal time. */
 function measureText(tx, b, t0) {
@@ -234,6 +260,7 @@ function measureText(tx, b, t0) {
     L.idx.push(i); L.bottom = Math.max(L.bottom, top + w.offsetHeight); L.t = Math.min(L.t, tx.times[i]);
   });
   lines.sort((a, b2) => a.top - b2.top);
+  if (b.justify ?? TX.justify ?? true) justify(tx, lines);
   tx.lines = lines;
 }
 /** Visible height of the block at t (lines ease in as they start). */
@@ -267,10 +294,14 @@ const CURSOR = (g = "cg" + uid++) => `<svg viewBox="0 0 60 64"><defs><linearGrad
   <path d="M6 4Q2 2 3 7L12 58Q13 63 17 59L28 44 46 50Q52 52 50 46Z" fill="url(#${g})" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linejoin="round"/></svg>`;
 /** Default logo: a rounded 6-arm star with soft 3D shading (swap with logo_src for the brand's own). */
 function logoSVG(col, g = "lg" + uid++) {
-  const arms = [...Array(6)].map((_, i) => `<rect x="-11" y="-48" width="22" height="44" rx="11" transform="rotate(${i * 60 + 15}) skewX(-14)"/>`).join("");
-  return `<svg viewBox="-60 -60 120 120"><defs><radialGradient id="${g}" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="${col}"/><stop offset="1" stop-color="#9aa6d8"/></radialGradient>
-    <filter id="${g}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter></defs>
-    <g fill="${col}" opacity=".55" filter="url(#${g}f)">${arms}</g><g fill="url(#${g})">${arms}</g></svg>`;
+  // Six chunky slanted arms (pinwheel) with a stacked extrusion and a soft top-left light — reads as 3D.
+  const arms = (fill, extra = "") => [...Array(6)].map((_, i) => `<rect x="-14" y="-54" width="28" height="48" rx="14" fill="${fill}" transform="rotate(${i * 60 + 10}) skewX(-16)" ${extra}/>`).join("");
+  const side = rgb(hex(col).map((v) => v * 0.55)), core = rgb(hex(col).map((v) => v * 0.7));
+  const depth = [...Array(6)].map((_, i) => `<g transform="translate(${1.2 + i * 0.9},${2 + i * 1.3})">${arms(side)}</g>`).reverse().join("");
+  return `<svg viewBox="-70 -70 140 140"><defs><radialGradient id="${g}" cx=".32" cy=".28" r=".95"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="${col}"/><stop offset="1" stop-color="${core}"/></radialGradient>
+    <filter id="${g}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+    <g opacity=".6" filter="url(#${g}f)">${arms(col)}</g>${depth}<g>${arms(`url(#${g})`, 'stroke="rgba(255,255,255,.7)" stroke-width="1.2"')}</g>
+    <circle r="7" fill="${core}"/></svg>`;
 }
 function logoEl(size) {
   const d = document.createElement("div");
@@ -471,11 +502,11 @@ const TYPES = {
       if (b.logo !== false) { st.logo = logoEl(b.logo_size ?? 380); root.appendChild(st.logo); }
     },
     layout(b, root, st) {
-      const W = R.W, H = R.H, bh = (b.h ?? 0.3) * H;
+      const W = R.W, H = R.H, bh = (b.h ?? 0.48) * H;
       root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
       for (const l of [st.l1, st.l2]) Object.assign(l.style, { height: U(3) + "px", background: R.T.line, boxShadow: `0 0 ${U(12)}px ${R.T.line}, 0 0 ${U(30)}px ${R.T.line}` });
       Object.assign(st.fill.style, { background: R.T.band, backdropFilter: `blur(${U(18)}px)` });
-      const tx = st.tx, pad = W * 0.08;
+      const tx = st.tx, pad = W * (b.pad ?? 0.12);
       tx.el.style.width = W - pad * 2 + "px";
       tx.el.style.left = pad + "px";
       measureText(tx, b, (b.in ?? R.start) + (b.text_delay ?? 0.35));
@@ -484,19 +515,21 @@ const TYPES = {
     render(b, root, t, id, st) {
       const L = life(b, t, "none", "fade", 0.5, 0.4);
       applyLife(root, id, { ...L, x: 0, y: 0, s: 1, bx: 0, by: 0 });
-      const H = R.H, cy = (b.y ?? 0.4) * H, t0 = b.in ?? R.start;
+      const H = R.H, cy = (b.y ?? 0.48) * H, t0 = b.in ?? R.start;
       const k = tw(t, t0, 0.7, ease.outQuint), h = st.bh * k;
       st.l1.style.top = cy - h / 2 + "px"; st.l2.style.top = cy + h / 2 + "px";
       st.fill.style.top = cy - h / 2 + "px"; st.fill.style.height = h + "px";
       st.l1.style.opacity = st.l2.style.opacity = clamp(k * 4);
       const tx = st.tx;
-      tx.el.style.top = cy - st.bh / 2 + st.bh * 0.12 - (tx.lines[0]?.top ?? 0) + "px";
+      // Text sits centred in the band (its full height, so lines don't shift as they appear).
+      const th = (tx.lines.at(-1)?.bottom ?? 0) - (tx.lines[0]?.top ?? 0);
+      tx.el.style.top = cy - th / 2 - (tx.lines[0]?.top ?? 0) + "px";
       renderWords(tx, t, id);
       if (st.logo) {
         const kl = tw(t, t0 + 0.3, 0.8, ease.outBack), s = U(b.logo_size ?? 380);
         st.logo.style.left = R.W / 2 - s / 2 + "px";
         st.logo.style.top = cy + st.bh / 2 + (H - (cy + st.bh / 2)) / 2 - s / 2 + "px";
-        st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 14)}deg)`;
+        st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 6)}deg)`;
         st.logo.style.opacity = clamp(kl * 2);
       }
     },
@@ -512,16 +545,17 @@ const TYPES = {
       root.append(st.logo, st.pill, st.cur);
     },
     layout(b, root, st) {
-      const W = R.W, H = R.H, ls = U(b.logo_size ?? 240), pw = U(b.w ?? 640), ph = U(b.h ?? 180), gap = U(50);
+      const W = R.W, H = R.H, ls = U(b.logo_size ?? 250), pw = U(b.w ?? 660), ph = U(b.h ?? 190), gap = U(50);
       root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
       const total = ls + gap + pw, x0 = (b.x ?? 0.5) * W - total / 2, cy = (b.y ?? 0.58) * H;
       // RTL keeps the logo on the left like the reference (logo, then the button).
       Object.assign(st.logo.style, { left: x0 + "px", top: cy - ls / 2 + "px" });
       Object.assign(st.pill.style, {
         left: x0 + ls + gap + "px", top: cy - ph / 2 + "px", width: pw + "px", height: ph + "px",
-        background: R.T.pill, border: `${U(2.5)}px solid ${R.T.stroke}`, boxShadow: `0 0 ${U(30)}px ${rgb(hex(R.T.ray || "#3355ff"), 0.35)}`,
+        background: R.T.pill, border: `${U(3.5)}px solid ${R.T.stroke}`, backdropFilter: `blur(${U(16)}px)`,
+        boxShadow: `0 0 ${U(40)}px ${rgb(hex(R.T.ray || "#3355ff"), 0.45)}, inset 0 ${U(2)}px ${U(14)}px rgba(255,255,255,.18)`,
       });
-      Object.assign(st.pill.querySelector(".lb").style, { fontFamily: `"${R.P.font_latin || R.P.font || "Tajawal"}", sans-serif`, fontSize: ph * 0.48 + "px", color: R.T.text });
+      Object.assign(st.pill.querySelector(".lb").style, { fontFamily: `"${R.P.font_latin || R.P.font || "Tajawal"}", sans-serif`, fontSize: ph * 0.5 + "px", color: R.T.text, fontWeight: 700, WebkitTextStroke: `${ph * 0.022}px ${R.T.text}`, letterSpacing: "-0.02em" });
       Object.assign(st.cur.style, { width: U(130) + "px", height: U(139) + "px" });
       st.pc = { x: x0 + ls + gap + pw * 0.7, y: cy + ph * 0.25 };
     },
@@ -530,7 +564,7 @@ const TYPES = {
       applyLife(root, id, L);
       const t0 = b.in ?? R.start, tap = b.tap ?? t0 + 1.6;
       const kl = tw(t, t0, 0.7, ease.outBack);
-      st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 20)}deg)`;
+      st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 6)}deg)`;
       // Pill: grows open, sparkles with pixel noise, then the label resolves.
       const kp = tw(t, t0 + 0.15, 0.6, ease.outQuint);
       const pill = st.pill, cv = pill.querySelector("canvas"), lb = pill.querySelector(".lb");
@@ -575,7 +609,8 @@ const TYPES = {
       st.img = document.createElement("img");
       st.m.appendChild(st.img);
       root.appendChild(st.m);
-      if (b.type === "image") st.img.src = R.asset(b.src);
+      // Wait for the pixels before any frame renders — otherwise parallel render workers catch it blank.
+      if (b.type === "image") { st.img.src = R.asset(b.src); pending.push(st.img.decode().catch(() => console.warn("image failed:", b.src))); }
     },
     layout(b, root, st) {
       const W = R.W, H = R.H, w = (b.w ?? 1) * W, h = (b.h ?? (b.w ? b.w * (W / H) : 1)) * H;
@@ -596,7 +631,9 @@ const TYPES = {
       applyLife(root, id, L);
       const t0 = b.in ?? R.start, t1 = b.out ?? R.end;
       // Slow push-in (Ken Burns) and an optional float for cut-out objects.
-      const kb = lerp(1, b.push ?? 1.06, clamp((t - t0) / Math.max(t1 - t0, 0.1)));
+      // push: 1.06 = slow push-in over the beat; [1.4, 1] = settle from a zoom (fast, then slow).
+      const pk = clamp((t - t0) / Math.max(t1 - t0, 0.1));
+      const kb = Array.isArray(b.push) ? lerp(b.push[0], b.push[1], ease.outExpo(clamp((t - t0) / (b.push_dur ?? 0.8)))) : lerp(1, b.push ?? 1.06, pk);
       const fl = b.float ? Math.sin((t - t0) * 1.6) * U(14) : 0;
       st.img.style.transform = `translateY(${fl}px) scale(${kb})`;
       if (st.panel) {
@@ -623,14 +660,15 @@ const TYPES = {
     render(b, root, t, id, st) {
       const L = life(b, t, "pop", "blur", 0.6, 0.4);
       applyLife(root, id, L);
-      st.logo.style.transform = `rotate(${(t - (b.in ?? R.start)) * (b.spin ?? 18)}deg)`;
+      st.logo.style.transform = `rotate(${(t - (b.in ?? R.start)) * (b.spin ?? 6)}deg)`;
     },
   },
 };
 TYPES.clip = TYPES.image;
 
 // ------------------------------------------------------------------ build / render
-function build() {
+const pending = [];
+async function build() {
   document.body.dir = R.P.dir || "rtl";
   R.clearItems();
   for (const el of [...R.stage.children]) if (el !== bg) el.remove();
@@ -649,6 +687,7 @@ function build() {
     R.item({ id: "b" + i, label, els: [root], in: `beats.${i}.in`, out: `beats.${i}.out`, xf: `beats.${i}.xf` });
     return { b, root, T, st, id: "mb" + i };
   }).filter(Boolean);
+  await Promise.all(pending.splice(0));
   layout();
 }
 function layout() {

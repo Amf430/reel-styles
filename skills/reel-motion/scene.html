@@ -1,0 +1,690 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #grain { position: absolute; inset: 0; width: 100%; height: 100%; mix-blend-mode: overlay; pointer-events: none; }
+  .beat { position: absolute; left: 0; top: 0; }
+  .tb { position: absolute; line-height: var(--lh, 1.35); white-space: normal; }
+  .tb .w { display: inline-block; white-space: pre; }
+  .tb .w.hl { color: var(--hl); }
+  /* Stretched kashida: one tatweel glyph scaled to the run's width; ZWJs keep the neighbours joined. */
+  .tb .k { display: inline-block; position: relative; height: 1em; vertical-align: baseline; }
+  .tb .k > i { position: absolute; inset-inline-start: -.02em; font-style: normal; transform-origin: right center; }
+  .glass { position: absolute; overflow: hidden; isolation: isolate; corner-shape: squircle; }
+  .glass::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+    background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,0) 38%, rgba(255,255,255,0) 70%, rgba(255,255,255,.07)); }
+  .glass::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
+    border: var(--sw, 2px) solid var(--stroke); -webkit-mask: linear-gradient(170deg, #000, rgba(0,0,0,.35) 50%, #000); }
+  .glass > .tb { z-index: 3; }
+  .deco { position: absolute; pointer-events: none; }
+  .deco svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .tabs { position: absolute; left: 0; top: 0; width: 100%; height: 100%; transform-style: preserve-3d; }
+  .tab { position: absolute; }
+  .tab svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .tab .lb { position: absolute; white-space: nowrap; }
+  .line { position: absolute; left: 0; width: 100%; }
+  .pill { position: absolute; border-radius: 999px; overflow: hidden; isolation: isolate; display: grid; place-items: center; }
+  .pill canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pill .lb { position: relative; font-weight: 800; white-space: nowrap; letter-spacing: -.01em; }
+  .media { position: absolute; overflow: hidden; }
+  .media img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs id="defs"></defs></svg>
+<div id="stage"><canvas id="bg"></canvas></div>
+<script type="module">
+// reel-motion: a full-frame motion-graphics piece (opaque) built from a list of beats on top of an
+// animated light-shaft background. Every beat is a timeline item; renderAt(t) is pure in t.
+import { Reel, tw, ease, clamp, lerp, rand, noise1, richWords } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const defs = document.getElementById("defs");
+const bg = document.getElementById("bg");
+let beats = [];
+
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const U = (v) => v * R.u;
+
+// ------------------------------------------------------------------ colours
+function hex(c) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(c || "");
+  if (!m) return [0, 0, 0];
+  const n = parseInt(m[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+const mix = (a, b, k) => a.map((v, i) => lerp(v, b[i], k));
+const rgb = (c, a = 1) => `rgba(${c.map(Math.round).join(",")},${a})`;
+
+/** Background palette at t: base, crossfading through the job's `tones` list ({at, tone, dur}). */
+function paletteAt(t) {
+  const T = R.T, keys = ["deep", "mid", "ray", "shade"];
+  const pal = (name) => Object.fromEntries(keys.map((k) => [k, hex((T[name] || T.base)[k])]));
+  let cur = pal("base");
+  let alert = 0;
+  for (const s of [...(R.P.tones || [])].sort((a, b) => a.at - b.at)) {
+    const k = tw(t, s.at, s.dur ?? 0.45, ease.inOutCubic);
+    if (k <= 0) break;
+    const nxt = pal(s.tone || "base");
+    cur = Object.fromEntries(keys.map((key) => [key, mix(cur[key], nxt[key], k)]));
+    alert = lerp(alert, s.tone === "alert" ? 1 : 0, k);
+  }
+  return { ...cur, alert };
+}
+
+// ------------------------------------------------------------------ background
+// Soft vertical light shafts drifting over a deep gradient, with dark pools — drawn small and scaled
+// up, so it stays soft like the lens-blurred reference.
+function drawBg(t) {
+  const G = R.P.bg || {}, pal = paletteAt(t);
+  const k = 0.125; // tiny canvas, scaled up = naturally soft
+  const w = Math.max(8, Math.round(R.W * k)), h = Math.max(8, Math.round(R.H * k));
+  if (bg.width !== w || bg.height !== h) { bg.width = w; bg.height = h; }
+  const c = bg.getContext("2d");
+  const sp = (G.speed ?? 1) * t;
+  let g = c.createLinearGradient(0, 0, 0, h);
+  g.addColorStop(0, rgb(pal.mid)); g.addColorStop(0.55, rgb(pal.deep)); g.addColorStop(1, rgb(pal.shade));
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  // Light shafts: bright at the top, fading down; each drifts and breathes on its own.
+  const n = G.rays ?? 5;
+  const sh = (drawBg.sh ??= document.createElement("canvas"));
+  if (sh.width !== w || sh.height !== h) { sh.width = w; sh.height = h; }
+  const s = sh.getContext("2d");
+  s.globalCompositeOperation = "source-over";
+  s.clearRect(0, 0, w, h);
+  for (let i = 0; i < n; i++) {
+    const x = (0.05 + 0.9 * ((i + 0.2 + 0.6 * rand(i, 17)) / n) + 0.12 * noise1(sp * 0.15 + i * 3.1, 11 + i)) * w;
+    const bw = w * (0.1 + 0.16 * rand(i, 7)) * (1 + 0.3 * noise1(sp * 0.25 + i, 31));
+    const a = (G.ray_strength ?? 0.75) * (0.35 + 0.65 * rand(i, 3)) * (0.75 + 0.25 * noise1(sp * 0.4 + i * 1.7, 5));
+    const gx = s.createLinearGradient(x - bw, 0, x + bw, 0);
+    gx.addColorStop(0, rgb(pal.ray, 0)); gx.addColorStop(0.5, rgb(pal.ray, a)); gx.addColorStop(1, rgb(pal.ray, 0));
+    s.fillStyle = gx; s.fillRect(x - bw, 0, bw * 2, h);
+  }
+  // Vertical falloff: shafts live in the upper part of the frame.
+  s.globalCompositeOperation = "destination-in";
+  const gy = s.createLinearGradient(0, 0, 0, h);
+  gy.addColorStop(0, "rgba(0,0,0,1)"); gy.addColorStop(G.ray_len ?? 0.7, "rgba(0,0,0,0.15)"); gy.addColorStop(1, "rgba(0,0,0,0)");
+  s.fillStyle = gy; s.fillRect(0, 0, w, h);
+  c.globalCompositeOperation = "screen";
+  c.drawImage(sh, 0, 0);
+  c.globalCompositeOperation = "source-over";
+  // Dark pools drifting low in the frame.
+  for (let i = 0; i < 2; i++) {
+    const cx = w * (0.3 + 0.4 * i + 0.15 * noise1(sp * 0.12 + i * 5, 21));
+    const cy = h * (0.62 + 0.18 * i + 0.06 * noise1(sp * 0.1 + i, 41));
+    const r = Math.max(w, h) * (0.32 + 0.08 * i);
+    const rg = c.createRadialGradient(cx, cy, 0, cx, cy, r);
+    rg.addColorStop(0, rgb(pal.shade, G.shade ?? 0.75)); rg.addColorStop(1, rgb(pal.shade, 0));
+    c.fillStyle = rg; c.fillRect(0, 0, w, h);
+  }
+  return pal;
+}
+
+// ------------------------------------------------------------------ motion
+// One SVG blur filter per beat: equal x/y = soft blur, one axis = motion blur along the move.
+function blurFilter(id) {
+  let f = defs.querySelector(`#${id}`);
+  if (!f) {
+    f = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+    f.id = id;
+    f.setAttribute("x", "-60%"); f.setAttribute("y", "-60%"); f.setAttribute("width", "220%"); f.setAttribute("height", "220%");
+    f.setAttribute("color-interpolation-filters", "sRGB");
+    f.innerHTML = '<feGaussianBlur stdDeviation="0 0"/>';
+    defs.appendChild(f);
+  }
+  return f;
+}
+function setBlur(el, id, bx, by) {
+  if (bx < 0.25 && by < 0.25) { el.style.filter = ""; return; }
+  blurFilter(id).firstChild.setAttribute("stdDeviation", `${bx.toFixed(2)} ${by.toFixed(2)}`);
+  el.style.filter = `url(#${id})`;
+}
+
+/**
+ * Entrance/exit look for progress k (0 = hidden, 1 = settled). Returns transform parts + blur.
+ * kinds: blur, rise, fade, zoom, pop, up, down, whip-left, whip-right, none.
+ */
+function motion(kind, k, dist = 1) {
+  const v = Math.sin(Math.PI * clamp(k)); // speed proxy → motion blur
+  const W = R.W, H = R.H;
+  switch (kind) {
+    case "none": return { op: 1, x: 0, y: 0, s: 1, bx: 0, by: 0 };
+    case "fade": return { op: k, x: 0, y: 0, s: 1, bx: 0, by: 0 };
+    case "rise": return { op: clamp(k * 1.6), x: 0, y: (1 - k) * U(70) * dist, s: 1, bx: 0, by: (1 - k) * U(10) };
+    case "zoom": return { op: clamp(k * 1.5), x: 0, y: 0, s: lerp(0.6, 1, k), bx: (1 - k) * U(16), by: (1 - k) * U(16) };
+    case "pop": return { op: clamp(k * 2), x: 0, y: 0, s: lerp(0.4, 1, ease.outBack(k)), bx: 0, by: 0 };
+    case "up": return { op: clamp(k * 1.2), x: 0, y: (1 - k) * -H * 0.22 * dist, s: 1, bx: 0, by: v * U(26) + (1 - k) * U(8) };
+    case "down": return { op: clamp(k * 1.2), x: 0, y: (1 - k) * H * 0.22 * dist, s: 1, bx: 0, by: v * U(26) + (1 - k) * U(8) };
+    case "whip-left": return { op: 1, x: (1 - k) * -W * 1.05 * dist, y: 0, s: 1, bx: v * U(60), by: 0 };
+    case "whip-right": return { op: 1, x: (1 - k) * W * 1.05 * dist, y: 0, s: 1, bx: v * U(60), by: 0 };
+    case "blur":
+    default: return { op: clamp(k * 1.4), x: 0, y: (1 - k) * U(14), s: lerp(0.97, 1, k), bx: (1 - k) * U(18), by: (1 - k) * U(18) };
+  }
+}
+/** Combined entrance × exit for a beat at t. */
+function life(b, t, defIn = "blur", defOut = "blur", dIn = 0.6, dOut = 0.45) {
+  const t0 = b.in ?? R.start, t1 = b.out ?? R.end;
+  const din = b.in_dur ?? dIn, dout = b.out_dur ?? dOut;
+  const kin = tw(t, t0, din, ease.outQuint);
+  const kout = tw(t, t1 - dout, dout, ease.inCubic);
+  const a = motion(b.enter || defIn, kin), z = motion(b.exit || defOut, 1 - kout);
+  return {
+    on: t >= t0 && t <= t1, kin, kout,
+    op: a.op * z.op, x: a.x + z.x, y: a.y + z.y, s: a.s * z.s, bx: a.bx + z.bx, by: a.by + z.by,
+  };
+}
+function applyLife(el, id, L, extra = "") {
+  el.style.display = L.on ? "" : "none";
+  el.style.opacity = L.op;
+  el.style.transform = `translate(${L.x}px, ${L.y}px) scale(${L.s}) ${extra}`;
+  setBlur(el, id, L.bx, L.by);
+}
+
+// ------------------------------------------------------------------ text block
+// Word-by-word reveal (blur + rise + dim→white). Lines that haven't started don't count, so the
+// block re-centres smoothly as lines are added (anchor "center"), or grows down (anchor "top").
+function makeText(parent, b, opts = {}) {
+  const TX = { ...(R.P.text || {}), ...(b.style || {}) };
+  const el = document.createElement("div");
+  el.className = "tb";
+  const src = String(b.text ?? "").split("\n").map((l) => richWords(l).html).join("<br>")
+    .replace(/ـ+/g, (m) => `\u200d<span class="k" data-n="${m.length}"><i>ـ</i></span>\u200d`);
+  el.innerHTML = src;
+  parent.appendChild(el);
+  return { el, TX, b, opts, words: [...el.querySelectorAll(".w")], lines: [] };
+}
+/** Size-dependent text styling (runs on every layout: the frame size is only known then). */
+function styleText(tx) {
+  const { el, TX, b, opts } = tx;
+  el.style.fontFamily = `"${R.P.font || "Tajawal"}", "Tajawal", sans-serif`;
+  el.style.fontSize = U(b.size ?? opts.size ?? TX.size) + "px";
+  el.style.fontWeight = b.weight ?? TX.weight ?? 400;
+  el.style.setProperty("--lh", TX.line ?? 1.35);
+  el.style.setProperty("--hl", R.T.hl || R.T.text);
+  el.style.color = R.T.text;
+  el.style.textAlign = b.align || opts.align || "center";
+  // Kashida runs: n tatweels → n × text.kashida em, drawn by stretching the font's own tatweel.
+  const ks = el.querySelectorAll(".k");
+  if (ks.length) {
+    const probe = ks[0].firstChild, gw = probe.getBoundingClientRect().width / (parseFloat(probe.style.transform?.match(/scaleX\(([\d.]+)/)?.[1]) || 1);
+    const em = parseFloat(el.style.fontSize);
+    for (const k of ks) {
+      const w = +k.dataset.n * (TX.kashida ?? 0.28) * em;
+      k.style.width = w + "px";
+      k.firstChild.style.transform = `scaleX(${(w + em * 0.04) / Math.max(gw, 1e-3)})`;
+    }
+  }
+  if (TX.glow) el.style.textShadow = `0 0 ${U(TX.glow)}px ${rgb(hex(R.T.text), 0.35)}`;
+}
+/** After layout: group words into visual lines and fix each word's reveal time. */
+function measureText(tx, b, t0) {
+  styleText(tx);
+  const ws = tx.words, TX = tx.TX;
+  const stagger = b.stagger ?? TX.stagger ?? 0.16;
+  const at = b.at || [];
+  tx.times = ws.map((_, i) => t0 + (b.delay ?? 0) + (at[i] ?? ((at.length ? at[at.length - 1] + (i - at.length + 1) * stagger : i * stagger))));
+  const lines = [];
+  ws.forEach((w, i) => {
+    const top = w.offsetTop;
+    let L = lines.find((l) => Math.abs(l.top - top) < w.offsetHeight * 0.5);
+    if (!L) { L = { top, bottom: top + w.offsetHeight, idx: [], t: Infinity }; lines.push(L); }
+    L.idx.push(i); L.bottom = Math.max(L.bottom, top + w.offsetHeight); L.t = Math.min(L.t, tx.times[i]);
+  });
+  lines.sort((a, b2) => a.top - b2.top);
+  tx.lines = lines;
+}
+/** Visible height of the block at t (lines ease in as they start). */
+function textHeight(tx, t) {
+  const L = tx.lines;
+  if (!L.length) return 0;
+  let h = L[0].bottom - L[0].top;
+  for (let i = 1; i < L.length; i++) h += (L[i].bottom - L[i - 1].bottom) * tw(t, L[i].t - 0.05, 0.5, ease.outCubic);
+  return h;
+}
+function renderWords(tx, t, id) {
+  const TX = tx.TX, dur = TX.word_dur ?? 0.45, bl = TX.blur ?? 12, rise = TX.rise ?? 16, dim = TX.dim ?? 0.35;
+  tx.words.forEach((w, i) => {
+    const k = tw(t, tx.times[i], dur, ease.outCubic);
+    w.style.visibility = k <= 0 ? "hidden" : "";
+    // Fades up to a dim grey quickly, then settles to full white (the reference's two-step reveal).
+    w.style.opacity = k < 0.3 ? (k / 0.3) * dim : lerp(dim, 1, (k - 0.3) / 0.7);
+    w.style.transform = k < 1 ? `translateY(${(1 - k) * U(rise)}px)` : "";
+    w.style.filter = k < 1 && bl > 0 ? `blur(${((1 - k) * U(bl)).toFixed(2)}px)` : "";
+  });
+}
+
+// ------------------------------------------------------------------ drawn pieces
+const SPARK = (c) => `<svg viewBox="-50 -50 100 100"><path d="M0-50C3-14 14-3 50 0 14 3 3 14 0 50-3 14-14 3-50 0-14-3-3-14 0-50Z" fill="${c}"/></svg>`;
+let uid = 0; // SVG ids must be unique: a paint server inside a hidden beat paints nothing
+const WARN = (g = "wg" + uid++) => `<svg viewBox="0 0 100 92"><defs><linearGradient id="${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe35a"/><stop offset="1" stop-color="#f2a900"/></linearGradient></defs>
+  <path d="M42 8Q50-4 58 8L96 74Q103 88 86 88H14Q-3 88 4 74Z" fill="url(#${g})" stroke="#c98a00" stroke-width="2"/>
+  <path d="M44 12Q50 4 56 12" stroke="rgba(255,255,255,.7)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <rect x="45" y="30" width="10" height="32" rx="5" fill="#2a2100"/><circle cx="50" cy="73" r="6" fill="#2a2100"/></svg>`;
+const CURSOR = (g = "cg" + uid++) => `<svg viewBox="0 0 60 64"><defs><linearGradient id="${g}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b9cbff"/><stop offset=".55" stop-color="#5f84ff"/><stop offset="1" stop-color="#3152e0"/></linearGradient></defs>
+  <path d="M6 4Q2 2 3 7L12 58Q13 63 17 59L28 44 46 50Q52 52 50 46Z" fill="url(#${g})" stroke="rgba(255,255,255,.55)" stroke-width="2" stroke-linejoin="round"/></svg>`;
+/** Default logo: a rounded 6-arm star with soft 3D shading (swap with logo_src for the brand's own). */
+function logoSVG(col, g = "lg" + uid++) {
+  const arms = [...Array(6)].map((_, i) => `<rect x="-11" y="-48" width="22" height="44" rx="11" transform="rotate(${i * 60 + 15}) skewX(-14)"/>`).join("");
+  return `<svg viewBox="-60 -60 120 120"><defs><radialGradient id="${g}" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#ffffff"/><stop offset=".6" stop-color="${col}"/><stop offset="1" stop-color="#9aa6d8"/></radialGradient>
+    <filter id="${g}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+    <g fill="${col}" opacity=".55" filter="url(#${g}f)">${arms}</g><g fill="url(#${g})">${arms}</g></svg>`;
+}
+function logoEl(size) {
+  const d = document.createElement("div");
+  d.className = "deco logo";
+  d.innerHTML = R.P.logo_src ? `<img src="${R.asset(R.P.logo_src)}" style="width:100%;height:100%;object-fit:contain">` : logoSVG(R.T.logo || "#eef1ff");
+  d.dataset.size = size; // sized on layout
+  return d;
+}
+/** Folder-card outline with a tab on one side (path in px). */
+function folderPath(w, h, th, tw_, side, r) {
+  const s = th * 1.1;
+  const right = `M${r},${th} L${w - tw_ - s},${th} C${w - tw_ - s * 0.45},${th} ${w - tw_ - s * 0.55},0 ${w - tw_},0 L${w - r},0 Q${w},0 ${w},${r} L${w},${h} L0,${h} L0,${th + r} Q0,${th} ${r},${th} Z`;
+  return side === "left" ? { d: right, flip: true } : { d: right, flip: false };
+}
+
+// ------------------------------------------------------------------ beat types
+const TYPES = {
+  text: {
+    build(b, root, st) { st.tx = makeText(root, b); },
+    layout(b, root, st) {
+      const tx = st.tx;
+      tx.el.style.width = (b.w ?? 0.86) * R.W + "px";
+      measureText(tx, b, b.in ?? R.start);
+    },
+    render(b, root, t, id, st) {
+      const tx = st.tx, L = life(b, t, "none", "up");
+      const h = textHeight(tx, t), top0 = tx.lines[0]?.top ?? 0;
+      const y = (b.y ?? 0.5) * R.H - ((b.anchor || "center") === "center" ? h / 2 : 0) - top0;
+      tx.el.style.left = ((b.x ?? 0.5) - (b.w ?? 0.86) / 2) * R.W + "px";
+      tx.el.style.top = y + "px";
+      renderWords(tx, t, id);
+      applyLife(root, id, L);
+    },
+  },
+
+  card: {
+    build(b, root, st) {
+      const g = document.createElement("div");
+      g.className = "glass";
+      root.appendChild(g);
+      st.g = g;
+      st.tx = makeText(g, { ...b, align: b.align || "start" });
+      st.deco = [];
+      const n = b.warn ? 3 : b.sparkles !== false ? 2 : 0;
+      for (let i = 0; i < n; i++) {
+        const d = document.createElement("div");
+        d.className = "deco";
+        d.innerHTML = b.warn ? WARN() : SPARK(R.T.spark || "#ffffff");
+        root.appendChild(d);
+        st.deco.push(d);
+      }
+      st.shards = [];
+      if ((b.exit || "shatter") === "shatter") {
+        for (let i = 0; i < 12; i++) {
+          const s = document.createElement("div");
+          s.className = "deco";
+          s.innerHTML = SPARK(b.warn ? "#ffe9b0" : R.T.spark || "#ffffff");
+          root.appendChild(s);
+          st.shards.push(s);
+        }
+      }
+    },
+    layout(b, root, st) {
+      const g = st.g, tx = st.tx, alert = b.tone === "alert";
+      const w = (b.w ?? 0.62) * R.W, pad = U(b.pad ?? 44);
+      Object.assign(g.style, {
+        width: w + "px", padding: `${pad * 0.8}px ${pad}px`,
+        borderRadius: U(b.radius ?? 46) + "px",
+        background: alert ? R.T.glass_alert : R.T.glass,
+        backdropFilter: `blur(${U(22)}px) brightness(${b.tone === "alert" ? 1 : 0.75}) saturate(1.2)`,
+        boxShadow: `0 ${U(30)}px ${U(80)}px rgba(0,0,0,.35)`,
+      });
+      g.style.setProperty("--stroke", R.T.stroke);
+      g.style.setProperty("--sw", U(2.2) + "px");
+      tx.el.style.position = "relative";
+      tx.el.style.width = "100%";
+      measureText(tx, b, (b.in ?? R.start) + (b.text_delay ?? 0.45));
+      if (b.h) g.style.height = b.h * R.H + "px";
+      else g.style.minHeight = tx.el.offsetHeight + pad * 1.6 + "px";
+      g.style.left = ((b.x ?? 0.5) * R.W - w / 2) + "px";
+      g.style.top = ((b.y ?? 0.5) * R.H - g.offsetHeight / 2) + "px";
+      const ds = U(b.deco_size ?? (b.warn ? 110 : 96));
+      st.deco.forEach((d, i) => { d.style.width = ds + "px"; d.style.height = ds + "px"; });
+      st.shards.forEach((s, i) => {
+        const sz = U(26 + 34 * rand(i, 2));
+        s.style.width = s.style.height = sz + "px";
+      });
+    },
+    render(b, root, t, id, st) {
+      const exit = b.exit || "shatter";
+      // "shatter": the card whips off to the side with motion blur while sparks burst from it.
+      const L = life({ ...b, exit: exit === "shatter" ? "whip-left" : exit, out_dur: exit === "shatter" ? 0.45 : b.out_dur }, t, "zoom", "blur", 0.55);
+      const g = st.g, tx = st.tx;
+      renderWords(tx, t, id);
+      applyLife(root, id, { ...L, op: 1, x: 0, y: 0, s: 1, bx: 0, by: 0 });
+      g.style.opacity = L.op;
+      g.style.transform = `translate(${L.x}px, ${L.y}px) scale(${L.s})`;
+      setBlur(g, id + "g", L.bx, L.by);
+      // Corner pieces: sparkles twinkle; warnings pop in one by one and wobble.
+      const gx = g.offsetLeft, gy = g.offsetTop, gw = g.offsetWidth, gh = g.offsetHeight, t0 = b.in ?? R.start;
+      const spots = b.warn ? [[0.0, 0.08], [1.0, 0.45], [0.92, 1.0]] : [[1.0, 0.0], [0.0, 1.0]];
+      const tout = (b.out ?? R.end) - (exit === "shatter" ? 0.45 : 0.25);
+      st.deco.forEach((d, i) => {
+        const [fx, fy] = spots[i % spots.length];
+        const k = tw(t, t0 + (b.warn ? 0.25 + i * 0.22 : 0.35 + i * 0.12), 0.5, ease.outBack);
+        const ko = tw(t, tout, 0.2, ease.inCubic);
+        const tw2 = b.warn ? Math.sin((t - t0) * 6 + i * 2) * 8 : (t - t0) * 40 + i * 30;
+        const sc = (b.warn ? 1 : 0.85 + 0.25 * Math.sin((t - t0) * 4 + i * 2.1)) * k * (1 - ko);
+        d.style.left = gx + fx * gw - d.offsetWidth / 2 + "px";
+        d.style.top = gy + fy * gh - d.offsetHeight / 2 + "px";
+        d.style.opacity = clamp(k * 2) * (1 - ko) * (t >= t0 ? 1 : 0);
+        d.style.transform = `scale(${sc}) rotate(${tw2}deg)`;
+        d.style.filter = b.warn ? "drop-shadow(0 4px 10px rgba(0,0,0,.45))" : `drop-shadow(0 0 ${U(10)}px rgba(255,255,255,.9))`;
+      });
+      // Sparks burst from the card as it leaves.
+      const ks = exit === "shatter" ? tw(t, (b.out ?? R.end) - 0.5, 0.5, ease.outCubic) : 0;
+      st.shards.forEach((s, i) => {
+        if (ks <= 0 || ks >= 1) { s.style.display = "none"; return; }
+        s.style.display = "";
+        const a = rand(i, 11) * Math.PI * 2, d = (0.15 + 0.45 * rand(i, 12)) * R.W * ks;
+        const sx = gx + gw * (0.1 + 0.8 * rand(i, 13)), sy = gy + gh * (0.1 + 0.8 * rand(i, 14));
+        s.style.left = sx + Math.cos(a) * d - s.offsetWidth / 2 + "px";
+        s.style.top = sy + Math.sin(a) * d - s.offsetHeight / 2 + "px";
+        s.style.opacity = Math.sin(Math.PI * ks);
+        s.style.transform = `rotate(${(rand(i, 15) - 0.5) * 360 * ks}deg) scale(${0.6 + 0.6 * Math.sin(Math.PI * ks)})`;
+        s.style.filter = `drop-shadow(0 0 ${U(8)}px rgba(255,255,255,.9))`;
+      });
+    },
+  },
+
+  tabs: {
+    build(b, root, st) {
+      const wrap = document.createElement("div");
+      wrap.className = "tabs";
+      root.appendChild(wrap);
+      st.wrap = wrap;
+      st.tabs = (b.items || []).map((label, i) => {
+        const d = document.createElement("div");
+        d.className = "tab";
+        d.innerHTML = `<svg><path/></svg><div class="lb">${esc(label)}</div>`;
+        wrap.appendChild(d);
+        return d;
+      });
+    },
+    layout(b, root, st) {
+      const W = R.W, H = R.H, n = st.tabs.length;
+      const cw = W * 1.15, ch = H * 0.5, th = U(b.tab_h ?? 150), tabW = cw * 0.42;
+      const gap = H * (b.gap ?? 0.13), y0 = H * (b.y ?? 0.55);
+      root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
+      st.tabs.forEach((d, i) => {
+        const side = i % 2 ? "left" : "right";
+        const p = folderPath(cw, ch, th, tabW, side, U(28));
+        Object.assign(d.style, { width: cw + "px", height: ch + "px", left: (W - cw) / 2 + "px", top: y0 + i * gap + "px", zIndex: i });
+        const svg = d.querySelector("svg"), path = svg.querySelector("path");
+        svg.setAttribute("viewBox", `0 0 ${cw} ${ch}`);
+        path.setAttribute("d", p.d);
+        path.setAttribute("fill", R.T.tab);
+        path.setAttribute("stroke", "rgba(255,255,255,.10)");
+        path.setAttribute("stroke-width", U(2));
+        path.setAttribute("transform", p.flip ? `translate(${cw},0) scale(-1,1)` : "");
+        svg.style.filter = `drop-shadow(0 -${U(18)}px ${U(30)}px rgba(0,0,0,.45))`;
+        const lb = d.querySelector(".lb");
+        Object.assign(lb.style, {
+          fontFamily: `"${R.P.font || "Tajawal"}", "Tajawal", sans-serif`, fontSize: U(b.size ?? 74) + "px", color: R.T.tab_text,
+          top: th * 0.1 + "px", width: tabW + "px", textAlign: "center", lineHeight: th * 0.9 + "px",
+          // Keep the label inside the visible part of the tab (the card overhangs the frame).
+          left: (side === "right" ? cw - tabW - (cw - W) / 2 : (cw - W) / 2) + "px",
+        });
+      });
+    },
+    render(b, root, t, id, st) {
+      const L = life(b, t, "none", "fade", 0.4, 0.35);
+      applyLife(root, id, { ...L, x: 0, y: 0, s: 1, bx: 0, by: 0 });
+      const t0 = b.in ?? R.start, gapT = b.stagger ?? 0.35, H = R.H;
+      st.tabs.forEach((d, i) => {
+        const k = tw(t, t0 + i * gapT, 0.8, ease.outQuint);
+        d.style.transform = `translateY(${(1 - k) * H * 0.6}px)`;
+        d.style.opacity = clamp(k * 3);
+      });
+      // Camera: push in and tilt while the stack builds, then drift.
+      const cz = b.zoom ?? [1, 1.75];
+      const kc = tw(t, t0 + (b.cam_delay ?? 0.9), b.cam_dur ?? 2.4, ease.inOutCubic);
+      const z = lerp(cz[0], cz[1], kc);
+      const rot = lerp(0, b.tilt ?? -6, kc) + noise1(t * 0.5, 3) * 0.6;
+      const fx = R.W * (b.focus_x ?? 0.62), fy = R.H * (b.focus_y ?? 0.62);
+      st.wrap.style.transformOrigin = `${fx}px ${fy}px`;
+      st.wrap.style.transform = `perspective(${R.H * 1.4}px) rotateX(${lerp(10, 4, kc)}deg) rotate(${rot}deg) scale(${z}) translateY(${-kc * R.H * (b.lift ?? 0.12)}px)`;
+    },
+  },
+
+  band: {
+    build(b, root, st) {
+      st.fill = Object.assign(document.createElement("div"), { className: "line" });
+      st.l1 = Object.assign(document.createElement("div"), { className: "line" });
+      st.l2 = Object.assign(document.createElement("div"), { className: "line" });
+      root.append(st.fill, st.l1, st.l2);
+      st.tx = makeText(root, { ...b, align: b.align || "start" });
+      if (b.logo !== false) { st.logo = logoEl(b.logo_size ?? 380); root.appendChild(st.logo); }
+    },
+    layout(b, root, st) {
+      const W = R.W, H = R.H, bh = (b.h ?? 0.3) * H;
+      root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
+      for (const l of [st.l1, st.l2]) Object.assign(l.style, { height: U(3) + "px", background: R.T.line, boxShadow: `0 0 ${U(12)}px ${R.T.line}, 0 0 ${U(30)}px ${R.T.line}` });
+      Object.assign(st.fill.style, { background: R.T.band, backdropFilter: `blur(${U(18)}px)` });
+      const tx = st.tx, pad = W * 0.08;
+      tx.el.style.width = W - pad * 2 + "px";
+      tx.el.style.left = pad + "px";
+      measureText(tx, b, (b.in ?? R.start) + (b.text_delay ?? 0.35));
+      st.bh = bh;
+    },
+    render(b, root, t, id, st) {
+      const L = life(b, t, "none", "fade", 0.5, 0.4);
+      applyLife(root, id, { ...L, x: 0, y: 0, s: 1, bx: 0, by: 0 });
+      const H = R.H, cy = (b.y ?? 0.4) * H, t0 = b.in ?? R.start;
+      const k = tw(t, t0, 0.7, ease.outQuint), h = st.bh * k;
+      st.l1.style.top = cy - h / 2 + "px"; st.l2.style.top = cy + h / 2 + "px";
+      st.fill.style.top = cy - h / 2 + "px"; st.fill.style.height = h + "px";
+      st.l1.style.opacity = st.l2.style.opacity = clamp(k * 4);
+      const tx = st.tx;
+      tx.el.style.top = cy - st.bh / 2 + st.bh * 0.12 - (tx.lines[0]?.top ?? 0) + "px";
+      renderWords(tx, t, id);
+      if (st.logo) {
+        const kl = tw(t, t0 + 0.3, 0.8, ease.outBack), s = U(b.logo_size ?? 380);
+        st.logo.style.left = R.W / 2 - s / 2 + "px";
+        st.logo.style.top = cy + st.bh / 2 + (H - (cy + st.bh / 2)) / 2 - s / 2 + "px";
+        st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 14)}deg)`;
+        st.logo.style.opacity = clamp(kl * 2);
+      }
+    },
+  },
+
+  follow: {
+    build(b, root, st) {
+      st.logo = logoEl(b.logo_size ?? 240);
+      st.pill = Object.assign(document.createElement("div"), { className: "pill" });
+      st.pill.innerHTML = `<canvas></canvas><div class="lb">${esc(b.label ?? "Follow")}</div>`;
+      st.cur = Object.assign(document.createElement("div"), { className: "deco" });
+      st.cur.innerHTML = CURSOR();
+      root.append(st.logo, st.pill, st.cur);
+    },
+    layout(b, root, st) {
+      const W = R.W, H = R.H, ls = U(b.logo_size ?? 240), pw = U(b.w ?? 640), ph = U(b.h ?? 180), gap = U(50);
+      root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
+      const total = ls + gap + pw, x0 = (b.x ?? 0.5) * W - total / 2, cy = (b.y ?? 0.58) * H;
+      // RTL keeps the logo on the left like the reference (logo, then the button).
+      Object.assign(st.logo.style, { left: x0 + "px", top: cy - ls / 2 + "px" });
+      Object.assign(st.pill.style, {
+        left: x0 + ls + gap + "px", top: cy - ph / 2 + "px", width: pw + "px", height: ph + "px",
+        background: R.T.pill, border: `${U(2.5)}px solid ${R.T.stroke}`, boxShadow: `0 0 ${U(30)}px ${rgb(hex(R.T.ray || "#3355ff"), 0.35)}`,
+      });
+      Object.assign(st.pill.querySelector(".lb").style, { fontFamily: `"${R.P.font_latin || R.P.font || "Tajawal"}", sans-serif`, fontSize: ph * 0.48 + "px", color: R.T.text });
+      Object.assign(st.cur.style, { width: U(130) + "px", height: U(139) + "px" });
+      st.pc = { x: x0 + ls + gap + pw * 0.7, y: cy + ph * 0.25 };
+    },
+    render(b, root, t, id, st) {
+      const L = life(b, t, "blur", "blur", 0.5, 0.4);
+      applyLife(root, id, L);
+      const t0 = b.in ?? R.start, tap = b.tap ?? t0 + 1.6;
+      const kl = tw(t, t0, 0.7, ease.outBack);
+      st.logo.style.transform = `scale(${kl}) rotate(${(t - t0) * (b.spin ?? 20)}deg)`;
+      // Pill: grows open, sparkles with pixel noise, then the label resolves.
+      const kp = tw(t, t0 + 0.15, 0.6, ease.outQuint);
+      const pill = st.pill, cv = pill.querySelector("canvas"), lb = pill.querySelector(".lb");
+      const press = Math.exp(-Math.pow((t - tap) / 0.09, 2));
+      pill.style.transform = `scaleX(${lerp(0.2, 1, kp)}) scale(${1 - 0.06 * press})`;
+      pill.style.opacity = clamp(kp * 2);
+      const kn = clamp((t - (t0 + 0.3)) / 0.9);
+      const cw = Math.max(4, Math.round(pill.offsetWidth / U(10))), chh = Math.max(2, Math.round(pill.offsetHeight / U(10)));
+      if (cv.width !== cw || cv.height !== chh) { cv.width = cw; cv.height = chh; }
+      cv.style.imageRendering = "pixelated";
+      const c = cv.getContext("2d"), fr = Math.floor(t * 14);
+      c.clearRect(0, 0, cw, chh);
+      if (kn > 0 && kn < 1) {
+        // Sparse twinkling pixels in the theme's light colour, sweeping off right→left.
+        const pc = hex(R.T.ray || "#3355ff").map((v) => lerp(v, 255, 0.55));
+        for (let y = 0; y < chh; y++) for (let x = 0; x < cw; x++) {
+          const front = 1 - kn * 1.25 + (x / cw) * 0.5; // pixels behind the sweep are gone
+          if (front < 0 || rand(x, y, fr) > 0.28 * Math.sin(Math.PI * kn) * clamp(front * 3)) continue;
+          const v = rand(x, y, fr, 2);
+          c.fillStyle = rgb(pc.map((q) => lerp(q, 255, v * 0.6)), 0.15 + 0.55 * v);
+          c.fillRect(x, y, 1, 1);
+        }
+      }
+      const kt = tw(t, t0 + 1.0, 0.45, ease.outCubic);
+      lb.style.opacity = kt;
+      lb.style.filter = kt < 1 ? `blur(${(1 - kt) * U(10)}px)` : "";
+      lb.style.textShadow = `0 0 ${U(18)}px rgba(200,215,255,${0.6 * kt})`;
+      // Cursor glides in from below-right, taps, drifts off a little.
+      const kc = tw(t, tap - 0.75, 0.7, ease.outCubic), ka = tw(t, tap + 0.15, 0.8, ease.inOutCubic);
+      const cx = st.pc.x + (1 - kc) * U(260) + ka * U(40), cy = st.pc.y + (1 - kc) * U(420) + ka * U(60);
+      st.cur.style.left = cx + "px"; st.cur.style.top = cy + "px";
+      st.cur.style.opacity = clamp(kc * 2);
+      st.cur.style.transform = `scale(${1 - 0.15 * press})`;
+      st.cur.style.filter = `drop-shadow(0 ${U(8)}px ${U(14)}px rgba(0,0,30,.5))`;
+    },
+  },
+
+  image: {
+    build(b, root, st) {
+      if (b.panel) { st.panel = Object.assign(document.createElement("div"), { className: "glass" }); root.appendChild(st.panel); }
+      st.m = Object.assign(document.createElement("div"), { className: "media" });
+      st.img = document.createElement("img");
+      st.m.appendChild(st.img);
+      root.appendChild(st.m);
+      if (b.type === "image") st.img.src = R.asset(b.src);
+    },
+    layout(b, root, st) {
+      const W = R.W, H = R.H, w = (b.w ?? 1) * W, h = (b.h ?? (b.w ? b.w * (W / H) : 1)) * H;
+      root.style.left = "0px"; root.style.top = "0px"; root.style.width = W + "px"; root.style.height = H + "px";
+      Object.assign(st.m.style, { width: w + "px", height: h + "px", left: (b.x ?? 0.5) * W - w / 2 + "px", top: (b.y ?? 0.5) * H - h / 2 + "px",
+        borderRadius: U(b.radius ?? 0) + "px" });
+      st.img.style.objectFit = b.fit || "cover";
+      if (st.panel) {
+        const p = b.panel, pw = (p.w ?? 0.82) * W, ph = (p.h ?? 0.3) * H;
+        Object.assign(st.panel.style, { width: pw + "px", height: ph + "px", left: (p.x ?? 0.5) * W - pw / 2 + "px", top: (p.y ?? 0.6) * H - ph / 2 + "px",
+          borderRadius: U(p.radius ?? 50) + "px", background: R.T.glass, backdropFilter: `blur(${U(22)}px)` });
+        st.panel.style.setProperty("--stroke", R.T.stroke);
+        st.panel.style.setProperty("--sw", U(2.2) + "px");
+      }
+    },
+    async render(b, root, t, id, st) {
+      const L = life(b, t, "fade", "fade", 0.5, 0.4);
+      applyLife(root, id, L);
+      const t0 = b.in ?? R.start, t1 = b.out ?? R.end;
+      // Slow push-in (Ken Burns) and an optional float for cut-out objects.
+      const kb = lerp(1, b.push ?? 1.06, clamp((t - t0) / Math.max(t1 - t0, 0.1)));
+      const fl = b.float ? Math.sin((t - t0) * 1.6) * U(14) : 0;
+      st.img.style.transform = `translateY(${fl}px) scale(${kb})`;
+      if (st.panel) {
+        const kp = tw(t, t0 - 0.1, 0.6, ease.outQuint);
+        st.panel.style.transform = `translateY(${(1 - kp) * U(80)}px)`;
+        st.panel.style.opacity = kp;
+      }
+      if (b.type === "clip" && b._clip && L.on) {
+        const c = b._clip, i = Math.max(0, Math.min(c.n - 1, Math.floor((t - t0) * c.fps * (b.speed ?? 1))));
+        const src = R.asset(`${c.dir}/${String(i + 1).padStart(5, "0")}.jpg`);
+        if (st.src !== src) { st.src = src; st.img.src = src; try { await st.img.decode(); } catch {} }
+      }
+    },
+  },
+
+  logo: {
+    build(b, root, st) { st.logo = logoEl(b.size ?? 220); root.appendChild(st.logo); },
+    layout(b, root, st) {
+      const s = U(b.size ?? 220);
+      root.style.left = (b.x ?? 0.5) * R.W - s / 2 + "px"; root.style.top = (b.y ?? 0.5) * R.H - s / 2 + "px";
+      root.style.width = root.style.height = s + "px";
+      st.logo.style.left = "0px"; st.logo.style.top = "0px";
+    },
+    render(b, root, t, id, st) {
+      const L = life(b, t, "pop", "blur", 0.6, 0.4);
+      applyLife(root, id, L);
+      st.logo.style.transform = `rotate(${(t - (b.in ?? R.start)) * (b.spin ?? 18)}deg)`;
+    },
+  },
+};
+TYPES.clip = TYPES.image;
+
+// ------------------------------------------------------------------ build / render
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  R.clearItems();
+  for (const el of [...R.stage.children]) if (el !== bg) el.remove();
+  defs.innerHTML = "";
+  beats = (R.P.beats || []).map((b, i) => {
+    const T = TYPES[b.type || "text"];
+    if (!T) { console.warn("unknown beat type", b.type); return null; }
+    const root = document.createElement("div");
+    root.className = "beat";
+    root.style.zIndex = b.z ?? i + 1;
+    R.stage.appendChild(root);
+    const st = {};
+    T.build(b, root, st);
+    const what = b.text ?? (b.items ? b.items.join(" · ") : b.src ? b.src.split("/").pop() : "");
+    const label = b.label || `${b.type || "text"}: ${String(what).replace(/\n/g, " ").slice(0, 28)}`;
+    R.item({ id: "b" + i, label, els: [root], in: `beats.${i}.in`, out: `beats.${i}.out`, xf: `beats.${i}.xf` });
+    return { b, root, T, st, id: "mb" + i };
+  }).filter(Boolean);
+  layout();
+}
+function layout() {
+  for (const k of beats) {
+    k.root.style.display = "";
+    for (const d of k.root.querySelectorAll(".logo")) d.style.width = d.style.height = U(+d.dataset.size) + "px";
+    k.T.layout(k.b, k.root, k.st);
+  }
+  R._needsLayout = false;
+}
+
+/** `moves`: [{ at (s after in), x?, y?, dur? }] — the beat glides to a new spot (fractions of the frame). */
+function moveOffset(b, t) {
+  let x = b.x ?? 0.5, y = b.y ?? 0.5;
+  const x0 = x, y0 = y, t0 = b.in ?? R.start;
+  for (const m of b.moves || []) {
+    const k = tw(t, t0 + (m.at ?? 0), m.dur ?? 0.7, ease.inOutCubic);
+    if (m.x != null) x = lerp(x, m.x, k);
+    if (m.y != null) y = lerp(y, m.y, k);
+  }
+  return [(x - x0) * R.W, (y - y0) * R.H];
+}
+
+async function renderAt(t) {
+  if (R._needsLayout) layout();
+  drawBg(t);
+  for (const k of beats) {
+    const b = k.b, on = t >= (b.in ?? R.start) - 0.001 && t <= (b.out ?? R.end);
+    if (!on) { k.root.style.display = "none"; continue; }
+    await k.T.render(b, k.root, t, k.id, k.st);
+    const [dx, dy] = moveOffset(b, t);
+    k.root.style.translate = dx || dy ? `${dx}px ${dy}px` : "";
+  }
+}
+
+R.define({ ready: build, renderAt, onParams: build });
+</script>
+</body>
+</html>

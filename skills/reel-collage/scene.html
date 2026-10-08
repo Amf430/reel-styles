@@ -20,7 +20,7 @@
 <body>
 <div id="stage"></div>
 <script type="module">
-import { Reel, tw, ease, clamp, rand } from "/r/engine/web/base.js";
+import { Reel, tw, ease, clamp, rand, richWords } from "/r/engine/web/base.js";
 
 const R = await Reel.init();
 let pieces = [];
@@ -70,7 +70,16 @@ const TYPES = {
   photo: (c) => sheetHTML(`<div class="photo"><img src="${R.asset(c.src)}"></div>${c.caption ? `<div class="sub">${esc(c.caption)}</div>` : ""}`),
   ransom: (c) => `<div class="chips">${String(c.text ?? "").split(/\s+/).filter(Boolean).map((w) => `<span class="chip"><span class="bg"></span>${esc(w)}</span>`).join("")}</div>`,
   tape: () => `<div class="tape" style="position:relative"></div>`,
+  // ---- archive / heritage (faceless): dark page, B&W photos, rosette, highlighted lines, circle wipes
+  bg: () => `<div class="bgf"></div>`,
+  archive: (c) => `<div class="arch"><img src="${R.asset(c.src)}"></div>`,
+  cutout: (c) => `<img class="cut" src="${R.asset(c.src)}">`,
+  star: () => `<svg class="star" viewBox="-50 -50 100 100"><g fill="none" stroke-linejoin="round"><rect x="-30" y="-30" width="60" height="60" pathLength="1"/><rect x="-30" y="-30" width="60" height="60" transform="rotate(45)" pathLength="1"/><circle r="16" pathLength="1"/></g></svg>`,
+  label: (c) => `<div class="lbl">${String(c.text ?? "").split(/\s*\|\s*/).map((l) => `<div class="ln">${richWords(l).html}</div>`).join("")}</div>`,
+  ornament: () => `<div class="orn"><i></i><i></i><i></i></div>`,
+  wipe: () => `<div class="wp"></div>`,
 };
+const FULL = new Set(["bg", "wipe"]), CALM = new Set(["label", "ornament", "cutout", "star"]);
 
 function build() {
   document.body.dir = R.P.dir || "rtl";
@@ -131,8 +140,10 @@ function layout() {
       Object.assign(tp.style, { background: T.tape, top: top ? "-.45em" : "auto", bottom: top ? "auto" : "-.45em", left: left ? "-1.2em" : "auto", right: left ? "auto" : "-1.2em",
         rotate: `${(left === top ? -1 : 1) * (32 + rand(j, s) * 14)}deg`, clipPath: torn(4.2 * 60 * u, 1.25 * 60 * u, s + j * 3, 2 * u, 5 * u), fontSize: (c.size ?? 60) * u + "px" });
     });
-    el.style.left = c.x * R.W - el.offsetWidth / 2 + "px";
-    el.style.top = c.y * R.H - el.offsetHeight / 2 + "px";
+    styleArchive(k);
+    if (FULL.has(c.type)) { Object.assign(el.style, { left: "0px", top: "0px", width: R.W + "px", height: R.H + "px", fontSize: "" }); continue; }
+    el.style.left = (c.x ?? 0.5) * R.W - el.offsetWidth / 2 + "px";
+    el.style.top = (c.y ?? 0.5) * R.H - el.offsetHeight / 2 + "px";
   }
 }
 
@@ -146,6 +157,7 @@ function renderAt(t) {
     const vis = t >= tin && t <= tout;
     k.el.style.display = vis ? "" : "none";
     if (!vis) continue;
+    if (FULL.has(c.type) || CALM.has(c.type)) { renderArchive(k, t, tin, tout); continue; }
     const sl = c.slap ?? P.slap, p = tw(t, tin, sl, ease.outBack), q = tw(t, tout - 0.25, 0.25, ease.inCubic);
     const a = P.boil.amount * (c.boil ?? 1), jx = (rand(step, k.seed, 1) - 0.5) * 3 * a * u, jy = (rand(step, k.seed, 2) - 0.5) * 3 * a * u;
     const jr = (rand(step, k.seed, 3) - 0.5) * 0.8 * a;
@@ -156,7 +168,56 @@ function renderAt(t) {
   }
 }
 
-R.define({ ready: build, renderAt, onParams: () => build() });
+function styleArchive(k) {
+  const c = k.c, el = k.el, T = R.T, u = R.u;
+  if (c.type === "bg") Object.assign(el.querySelector(".bgf").style, { position: "absolute", inset: 0,
+    background: `radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,.55)), url(${grain(k.seed)}) 0 0 / ${200 * u}px, ${c.color || T.bg || "#151311"}`, backgroundBlendMode: "normal, overlay, normal" });
+  if (c.type === "archive") { const a = el.querySelector(".arch");
+    Object.assign(a.style, { width: (c.w ?? 0.7) * R.W + "px", aspectRatio: c.aspect ?? "4/3", overflow: "hidden", border: `${0.12 * (c.size ?? 60) * u}px solid ${c.paper || T.photo_border || "#e9e2d0"}`, boxShadow: `0 ${8 * u}px ${24 * u}px rgba(0,0,0,.5)`, position: "relative" });
+    Object.assign(a.querySelector("img").style, { width: "100%", height: "100%", objectFit: "cover", filter: c.color_photo ? "none" : "grayscale(1) contrast(1.15) sepia(.18)", display: "block" }); }
+  if (c.type === "cutout") Object.assign(el.querySelector(".cut").style, { width: (c.w ?? 0.6) * R.W + "px", display: "block", filter: `${c.color_photo ? "" : "grayscale(1) contrast(1.1) sepia(.12)"} drop-shadow(0 ${10 * u}px ${30 * u}px rgba(0,0,0,.6))` });
+  if (c.type === "star") { const sv = el.querySelector(".star"), d = (c.w ?? 0.22) * Math.min(R.W, R.H);
+    Object.assign(sv.style, { width: d + "px", height: d + "px", display: "block", overflow: "visible" }); const g = sv.querySelector("g");
+    g.setAttribute("stroke", c.color || T.star || T.accent); g.setAttribute("stroke-width", c.stroke ?? 2.2); }
+  if (c.type === "label") { const L = el.querySelector(".lbl");
+    Object.assign(L.style, { display: "flex", flexDirection: "column", alignItems: c.align === "center" ? "center" : "flex-start", gap: ".18em", color: c.ink || T.label_ink || "#f2ece0", fontWeight: 700, lineHeight: 1.25, whiteSpace: "nowrap" });
+    L.querySelectorAll(".hl").forEach((w) => Object.assign(w.style, { background: c.hl_bg || T.highlight || "#d9c7a3", color: c.hl_ink || "#151311", padding: "0 .2em", borderRadius: ".06em" })); }
+  if (c.type === "ornament") { const o = el.querySelector(".orn"); Object.assign(o.style, { display: "flex", gap: ".35em", fontSize: "1em" });
+    o.querySelectorAll("i").forEach((d, j) => Object.assign(d.style, { width: ".28em", height: ".28em", background: j === 1 ? (T.star || T.accent) : (T.highlight || "#d9c7a3"), transform: "rotate(45deg)", display: "block" })); }
+  if (c.type === "wipe") Object.assign(el.querySelector(".wp").style, { position: "absolute", inset: 0,
+    background: c.color === "paper" ? `url(${grain(k.seed)}) 0 0 / ${200 * u}px, ${T.paper}` : (c.color || T.accent) });
+}
+
+function renderArchive(k, t, tin, tout) {
+  const c = k.c, el = k.el, lt = t - tin, q = tw(t, tout - 0.3, 0.3, ease.inCubic);
+  el.style.opacity = 1 - q;
+  if (c.type === "bg") { el.style.opacity = tw(lt, 0, c.fade ?? 0.3) * (1 - q); return; }
+  if (c.type === "wipe") {
+    // circle grows from (x,y) until it covers the frame, holds, then a hole grows from the same point
+    const X = (c.x ?? 0.5) * R.W, Y = (c.y ?? 0.5) * R.H, far = Math.hypot(Math.max(X, R.W - X), Math.max(Y, R.H - Y)) * 1.02;
+    const d = c.dur ?? 0.5, r1 = far * tw(lt, 0, d, ease.inOutCubic), r2 = far * tw(lt, d + (c.hold ?? 0.15), d, ease.inOutCubic);
+    el.style.opacity = 1;
+    el.style.webkitMaskImage = `radial-gradient(circle at ${X}px ${Y}px, transparent ${r2}px, #000 ${r2 + 0.5}px, #000 ${r1}px, transparent ${r1 + 0.5}px)`;
+    return;
+  }
+  if (c.type === "archive") return;
+  if (c.type === "star") { const g = el.querySelector("g"), p = tw(lt, 0, 0.9, ease.inOutCubic);
+    g.querySelectorAll("rect,circle").forEach((s) => { s.style.strokeDasharray = "1 1"; s.style.strokeDashoffset = 1 - p; });
+    el.style.transform = `rotate(${(c.rot ?? 0) + lt * (c.spin ?? 12)}deg) scale(${0.8 + 0.2 * ease.outBack(tw(lt, 0, 0.6, ease.linear))})`; return; }
+  if (c.type === "cutout") { const e = tw(lt, 0, 0.8, ease.outCubic); el.style.opacity = e * (1 - q); el.style.filter = e < 0.99 ? `blur(${(1 - e) * 14 * R.u}px)` : ""; el.style.transform = `scale(${1.04 - 0.04 * e})`; return; }
+  if (c.type === "label") { el.querySelectorAll(".ln").forEach((ln, j) => { const p = tw(lt, j * 0.25, 0.55, ease.outCubic); ln.style.clipPath = `inset(-20% -5% -20% ${(1 - p) * 105 - 5}%)`; }); return; }
+  if (c.type === "ornament") { el.querySelectorAll("i").forEach((d, j) => (d.style.transform = `rotate(45deg) scale(${ease.outBack(tw(lt, j * 0.08, 0.35, ease.linear))})`)); return; }
+}
+
+function meta() {
+  const sfx = [];
+  for (const k of pieces) { const c = k.c, tin = c.in ?? R.start; if (c.sfx === false) continue;
+    const id = { bg: null, wipe: "whoosh_deep", archive: "paper", cutout: "whoosh_soft", star: "draw_circle", label: "draw_line", ornament: "tick", ransom: "stamp", photo: "paper", paper: "paper", clipping: "paper" }[c.type];
+    if (id) sfx.push({ t: tin, id, v: k.i, gain: c.type === "star" || c.type === "label" ? -8 : -4 }); }
+  return { sfx };
+}
+
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
 </script>
 </body>
 </html>

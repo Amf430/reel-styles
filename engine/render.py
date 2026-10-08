@@ -293,6 +293,13 @@ def main():
 
     project = common.load_project(a.job)
     jobs = project["jobs"]
+    if project.get("clips") and not a.stills:
+        # montage: hand over the cut itself next to the layers (they start at 0 on it)
+        cut = os.path.join(project["_dir"], "out", "montage.mp4")
+        os.makedirs(os.path.dirname(cut), exist_ok=True)
+        if not os.path.exists(cut) or os.path.getmtime(cut) < os.path.getmtime(project["video"]):
+            shutil.copyfile(project["video"], cut)
+        print(f"montage: {cut}  (the cut — put it on V1, the layers go above it)")
     if a.only:
         jobs = [j for j in jobs if a.only in (j.get("name"), os.path.splitext(os.path.basename(j["_path"]))[0])]
         if not jobs:

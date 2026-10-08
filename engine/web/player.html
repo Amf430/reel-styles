@@ -1,16 +1,16 @@
 <!doctype html>
-<html>
+<html lang="ar">
 <head>
 <meta charset="utf-8">
-<title>reel editor</title>
+<title>محرّر الريلز</title>
 <style>
   :root {
     --bg: #111214; --panel: #18191c; --line: #2a2c31; --text: #e6e6e6; --dim: #8a8d94;
     --accent: #4f8cff; --bar: #3a4a6b; --bar-sel: #4f8cff; --job: #2a2f3a; --cut: #ff5a5a;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 12px/1.4 ui-sans-serif, system-ui, -apple-system, sans-serif; overflow: hidden; }
-  #app { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: 1fr var(--tl-h, 300px); height: 100%; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 12px/1.4 -apple-system, "SF Arabic", "Geeza Pro", ui-sans-serif, system-ui, sans-serif; overflow: hidden; }
+  #app { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: 1fr var(--tl-h, 300px); height: 100%; }
   #view { position: relative; overflow: hidden; background: #0b0b0c; }
   #box { position: absolute; background: #000; }
   #box > * { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
@@ -21,28 +21,40 @@
   #gz .rot { left: 50%; top: -34px; margin-left: -6px; cursor: grab; }
   #gz .rot::after { content: ""; position: absolute; left: 3px; top: 10px; width: 2px; height: 22px; background: var(--accent); }
   #gz .scl { right: -7px; bottom: -7px; cursor: nwse-resize; border-radius: 2px; }
-  #side { grid-row: 1 / 3; grid-column: 2; background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 12px; }
-  #side h3 { margin: 14px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); font-weight: 600; }
+  #side { grid-row: 1 / 3; grid-column: 2; background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 12px; direction: rtl; text-align: right; }
+  #side h3 { margin: 16px 0 6px; font-size: 12px; color: var(--dim); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
   #side h2 { margin: 0 0 4px; font-size: 13px; }
-  .field { display: grid; grid-template-columns: 82px 1fr 58px; gap: 6px; align-items: center; margin: 5px 0; }
+  .field { display: grid; grid-template-columns: 92px 1fr 58px; gap: 6px; align-items: center; margin: 5px 0; }
   .field label { color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .field input[type=range] { width: 100%; }
-  .field input[type=number], .field input[type=text] { width: 100%; background: #0f1012; color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 3px 4px; font: inherit; }
-  .field.wide { grid-template-columns: 82px 1fr; }
+  .field input[type=number], .field input[type=text], .field textarea, .field select { width: 100%; background: #0f1012; color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 3px 4px; font: inherit; }
+  .field.wide { grid-template-columns: 92px 1fr; }
+  .field textarea { resize: vertical; min-height: 36px; font: 13px/1.4 inherit; }
+  .field input[type=color] { width: 100%; height: 26px; border: 1px solid var(--line); border-radius: 4px; background: #0f1012; padding: 1px; }
+  .sub-h { margin: 8px 0 2px; color: var(--dim); font-weight: 600; } .nest { border-right: 2px solid var(--line); padding-right: 8px; margin: 4px 0 8px; }
+  .hint { color: var(--dim); font-size: 11px; margin-bottom: 4px; } .add-row { margin: 8px 0; color: var(--dim); } .add-row button { padding: 2px 8px; margin: 2px; }
+  .btns { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; } button.mini { padding: 1px 8px; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
   button { background: #23252a; color: var(--text); border: 1px solid #33363c; border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; }
   button:hover { border-color: #4a4e56; } button.on { border-color: var(--accent); color: #fff; }
   .muted { color: var(--dim); }
   .joblist div { padding: 5px 8px; border-radius: 6px; cursor: pointer; } .joblist div:hover, .joblist div.sel { background: #23252a; }
-  #tl { grid-column: 1; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--panel); min-height: 0; }
-  #tl-bar { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+  #tl { grid-column: 1; min-width: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line); background: var(--panel); min-height: 0; }
+  #tl-bar { display: flex; gap: 6px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; position: relative; }
+  #tl-bar .sep { width: 1px; height: 18px; background: var(--line); margin: 0 2px; }
+  #prog-wrap { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; display: none; } #prog { height: 100%; width: 0; background: #3ddc84; transition: width .3s; }
   #tl-bar .time { font: 12px ui-monospace, Menlo, monospace; min-width: 150px; }
   #tl-bar .grow { flex: 1; }
   #status { color: var(--dim); min-width: 70px; text-align: right; } #status.dirty { color: #ffcf6a; }
   #tl-resize { height: 5px; cursor: ns-resize; background: transparent; margin-top: -3px; position: relative; z-index: 5; }
-  #tl-scroll { flex: 1; overflow: auto; position: relative; }
+  #tl-scroll { flex: 1; overflow: auto; position: relative; min-width: 0; overscroll-behavior-x: contain; }
   #tl-inner { position: relative; min-height: 100%; }
   .row { display: flex; height: 26px; border-bottom: 1px solid #1f2024; }
-  .row.tall { height: 46px; } .row.job { background: #15161a; }
+  .row.tall { height: 52px; }
+  .bar.clip { padding: 0; background: #1d2633; border-color: #3d5a80; cursor: grab; } .bar.clip.sel { border-color: #ffcf6a; box-shadow: 0 0 0 1px #ffcf6a inset; }
+  .bar.clip canvas.thumb { position: absolute; left: 0; top: 0; pointer-events: none; opacity: .9; }
+  .bar.clip .cname { position: relative; z-index: 1; margin: auto 6px 2px; font-size: 10px; background: rgba(0,0,0,.55); padding: 0 4px; border-radius: 3px; align-self: flex-end; }
+  .bar.clip .h { z-index: 2; background: rgba(255,207,106,.0); } .bar.clip .h:hover { background: rgba(255,207,106,.45); } .row.job { background: #15161a; }
   .lab { position: sticky; left: 0; z-index: 3; width: 150px; flex: none; padding: 0 8px; display: flex; align-items: center; gap: 6px;
          background: var(--panel); border-right: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--dim); }
   .row.job .lab { color: var(--text); font-weight: 600; }
@@ -59,6 +71,11 @@
   #playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 5px solid transparent; border-top-color: #ff4d4d; }
   .cut { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cut); opacity: .35; z-index: 1; pointer-events: none; }
   #snapline { position: absolute; top: 0; bottom: 0; width: 1px; background: #ffe066; z-index: 4; display: none; pointer-events: none; }
+  #safe { display: none; pointer-events: none; } #safe .z { position: absolute; background: rgba(255,60,60,.18); border: 1px dashed rgba(255,90,90,.8); }
+  #safe .z span { position: absolute; left: 6px; top: 4px; font-size: 11px; color: #ffd0d0; background: rgba(0,0,0,.5); padding: 0 4px; border-radius: 3px; }
+  #add-dlg { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 50; direction: rtl; }
+  #add-dlg .dlg { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; width: min(460px, 90vw); max-height: 70vh; overflow: auto; }
+  #add-dlg .file { padding: 7px 10px; border-radius: 6px; cursor: pointer; text-align: left; } #add-dlg .file:hover { background: #23252a; }
   .ui-hidden #side, .ui-hidden #tl { display: none; } .ui-hidden #app { grid-template-columns: 1fr; grid-template-rows: 1fr; }
   kbd { background: #23252a; border: 1px solid #33363c; border-radius: 3px; padding: 0 4px; font: 11px ui-monospace, Menlo, monospace; }
   #help { color: var(--dim); line-height: 1.9; }
@@ -71,18 +88,26 @@
   <section id="tl">
     <div id="tl-resize"></div>
     <div id="tl-bar">
-      <button id="b-play">▶</button>
+      <button id="b-play" title="مسافة">▶</button>
       <span class="time" id="time">0.00</span>
-      <button id="b-before">after</button>
-      <button id="b-wipe">wipe</button>
+      <span class="sep"></span>
+      <button id="b-split" title="s أو ⌘B">✂ قص</button>
+      <button id="b-add" title="إضافة مقطع فيديو عند المؤشر">＋ مقطع</button>
+      <span class="sep"></span>
+      <button id="b-before" title="b">بعد</button>
+      <button id="b-wipe" title="w">مقارنة</button>
+      <button id="b-safe" title="g">المنطقة الآمنة</button>
       <span class="grow"></span>
-      <span class="muted">zoom</span><input id="zoom" type="range" min="10" max="400" value="60">
-      <button id="b-undo" title="Ctrl/Cmd+Z">↶</button><button id="b-redo" title="Ctrl/Cmd+Shift+Z">↷</button>
-      <button id="b-save" title="Ctrl/Cmd+S">save</button><span id="status">saved</span>
+      <span class="muted">زوم</span><input id="zoom" type="range"><button id="b-fit" title="f">ملاءمة</button>
+      <button id="b-undo" title="⌘Z">↶</button><button id="b-redo" title="⌘⇧Z">↷</button>
+      <button id="b-save" title="⌘S">حفظ</button><span id="status">محفوظ</span>
+      <label class="muted" title="موشن بلور (أبطأ ×4)"><input id="mblur" type="checkbox"> بلور</label><button id="b-render">رندر</button>
+      <div id="prog-wrap"><div id="prog"></div></div>
     </div>
     <div id="tl-scroll"><div id="tl-inner"></div></div>
   </section>
 </div>
+<div id="add-dlg"></div>
 <script type="module" src="/r/engine/web/player.js"></script>
 </body>
 </html>

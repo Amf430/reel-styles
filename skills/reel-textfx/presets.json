@@ -1,0 +1,28 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "auto",
+  "defaults": {
+    "dir": "rtl",
+    "items": [],
+    "out_dur": 0.35,
+    "sfx": true,
+    "sfx_gain": 0
+  },
+  "themes": {
+    "auto":   { "text": "#ffffff", "accent": "auto",    "accent2": "#8b5cff", "shadow": 0.55, "weight": 800 },
+    "gold":   { "text": "#ffffff", "accent": "#ffb02e", "accent2": "#ffe3a1", "shadow": 0.55, "weight": 800 },
+    "pink":   { "text": "#ffffff", "accent": "#ff3d8b", "accent2": "#b14dff", "shadow": 0.55, "weight": 800 },
+    "teal":   { "text": "#ffffff", "accent": "#2de0c0", "accent2": "#2d8bff", "shadow": 0.55, "weight": 800 },
+    "yellow": { "text": "#ffffff", "accent": "#ffd400", "accent2": "#ff8a00", "shadow": 0.6,  "weight": 900 },
+    "red":    { "text": "#ffffff", "accent": "#e0242b", "accent2": "#ff7a59", "shadow": 0.55, "weight": 900 },
+    "seen":   { "text": "#ffffff", "accent": "#b28764", "accent2": "#ffe066", "shadow": 0.6,  "weight": 800 }
+  },
+  "tune": [
+    { "path": "out_dur", "label": "exit duration", "min": 0, "max": 1, "step": 0.05 },
+    { "path": "sfx_gain", "label": "sfx gain (dB)", "min": -24, "max": 6, "step": 1 },
+    { "path": "theme.text", "label": "text", "type": "color" },
+    { "path": "theme.accent", "label": "accent", "type": "color" },
+    { "path": "theme.shadow", "label": "shadow", "min": 0, "max": 1, "step": 0.05 }
+  ]
+}

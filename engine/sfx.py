@@ -1,6 +1,6 @@
 """Sound effects for a layer: a scene's meta() may list {"sfx": [{"t", "id", "v"?, "gain"?, "len"?}]}
 (t = seconds on the video timeline, id = a reel-sfx sound, v = variant index, gain in dB, len = cut after
-seconds). mix() lays them on one WAV that starts with the layer, for its own track in Premiere.
+seconds, from = skip this many seconds of the sound). mix() lays them on one WAV that starts with the layer, for its own track in Premiere.
 
 The sounds come from reel-sfx (~/.reel-styles/sfx); the library is generated on first use.
 """
@@ -38,6 +38,8 @@ def mix(events, t0, dur, out_wav, gain_db=0.0):
         f = os.path.join(LIB, s["files"][int(e.get("v", 0)) % len(s["files"])])
         inputs += ["-i", f]
         chain = []
+        if e.get("from"):   # start partway into the sound (a build-up that must still end on its beat)
+            chain.append(f"atrim=start={e['from']:.3f},asetpts=PTS-STARTPTS")
         if e.get("len"):
             chain.append(f"atrim=0:{e['len']:.3f},afade=t=out:st={max(0, e['len'] - 0.08):.3f}:d=0.08")
         chain.append(f"adelay={max(0, at) * 1000:.0f}:all=1")

@@ -1,0 +1,18 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "red",
+  "defaults": { "dir": "rtl", "items": [], "out_dur": 0.35, "sfx": true, "sfx_gain": 0 },
+  "themes": {
+    "red":   { "accent": "#c1121f" },
+    "black": { "accent": "#2a2a2e" },
+    "gold":  { "accent": "#b8860b" },
+    "blue":  { "accent": "#1d4ed8" },
+    "seen":  { "accent": "#5a0a24" }
+  },
+  "tune": [
+    { "path": "out_dur", "label": "exit duration", "min": 0, "max": 1, "step": 0.05 },
+    { "path": "sfx_gain", "label": "sfx gain (dB)", "min": -24, "max": 6, "step": 1 },
+    { "path": "theme.accent", "label": "accent", "type": "color" }
+  ]
+}

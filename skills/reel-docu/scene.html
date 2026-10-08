@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .it { position: absolute; left: 0; top: 0; white-space: nowrap; line-height: 1.15; }
+  .it > .in { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .orb { position: relative; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .full { position: absolute; left: 0; top: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp, noise1 } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const stage = document.getElementById("stage");
+const h = (tag, cls, parent, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent?.appendChild(e); return e; };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const css = (el, o) => Object.assign(el.style, o);
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+const shade = (hex, k) => { const n = parseInt(hex.slice(1), 16), f = (c) => Math.round(k >= 0 ? c + (255 - c) * k : c * (1 + k)); return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`; };
+const splitLines = (s) => String(s ?? "").split(/\s*\|\s*/).filter(Boolean);
+
+// kashida before the last letter that joins forward (as reel-textfx)
+const NONJOIN = new Set("اأإآٱدذرزوؤةىءـ"), isAr = (c) => /[ؠ-ي]/.test(c);
+function stretch(word, n) {
+  const ch = [...word]; let at = -1;
+  for (let i = 0; i < ch.length - 1; i++) if (isAr(ch[i]) && !NONJOIN.has(ch[i]) && isAr(ch[i + 1])) at = i + 1;
+  return at < 0 || n < 1 ? word : ch.slice(0, at).join("") + "ـ".repeat(n) + ch.slice(at).join("");
+}
+const stretchLine = (line, n) => line.split(" ").map((w) => stretch(w, n)).join(" ");
+
+function numParts(str) {
+  const s = String(str ?? ""), ar = /[٠-٩]/.test(s), west = s.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  const m = /^(\D*?)([\d,]*\d(?:\.\d+)?)(.*)$/.exec(west); if (!m) return null;
+  const dec = (m[2].split(".")[1] || "").length, sep = m[2].includes(","), val = parseFloat(m[2].replace(/,/g, ""));
+  return { val, fmt: (v) => { let t = v.toFixed(dec); if (sep) t = t.replace(/\B(?=(\d{3})+(?!\d))/g, ","); if (ar) t = t.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[d]); return m[1] + t + m[3]; } };
+}
+
+// glossy sphere: dark-red body, bright upper-left lobe, thin light rim
+const sphere = (A) => ({
+  background: `radial-gradient(circle at 34% 28%, ${shade(A, 0.28)} 0%, ${A} 38%, ${shade(A, -0.45)} 78%, ${shade(A, -0.65)} 100%)`,
+  boxShadow: `inset 0 0 0 0.035em ${rgba("#ffffff", 0.55)}, inset 0 -0.25em 0.5em ${rgba("#000000", 0.35)}, 0 0.15em 0.6em ${rgba("#000000", 0.45)}, 0 0 0.8em ${rgba(A, 0.35)}`,
+});
+
+const D = {};
+
+D.count = { cdur: 1.4,
+  build(c) { c.o = h("div", "orb", c.box); css(c.o, { width: "2.6em", height: "2.6em", ...sphere(c.A) });
+    c.num = numParts(c.it.value ?? c.it.text ?? "0");
+    c.v = h("div", null, c.o); css(c.v, { fontSize: "1.15em", fontWeight: 900, color: "#fff", lineHeight: 1, fontVariantNumeric: "tabular-nums", textShadow: "0 .04em .12em rgba(0,0,0,.35)" });
+    if (c.it.sub) { c.l = h("div", null, c.o); css(c.l, { fontSize: "0.36em", fontWeight: 700, color: "#fff", opacity: 0.9, marginTop: "0.25em" }); } },
+  render(c, lt) { const e = tw(lt, 0, 0.6, ease.outBack); css(c.o, { transform: `translateY(${(1 - Math.min(1, e)) * -3}em) scale(${0.6 + 0.4 * e})`, opacity: clamp(lt * 6) });
+    c.v.textContent = c.num ? c.num.fmt(c.num.val * ease.outCubic(tw(lt, 0.25, this.cdur, ease.linear))) : c.it.value;
+    if (c.l) c.l.textContent = stretch(c.it.sub, Math.round((c.it.kashida ?? 3) * (1 - tw(lt, 0.5, 0.6, ease.outCubic)))); },
+  sfx() { return [{ at: 0, id: "thud", gain: -3 }, { at: 0.25, id: "count_up", len: this.cdur, gain: -5 }, { at: 0.25 + this.cdur, id: "hit_punch", gain: -6 }]; } };
+
+D.circle = {
+  build(c) { c.o = h("div", "orb", c.box); css(c.o, { width: "3em", height: "3em", ...sphere(c.A) });
+    c.ls = splitLines(c.it.text).map((t) => { const e = h("div", null, c.o); css(e, { fontWeight: 900, color: "#fff", fontSize: "0.5em", lineHeight: 1.25 }); return { t, e }; }); },
+  render(c, lt) { const e = tw(lt, 0, 0.55, ease.outBack); css(c.o, { transform: `scale(${Math.max(0, e)})` });
+    c.ls.forEach((L, i) => { const a = 0.3 + i * 0.25, p = tw(lt, a, 0.35, ease.outCubic);
+      L.e.textContent = stretchLine(L.t, Math.round((c.it.kashida ?? 4) * (1 - tw(lt, a + 0.25, 0.6, ease.outCubic))));
+      L.e.style.clipPath = `inset(-30% 0 -30% ${(1 - p) * 100}%)`; }); },
+  sfx: (c) => [{ at: 0, id: "pop_low" }, ...splitLines(c.it.text).map((_, i) => ({ at: 0.3 + i * 0.25, id: "whoosh_soft", gain: -6 }))] };
+
+D.box = {
+  build(c) { c.b = h("div", null, c.box); css(c.b, { position: "relative", padding: "0.3em 0.55em 0.35em", borderRadius: "0.08em", display: "flex", flexDirection: "column", alignItems: "flex-start" });
+    c.bg = h("div", null, c.b); css(c.bg, { position: "absolute", inset: 0, background: c.A, borderRadius: "inherit", transformOrigin: "100% 50%" });
+    c.ls = splitLines(c.it.text).map((t) => { const e = h("div", null, c.b, esc(t)); css(e, { position: "relative", fontWeight: 800, color: "#fff", fontSize: "0.45em", lineHeight: 1.35 }); return e; }); },
+  render(c, lt) { const g = tw(lt, 0, 0.45, ease.outExpo), fade = tw(lt, 1.0, 0.6, ease.inOutCubic);
+    css(c.bg, { transform: `scaleX(${g})`, opacity: 1 - fade * (1 - (c.it.keep ?? 0.25)) });
+    c.ls.forEach((e, i) => { const p = tw(lt, 0.2 + i * 0.12, 0.4, ease.outQuint); css(e, { opacity: p, transform: `translateY(${(1 - p) * 0.5}em)`, textShadow: fade > 0 ? `0 .04em .2em rgba(0,0,0,${0.6 * fade})` : "none" }); }); },
+  sfx: () => [{ at: 0, id: "swipe_ui", gain: -2 }] };
+
+D.title = {
+  build(c) { c.glow = h("div", null, c.box); css(c.glow, { position: "absolute", width: "1.1em", height: "1.1em", borderRadius: "50%", background: `radial-gradient(circle, ${shade(c.A, 0.25)}, ${c.A} 45%, ${rgba(c.A, 0)} 72%)`, filter: "blur(0.04em)", top: "50%" });
+    c.ls = splitLines(c.it.text).map((t) => { const e = h("div", null, c.box); css(e, { position: "relative", fontWeight: 900, color: "#fff", textShadow: "0 .04em .2em rgba(0,0,0,.5)" }); return { t, e }; }); },
+  render(c, lt) { const p = tw(lt, 0, 0.9, ease.inOutCubic), W = c.box.offsetWidth;
+    css(c.glow, { left: lerp(W * 0.95, W * 0.15, p) - c.glow.offsetWidth / 2 + "px", transform: `translateY(-50%) scale(${1 + 0.15 * noise1(lt * 3, 2)})`, opacity: 1 - tw(lt, 1.1, 0.5) * (1 - (c.it.keep ?? 0)) });
+    c.ls.forEach((L, i) => { const a = i * 0.25, q = tw(lt, a, 0.6, ease.outCubic);
+      L.e.textContent = stretchLine(L.t, Math.round((c.it.kashida ?? 4) * (1 - tw(lt, a + 0.35, 0.6, ease.outCubic))));
+      L.e.style.clipPath = `inset(-30% 0 -30% ${(1 - q) * 100}%)`; }); },
+  sfx: () => [{ at: 0, id: "whoosh_deep", gain: -6 }, { at: 0.2, id: "shine", gain: -6 }] };
+
+D.sweep = { full: true,
+  build(c) { c.f = h("div", "full", c.root); css(c.f, { overflow: "hidden" });
+    c.s = h("div", null, c.f); css(c.s, { position: "absolute", top: "-50%", height: "200%", background: `linear-gradient(90deg, transparent, ${rgba(c.A, 0.0)} 10%, ${rgba(c.A, 0.85)} 42%, ${rgba("#ffffff", 0.9)} 50%, ${rgba(c.A, 0.85)} 58%, transparent)`, filter: "blur(0.3em)", transform: "rotate(18deg)", mixBlendMode: "screen" }); },
+  layout(c) { css(c.f, { width: R.W + "px", height: R.H + "px" }); c.s.style.width = (c.it.width ?? 0.7) * R.W + "px"; },
+  render(c, lt) { const p = tw(lt, 0, c.it.dur ?? 0.6, ease.inOutCubic); c.s.style.left = lerp(R.W * 1.1, -R.W * 0.9, p) + "px"; c.f.style.opacity = Math.sin(Math.PI * p); },
+  sfx: () => [{ at: 0, id: "whip", gain: -2 }] };
+
+let items = [];
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  stage.innerHTML = ""; R.clearItems();
+  items = (R.P.items || []).map((it, idx) => {
+    const d = D[it.type] || D.circle, A = it.accent || R.T.accent;
+    const root = h("div", "it", stage), box = h("div", "in", root);
+    const c = { it, d, A, root, box };
+    if (R.P.font || it.font) root.style.fontFamily = `"${it.font || R.P.font}", Tajawal`;
+    d.build(c);
+    R.item({ id: "d" + idx, label: `${it.type}: ${String(it.text ?? it.value ?? "").slice(0, 20)}`, els: [root], in: `items.${idx}.in`, out: `items.${idx}.out`, xf: `items.${idx}.xf` });
+    return c;
+  });
+  style();
+}
+function style() {
+  for (const c of items) {
+    c.root.style.fontSize = (c.it.size ?? 110) * R.u + "px";
+    if (c.d.full) css(c.root, { left: "0px", top: "0px" });
+    else { css(c.root, { left: (c.it.x ?? 0.5) * R.W + "px", top: (c.it.y ?? 0.3) * R.H + "px" }); c.box.style.transform = "translate(-50%, -50%)"; }
+    c.d.layout?.(c);
+  }
+}
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  for (const c of items) {
+    const tin = c.it.in ?? R.start, tout = c.it.out ?? R.end, vis = t >= tin && t <= tout;
+    c.root.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    c.d.render(c, t - tin);
+    const od = R.P.out_dur ?? 0.35, o = c.d.full ? 0 : tw(t, tout - od, od, ease.inCubic);
+    c.root.style.opacity = 1 - o;
+    c.root.style.filter = o > 0.01 ? `blur(${o * 8 * R.u}px)` : "";
+  }
+}
+function meta() {
+  const sfx = [];
+  for (const c of items) { if (c.it.sfx === false) continue;
+    for (const e of c.d.sfx(c)) sfx.push({ ...e, t: +((c.it.in ?? R.start) + e.at).toFixed(3) }); }
+  return { sfx };
+}
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
+</script>
+</body>
+</html>

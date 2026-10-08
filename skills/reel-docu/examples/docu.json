@@ -1,0 +1,54 @@
+{
+ "style": "reel-docu",
+ "name": "docu",
+ "start": 0,
+ "end": 6,
+ "theme": "red",
+ "params": {
+  "items": [
+   {
+    "in": 0,
+    "out": 6,
+    "type": "count",
+    "value": "24",
+    "sub": "عاماً",
+    "x": 0.22,
+    "y": 0.12,
+    "size": 110
+   },
+   {
+    "in": 0,
+    "out": 6,
+    "type": "circle",
+    "text": "القصة | الكاملة",
+    "x": 0.7,
+    "y": 0.3,
+    "size": 110
+   },
+   {
+    "in": 0,
+    "out": 6,
+    "type": "box",
+    "text": "وهل تكون هذه البداية | لمرحلة جديدة بالكامل؟",
+    "x": 0.5,
+    "y": 0.55,
+    "size": 110
+   },
+   {
+    "in": 0,
+    "out": 6,
+    "type": "title",
+    "text": "خلف | الكواليس",
+    "x": 0.5,
+    "y": 0.78,
+    "size": 100
+   },
+   {
+    "in": 2.6,
+    "out": 3.4,
+    "type": "sweep"
+   }
+  ]
+ },
+ "video": "../reel.mp4"
+}

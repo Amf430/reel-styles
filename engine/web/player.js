@@ -52,6 +52,7 @@ await Promise.all(S.jobs.map((j) => new Promise((res) => {
   j.iframe.addEventListener("load", wait); wait();
 })));
 for (const j of S.jobs) if (j.subCanvas) await mountSubject(j);
+for (const j of S.jobs) if (j.info.behind) await mountMatte(j);
 await new Promise((r) => (video.readyState >= 2 ? r() : video.addEventListener("loadeddata", r, { once: true })));
 
 
@@ -74,6 +75,7 @@ async function draw() {
   try {
     const ctx = S.bg.getContext("2d");
     if (video.readyState >= 2) ctx.drawImage(video, 0, 0, S.bg.width, S.bg.height);
+    syncMattes();
     for (const j of S.jobs) {
       j.R.source = video;
       await j.R.renderFrame(S.t);
@@ -139,6 +141,24 @@ function drawSubject(j) {
   if (!rect || !inRange || sv.readyState < 2) return;
   const [x, y, w, h] = rect;
   ctx.drawImage(sv, x * c.width, y * c.height, w * c.width, h * c.height);
+}
+// "behind" jobs: the cut-out subject's preview video is the matte that hides the layer.
+async function mountMatte(j) {
+  const stem = j.info.behind.layer.replace(/\.[^.]+$/, "");
+  j.matteInfo = await (await fetch(j.R.asset(stem + ".json"))).json();
+  const mv = (j.matteVideo = document.createElement("video"));
+  mv.src = j.R.asset(stem + "_preview.webm"); mv.muted = true; mv.playsInline = true; mv.preload = "auto"; mv.style.display = "none";
+  document.body.appendChild(mv);
+  j.R.matte = mv;
+  mv.addEventListener("seeked", () => { if (!S.playing) draw(); });
+}
+function syncMattes() {
+  for (const j of S.jobs) {
+    const mv = j.matteVideo; if (!mv) continue;
+    const st = Math.max(0, S.t - (j.matteInfo.start || 0));
+    if (S.playing) { if (mv.paused) { mv.currentTime = st; mv.play(); } else if (Math.abs(mv.currentTime - st) > 0.08) mv.currentTime = st; }
+    else { if (!mv.paused) mv.pause(); if (Math.abs(mv.currentTime - st) > 0.001) mv.currentTime = st; }
+  }
 }
 function syncSubjects(on) { for (const j of S.jobs) if (j.subVideo) { if (on) { j.subVideo.currentTime = Math.max(0, S.t - (j.subInfo.start || 0)); j.subVideo.play(); } else j.subVideo.pause(); } }
 

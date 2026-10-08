@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #block { position: absolute; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .line { white-space: nowrap; line-height: 1.08; transform-origin: 50% 60%; }
+  .line .w { display: inline-block; transform-origin: 50% 70%; }
+  .sub { white-space: nowrap; font-weight: 600; opacity: .92; margin-top: .25em; }
+  .boxed { padding: .06em .32em .14em; border-radius: .14em; }
+</style>
+</head>
+<body>
+<div id="stage"><div id="block"></div></div>
+<script type="module">
+import { Reel, tw, ease, clamp, noise1, richWords } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const block = document.getElementById("block");
+let lines = [], sub = null;
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  block.innerHTML = "";
+  R.clearItems();
+  lines = (R.P.lines || []).map((l) => {
+    const el = document.createElement("div");
+    el.className = "line";
+    const rw = richWords(l.text);
+    el.innerHTML = rw.html;
+    block.appendChild(el);
+    return { l, el, words: [...el.querySelectorAll(".w")] };
+  });
+  sub = null;
+  if (R.P.sub) {
+    sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = R.P.sub;
+    block.appendChild(sub);
+  }
+  R.item({ id: "hook", label: (R.P.lines || []).map((l) => l.text.replace(/\*/g, "")).join(" / ") || "hook", els: [block], in: "in", out: "out", xf: "xf" });
+  style();
+}
+
+function style() {
+  const P = R.P, T = R.T, u = R.u;
+  block.style.rowGap = P.line_gap * R.H + "px";
+  const boxStyle = T.style === "box";
+  for (const k of lines) {
+    const el = k.el;
+    el.style.fontSize = (k.l.size ?? 130) * u + "px";
+    el.style.fontWeight = k.l.weight ?? T.weight ?? 900;
+    el.style.fontFamily = k.l.font ? `"${k.l.font}", Tajawal` : "";
+    el.classList.toggle("boxed", boxStyle);
+    el.style.background = boxStyle ? (k.l.box || T.box) : "transparent";
+    el.style.color = boxStyle ? T.box_text : T.text;
+    el.style.webkitTextStroke = T.stroke_w > 0 ? `${T.stroke_w * 2}em ${T.stroke}` : "0";
+    el.style.paintOrder = "stroke fill";
+    el.style.textShadow = T.shadow > 0 ? `0 ${0.05}em ${0.22}em rgba(0,0,0,${T.shadow})` : "none";
+    el.style.boxShadow = boxStyle && T.shadow > 0 ? `0 ${0.06}em ${0.25}em rgba(0,0,0,${T.shadow})` : "none";
+    for (const w of k.words) w.style.color = w.classList.contains("hl") ? (boxStyle ? (T.box_hl || T.hl) : T.hl) : "";
+    R.fit(el, P.max_width * R.W);
+  }
+  if (sub) {
+    sub.style.fontSize = (P.sub_size ?? 46) * u + "px";
+    sub.style.color = T.sub || "#ffffff";
+    sub.style.textShadow = `0 0.05em 0.25em rgba(0,0,0,${Math.max(0.4, T.shadow)})`;
+  }
+  block.style.left = P.x * R.W - block.offsetWidth / 2 + "px";
+  block.style.top = P.y * R.H - block.offsetHeight / 2 + "px";
+}
+
+// Per-element entrance: returns { op, tx, ty, sx, sy, blur } for progress k (0..1 linear) of that element.
+const ENTER = {
+  punch: (k) => { const e = ease.outBack(clamp(k)); return { op: clamp(k * 3), sx: 1.35 - 0.35 * e, sy: 1.35 - 0.35 * e, blur: (1 - clamp(k * 2)) * 10 }; },
+  slam: (k) => { const e = ease.outExpo(clamp(k)); const sq = k > 0.55 && k < 1 ? Math.sin(((k - 0.55) / 0.45) * Math.PI) * 0.08 : 0;
+                 return { op: clamp(k * 4), ty: -(1 - e) * 220, sx: 1 + sq, sy: 1 - sq, blur: (1 - e) * 18 }; },
+  rise: (k) => { const e = ease.outExpo(clamp(k)); return { op: clamp(k * 2), ty: (1 - e) * 70, blur: (1 - e) * 14 }; },
+  stretch: (k) => { const e = ease.outBack(clamp(k)); return { op: clamp(k * 4), sy: Math.max(0, e), sx: 1 }; },
+  type: (k) => { const e = ease.outBack(clamp(k)); return { op: clamp(k * 4), sx: 0.6 + 0.4 * e, sy: 0.6 + 0.4 * e }; },
+};
+const apply = (el, s, u) => {
+  el.style.opacity = s.op ?? 1;
+  el.style.transform = `translate(${(s.tx || 0) * u}px, ${(s.ty || 0) * u}px) scale(${s.sx ?? 1}, ${s.sy ?? 1})`;
+  el.style.filter = (s.blur || 0) > 0.3 ? `blur(${s.blur * u}px)` : "none";
+};
+
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const P = R.P, u = R.u, tin = P.in ?? R.start, tout = P.out ?? R.end;
+  const vis = t >= tin && t <= tout;
+  block.style.display = vis ? "" : "none";
+  if (!vis) return;
+  const enter = ENTER[P.anim] || ENTER.punch;
+  let idx = 0;
+  lines.forEach((k, li) => {
+    if (P.anim === "type") {
+      apply(k.el, {}, u);
+      for (const w of k.words) { apply(w, enter((t - tin - idx * P.stagger) / P.anim_dur), u); idx++; }
+    } else {
+      for (const w of k.words) apply(w, {}, u);
+      apply(k.el, enter((t - tin - li * P.stagger) / P.anim_dur), u);
+    }
+  });
+  if (sub) apply(sub, ENTER.rise((t - tin - (P.anim === "type" ? idx : lines.length) * P.stagger - 0.1) / P.anim_dur), u);
+
+  // Exit + optional shake (also a landing jolt for "slam").
+  const pOut = P.out_anim === "cut" ? 0 : tw(t, tout - P.out_dur, P.out_dur, ease.inCubic);
+  const land = P.anim === "slam" ? Math.max(0, 1 - Math.abs(t - tin - P.anim_dur * 0.6) / 0.25) : 0;
+  const amp = (P.shake + land * 0.6) * 14 * u;
+  const sx = amp * noise1(t * 22, 1), sy = amp * noise1(t * 22, 2);
+  const outScale = P.out_anim === "pop" ? 1 - 0.15 * pOut : 1, outY = P.out_anim === "slide" ? -60 * u * pOut : 0;
+  block.style.transform = `translate(${sx}px, ${sy + outY}px) scale(${outScale})`;
+  block.style.opacity = 1 - pOut;
+}
+
+R.define({ ready: build, renderAt, onParams: () => build() });
+</script>
+</body>
+</html>

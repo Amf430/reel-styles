@@ -14,7 +14,18 @@
       "highlight": 0.32,
       "shadow": 0.35,
       "pad": 30,
-      "corner": "squircle"
+      "corner": "squircle",
+      "material": "frost",
+      "liquid": {
+        "blur": 3,
+        "edge": 22,
+        "refract": 0.09,
+        "chroma": 0.6,
+        "spec": 0.85,
+        "spin": 25,
+        "rim": 1.6,
+        "adapt": true
+      }
     },
     "text": {
       "size": 46,
@@ -68,6 +79,34 @@
       "text": "#f4fbff",
       "accent": "#9fd6ff",
       "icon_bg": "rgba(159,214,255,0.18)"
+    },
+    "liquid": {
+      "tint": "rgba(255,255,255,0.05)",
+      "text": "#ffffff",
+      "accent": "#ffffff",
+      "icon_bg": "rgba(255,255,255,0.16)",
+      "params": {
+        "glass": {
+          "material": "liquid",
+          "stroke_opacity": 0.25,
+          "highlight": 0.18,
+          "brightness": 1.0
+        }
+      }
+    },
+    "liquid-dark": {
+      "tint": "rgba(10,12,16,0.30)",
+      "text": "#ffffff",
+      "accent": "#ffffff",
+      "icon_bg": "rgba(255,255,255,0.12)",
+      "params": {
+        "glass": {
+          "material": "liquid",
+          "stroke_opacity": 0.25,
+          "highlight": 0.12,
+          "brightness": 0.8
+        }
+      }
     }
   },
   "tune": [
@@ -180,6 +219,27 @@
       "min": 0,
       "max": 400,
       "step": 5
+    },
+    {
+      "path": "glass.liquid.refract",
+      "label": "liquid refraction",
+      "min": 0,
+      "max": 0.3,
+      "step": 0.005
+    },
+    {
+      "path": "glass.liquid.edge",
+      "label": "liquid edge",
+      "min": 4,
+      "max": 60,
+      "step": 1
+    },
+    {
+      "path": "glass.liquid.spec",
+      "label": "liquid shine",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
     }
   ]
 }

@@ -38,6 +38,21 @@ export function setPath(o, p, v) {
   a[ks.at(-1)] = v;
 }
 
+/**
+ * Text with emphasis markup → HTML, one <span class="w"> per word (for word-by-word motion).
+ * `*word*` or `*several words*` marks the emphasised part (class "hl"). HTML is escaped.
+ */
+export function richWords(str) {
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const out = [];
+  let hl = false;
+  for (const tok of String(str ?? "").split(/(\*)/)) {
+    if (tok === "*") { hl = !hl; continue; }
+    for (const w of tok.split(/\s+/).filter(Boolean)) out.push({ text: w, hl });
+  }
+  return { words: out, html: out.map((w, i) => `<span class="w${w.hl ? " hl" : ""}" data-i="${i}">${esc(w.text)}</span>`).join(" ") };
+}
+
 // ------------------------------------------------------------------ runtime
 // Modes: "render" (render.py, the viewport is the frame) and "embed" (inside the editor's iframe,
 // the iframe is the frame). Opening a scene on its own sends you to the editor.
@@ -62,12 +77,15 @@ class ReelRuntime {
     document.head.appendChild(css);
     this._layout();
     addEventListener("resize", () => this._layout());
-    for (const f of this.P.google_fonts || []) {
+    // Google fonts: wait for the stylesheet AND the font files, or the first frames render in Tajawal.
+    this._fonts = (this.P.google_fonts || []).map((f) => new Promise((res) => {
       const l = document.createElement("link");
       l.rel = "stylesheet";
-      l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:wght@300;400;500;700;800;900&display=block`;
+      l.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(f)}:wght@400;700&display=block`;
+      l.onload = () => Promise.all([document.fonts.load(`400 40px "${f}"`, "ابجد"), document.fonts.load(`700 40px "${f}"`, "ابجد")]).then(res, res);
+      l.onerror = () => { console.warn("font failed:", f); res(); };
       document.head.appendChild(l);
-    }
+    }));
     window.__reel = this;
     return this;
   }
@@ -98,6 +116,7 @@ class ReelRuntime {
   define(scene) {
     this.scene = scene;
     this.ready = (async () => {
+      await Promise.all(this._fonts || []);
       await document.fonts.ready;
       if (scene.ready) await scene.ready(this);
       await document.fonts.ready;
@@ -111,16 +130,36 @@ class ReelRuntime {
     if (innerWidth !== this.W || innerHeight !== this.H) this._layout();
     await this.scene.renderAt(t, this);
     this.applyItems();
+    this.applyBehind();
+  }
+
+  /**
+   * "behind": the job's whole layer is hidden wherever the cut-out subject (job.behind.layer, from
+   * key.py/segment.py) is opaque — text passes behind people/buildings. this.matte is that frame
+   * (an <img> in render, the subject's preview <video> in the editor).
+   */
+  applyBehind() {
+    if (!this.job.behind) return;
+    const m = this.matte;
+    if (!m || (m.readyState !== undefined && m.readyState < 2)) { this.stage.style.webkitMaskImage = ""; return; }
+    const c = (this._matteCv ??= document.createElement("canvas"));
+    const k = this.mode === "render" ? 0.5 : 1;
+    c.width = Math.max(2, Math.round(this.W * k)); c.height = Math.max(2, Math.round(this.H * k));
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.filter = `blur(${(this.job.behind.feather ?? 1) * k}px)`;
+    ctx.drawImage(m, 0, 0, c.width, c.height);
+    Object.assign(this.stage.style, {
+      webkitMaskImage: `linear-gradient(#000, #000), url(${c.toDataURL()})`,
+      webkitMaskSize: "100% 100%", webkitMaskRepeat: "no-repeat", webkitMaskComposite: "xor", maskComposite: "exclude",
+    });
   }
 
   /** Called by render.py for every frame. */
-  async frame(t, frameUrl) {
-    if (frameUrl) {
-      const img = new Image();
-      img.src = frameUrl;
-      await img.decode();
-      this.source = img;
-    }
+  async frame(t, frameUrl, matteUrl) {
+    const load = async (u) => { const img = new Image(); img.src = u; await img.decode(); return img; };
+    if (frameUrl) this.source = await load(frameUrl);
+    if (matteUrl) this.matte = await load(matteUrl);
     await this.renderFrame(t);
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   }
@@ -194,10 +233,13 @@ class ReelRuntime {
   /**
    * Fill `canvas` (a child of `el`, offset by -pad) with the frame behind `el`, through a CSS filter.
    * Accounts for the item transform, so a moved/rotated/scaled glass card still blurs what is
-   * really behind it. Returns el's box without the item transform (size the canvas from it).
+   * really behind it. `zoom` > 1 magnifies around el's centre. Returns el's box without the item
+   * transform (size the canvas from it).
    */
-  drawSourceFor(el, canvas, filter = "none", pad = 0) {
-    const it = el.__reelItem, wrap = it?.wrap;
+  drawSourceFor(el, canvas, filter = "none", pad = 0, zoom = 1) {
+    let it = null;
+    for (let e = el; e && !it; e = e.parentElement) it = e.__reelItem; // el may sit inside an item
+    const wrap = it?.wrap;
     let r0;
     if (wrap && wrap.style.transform) {
       const s = wrap.style.transform; wrap.style.transform = ""; r0 = this.rect(el); wrap.style.transform = s;
@@ -214,6 +256,11 @@ class ReelRuntime {
     ctx.filter = filter;
     ctx.setTransform(dpr, 0, 0, dpr, (pad - r0.left) * dpr, (pad - r0.top) * dpr);
     if (it) { const inv = this.xfMatrix(it).inverse(); ctx.transform(inv.a, inv.b, inv.c, inv.d, inv.e, inv.f); }
+    if (zoom !== 1) {
+      // Magnify what's behind around el's centre (refraction / lens look).
+      const cx = r0.left + r0.width / 2, cy = r0.top + r0.height / 2;
+      ctx.translate(cx, cy); ctx.scale(zoom, zoom); ctx.translate(-cx, -cy);
+    }
     ctx.drawImage(src, 0, 0, this.W, this.H);
     return r0;
   }

@@ -40,8 +40,8 @@ def _worker(args):
             page.evaluate("window.__reel.ready")
         except Exception:
             raise RuntimeError("scene failed to load:\n" + "\n".join(errors[-10:]))
-        for t, frame_url, out in jobs:
-            page.evaluate("([t,u]) => window.__reel.frame(t,u)", [t, frame_url])
+        for t, frame_url, matte_url, out in jobs:
+            page.evaluate("([t,u,m]) => window.__reel.frame(t,u,m)", [t, frame_url, matte_url])
             page.screenshot(path=out, omit_background=alpha, type="png")
         if want_meta:
             meta = page.evaluate("window.__reel.meta()")
@@ -54,8 +54,8 @@ def _worker(args):
 def extract_frames(job, times, d, which=True):
     """Frames handed to the scene per t: the footage (glass) or the keyed subject with alpha (studio3d shadow)."""
     os.makedirs(d, exist_ok=True)
-    if which == "subject":
-        sub = job["subject"]["layer"]
+    if which in ("subject", "behind"):
+        sub = job[which]["layer"]
         src = sub if os.path.isabs(sub) else os.path.join(job["_dir"], sub)
         with open(os.path.splitext(src)[0] + ".json") as f:
             offset = json.load(f).get("start", 0)
@@ -78,7 +78,10 @@ def render_frames(job, times, outdir, workers, alpha, needs_frames):
     frames = [None] * len(times)
     if (needs_frames == "subject" and job.get("subject")) or (needs_frames is True and job.get("video")):
         frames = [f"{base}/f{urllib.parse.quote(p)}" for p in extract_frames(job, times, os.path.join(outdir, "_src"), needs_frames)]
-    items = [(t, frames[i], os.path.join(outdir, f"f_{i:06d}.png")) for i, t in enumerate(times)]
+    mattes = [None] * len(times)
+    if job.get("behind"):
+        mattes = [f"{base}/f{urllib.parse.quote(p)}" for p in extract_frames(job, times, os.path.join(outdir, "_matte"), "behind")]
+    items = [(t, frames[i], mattes[i], os.path.join(outdir, f"f_{i:06d}.png")) for i, t in enumerate(times)]
     n = max(1, min(workers, len(items) // 8 or 1))
     chunks = [items[i::n] for i in range(n)]
     t_start = time.time()
@@ -105,10 +108,11 @@ def encode(job, frames_dir, out_path, alpha, fps, mblur=1):
                 "-r", common.fps_arg(fps), out_path])
 
 
-def preview(job, layer, out_mp4, alpha):
-    """Composite the layer over the source segment (with its audio) for review."""
+def preview(job, layer, out_mp4, alpha, sfx_wav=None):
+    """Composite the layer over the source segment (with its audio and the layer's sound effects) for review."""
     if not job.get("video"):
-        common.run(["ffmpeg", "-y", "-v", "error", "-i", layer, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", out_mp4])
+        audio = ["-i", sfx_wav, "-map", "0:v", "-map", "1:a", "-c:a", "aac", "-b:a", "192k"] if sfx_wav else []
+        common.run(["ffmpeg", "-y", "-v", "error", "-i", layer, *audio, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", out_mp4])
         return
     t0, t1 = job["start"], job["end"]
     w, h = job["size"]
@@ -116,10 +120,14 @@ def preview(job, layer, out_mp4, alpha):
         fc = f"[0:v]scale={w}:{h},setpts=PTS-STARTPTS[b];[1:v]setpts=PTS-STARTPTS[o];[b][o]overlay=0:0:shortest=1,format=yuv420p[v]"
     else:
         fc = f"[1:v]scale={w}:{h},format=yuv420p[v]"
-    cmd = ["ffmpeg", "-y", "-v", "error", "-ss", f"{t0:.4f}", "-t", f"{t1 - t0:.4f}", "-i", job["video"], "-i", layer,
+    has_audio = job.get("_video_info", {}).get("has_audio")
+    extra = ["-i", sfx_wav] if sfx_wav else []
+    if sfx_wav:
+        fc += ";[0:a][2:a]amix=inputs=2:normalize=0:duration=first[a]" if has_audio else ""
+    cmd = ["ffmpeg", "-y", "-v", "error", "-ss", f"{t0:.4f}", "-t", f"{t1 - t0:.4f}", "-i", job["video"], "-i", layer, *extra,
            "-filter_complex", fc, "-map", "[v]"]
-    if job.get("_video_info", {}).get("has_audio"):
-        cmd += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "192k"]
+    if sfx_wav or has_audio:
+        cmd += ["-map", "[a]" if sfx_wav and has_audio else ("2:a" if sfx_wav else "0:a:0"), "-c:a", "aac", "-b:a", "192k"]
     cmd += ["-c:v", "libx264", "-crf", "18", "-preset", "medium", "-movflags", "+faststart", out_mp4]
     common.run(cmd)
 
@@ -215,6 +223,14 @@ def render_job(job, a):
     layer = os.path.join(job["out"], name + ".mov")
     encode(job, frames_dir, layer, alpha, fps, sub)
     meta.update({"layer": layer, "start": t0, "end": t1, "fps": fps, "size": job["size"], "alpha": alpha, "name": name})
+    sfx_wav = None
+    if meta.get("sfx") and job.get("params", {}).get("sfx", True) is not False:
+        import sfx
+        sfx_wav = sfx.mix(meta["sfx"], t0, t1 - t0, os.path.join(job["out"], name + "_sfx.wav"),
+                          job.get("params", {}).get("sfx_gain", 0))
+        if sfx_wav:
+            meta["sfx_wav"] = sfx_wav
+            print(f"sfx:     {sfx_wav}  (same start as the layer)")
     with open(os.path.join(job["out"], name + ".meta.json"), "w") as f:
         json.dump(meta, f, indent=2)
     print(f"layer:   {layer}  (place at {t0:.3f}s on the timeline)")
@@ -222,7 +238,7 @@ def render_job(job, a):
         meta["preview"] = subject_layers(job, meta, layer, name, t1 - t0, a.no_preview)
     elif not a.no_preview:
         pv = os.path.join(job["out"], name + "_preview.mp4")
-        preview(dict(job, start=t0, end=t1), layer, pv, alpha)
+        preview(dict(job, start=t0, end=t1), layer, pv, alpha, sfx_wav)
         meta["preview"] = pv
         print(f"preview: {pv}")
     if not a.keep_frames:
@@ -242,9 +258,22 @@ def project_preview(project, results, out):
         parts.append(f"[{k}:v]scale={W}:{H},format=yuva420p[l{k}]")
         parts.append(f"[{last}][l{k}]overlay=eof_action=pass:enable='between(t,{meta['start']:.4f},{meta['end']:.4f})'[b{k}]")
         last = f"b{k}"
+    sounds = ["0:a:0"] if info["has_audio"] else []
+    for job, layer, meta in results:
+        if meta.get("sfx_wav"):
+            k = inputs.count("-i")
+            inputs += ["-i", meta["sfx_wav"]]
+            parts.append(f"[{k}:a]adelay={meta['start'] * 1000:.0f}:all=1[x{k}]")
+            sounds.append(f"x{k}")
+    amap = []
+    if len(sounds) > 1:
+        parts.append("".join(f"[{s}]" for s in sounds) + f"amix=inputs={len(sounds)}:normalize=0:duration=first[a]")
+        amap = ["-map", "[a]"]
+    elif sounds:
+        amap = ["-map", sounds[0] if ":" in sounds[0] else f"[{sounds[0]}]"]
     cmd = ["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", ";".join(parts), "-map", f"[{last}]"]
-    if info["has_audio"]:
-        cmd += ["-map", "0:a:0", "-c:a", "aac", "-b:a", "192k"]
+    if amap:
+        cmd += [*amap, "-c:a", "aac", "-b:a", "192k"]
     common.run(cmd + ["-c:v", "libx264", "-crf", "19", "-preset", "medium", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out])
     return out
 

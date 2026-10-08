@@ -120,12 +120,20 @@ def load_job(path, video=None):
             themes = presets.get("themes", {})
             if theme not in themes:
                 die(f"theme '{theme}' not in {style}: {', '.join(themes)}")
-            params = deep_merge(params, {"theme": themes[theme]})
+            th = dict(themes[theme])
+            # A theme may set top-level defaults too ("params"); the job's own params still win.
+            params = deep_merge(params, th.pop("params", {}))
+            params = deep_merge(params, {"theme": th})
         job["_tune"] = presets.get("tune", [])
+        job["_prepare"] = presets.get("prepare")
         job["_output"] = presets.get("output", "alpha")
     job["_base_params"] = params
     job["params"] = deep_merge(params, job.get("params", {}))
     job.setdefault("out", os.path.join(job["_dir"], "out", style))
+    if job.get("_prepare"):
+        # Style-specific one-time data (e.g. map tiles), cached; see the module's prepare().
+        import importlib
+        importlib.import_module(job["_prepare"]).prepare(job)
     job["out"] = absp(job["out"])
     return job
 
@@ -234,6 +242,7 @@ def project_info(project):
         "video": v, "size": [info["w"], info["h"]], "fps": info["fps"], "duration": info["duration"], "has_audio": info["has_audio"],
         "jobs": [{"i": i, "style": j["style"], "name": j.get("name") or os.path.splitext(os.path.basename(j["_path"]))[0],
                   "start": j["start"], "end": j["end"], "output": j.get("_output", "alpha"), "subject": j.get("subject"),
+                  "behind": j.get("behind"),
                   "file": j["_path"]} for i, j in enumerate(project["jobs"])],
     }
 

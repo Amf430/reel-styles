@@ -1,0 +1,171 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "punch",
+  "defaults": {
+    "dir": "rtl",
+    "lines": [],
+    "sub": "",
+    "x": 0.5,
+    "y": 0.42,
+    "max_width": 0.88,
+    "line_gap": 0.02,
+    "in": 0,
+    "out": 3.0,
+    "anim": "punch",
+    "anim_dur": 0.5,
+    "stagger": 0.12,
+    "out_anim": "pop",
+    "out_dur": 0.25,
+    "shake": 0.0
+  },
+  "themes": {
+    "punch": {
+      "style": "outline",
+      "text": "#ffffff",
+      "hl": "#ffd400",
+      "stroke": "#000000",
+      "stroke_w": 0.09,
+      "shadow": 0.55,
+      "box": "#000000",
+      "box_text": "#ffffff",
+      "weight": 900,
+      "sub": "#ffffff"
+    },
+    "box": {
+      "style": "box",
+      "text": "#ffffff",
+      "hl": "#111111",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.25,
+      "box": "#111111",
+      "box_text": "#ffffff",
+      "box_hl": "#ffd400",
+      "weight": 900,
+      "sub": "#ffffff"
+    },
+    "white-box": {
+      "style": "box",
+      "text": "#111111",
+      "hl": "#e0242b",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.2,
+      "box": "#ffffff",
+      "box_text": "#111111",
+      "box_hl": "#e0242b",
+      "weight": 900,
+      "sub": "#ffffff"
+    },
+    "clean": {
+      "style": "plain",
+      "text": "#ffffff",
+      "hl": "#ffd400",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.7,
+      "box": "#000000",
+      "box_text": "#ffffff",
+      "weight": 800,
+      "sub": "#ffffff"
+    },
+    "seen": {
+      "style": "plain",
+      "text": "#ffffff",
+      "hl": "#ffe066",
+      "stroke": "#240215",
+      "stroke_w": 0,
+      "shadow": 0.6,
+      "box": "#320012",
+      "box_text": "#ffffff",
+      "box_hl": "#b28764",
+      "weight": 900,
+      "sub": "#ffffff"
+    },
+    "red": {
+      "style": "box",
+      "text": "#ffffff",
+      "hl": "#ffffff",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.25,
+      "box": "#e0242b",
+      "box_text": "#ffffff",
+      "box_hl": "#111111",
+      "weight": 900,
+      "sub": "#ffffff"
+    }
+  },
+  "tune": [
+    {
+      "path": "x",
+      "label": "x",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "path": "y",
+      "label": "y",
+      "min": 0,
+      "max": 1
+    },
+    {
+      "path": "line_gap",
+      "label": "line gap",
+      "min": -0.05,
+      "max": 0.15,
+      "step": 0.005
+    },
+    {
+      "path": "anim_dur",
+      "label": "anim duration",
+      "min": 0.15,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "path": "stagger",
+      "label": "stagger",
+      "min": 0,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "path": "shake",
+      "label": "shake",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "path": "theme.text",
+      "label": "text",
+      "type": "color"
+    },
+    {
+      "path": "theme.hl",
+      "label": "highlight",
+      "type": "color"
+    },
+    {
+      "path": "theme.box",
+      "label": "box",
+      "type": "color"
+    },
+    {
+      "path": "theme.stroke_w",
+      "label": "outline",
+      "min": 0,
+      "max": 0.2,
+      "step": 0.005
+    },
+    {
+      "path": "theme.shadow",
+      "label": "shadow",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    }
+  ]
+}

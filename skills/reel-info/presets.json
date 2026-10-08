@@ -1,0 +1,21 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "light",
+  "defaults": { "dir": "rtl", "items": [], "out_dur": 0.35, "sfx": true, "sfx_gain": 0 },
+  "themes": {
+    "light": { "text": "#ffffff", "accent": "#2f6bff", "on_accent": "#ffffff", "panel": "rgba(255,255,255,.96)", "panel_text": "#141414", "panel_sub": "#5b5b5b", "shadow": 0.5, "weight": 700 },
+    "dark":  { "text": "#ffffff", "accent": "#ffd400", "on_accent": "#111111", "panel": "rgba(16,16,20,.86)", "panel_text": "#ffffff", "panel_sub": "#b9b9c0", "shadow": 0.5, "weight": 700 },
+    "gold":  { "text": "#ffffff", "accent": "#ffb02e", "on_accent": "#1a1205", "panel": "rgba(20,16,10,.88)", "panel_text": "#ffffff", "panel_sub": "#d9c9a8", "shadow": 0.5, "weight": 700 },
+    "red":   { "text": "#ffffff", "accent": "#e0242b", "on_accent": "#ffffff", "panel": "rgba(255,255,255,.96)", "panel_text": "#141414", "panel_sub": "#5b5b5b", "shadow": 0.5, "weight": 700 },
+    "green": { "text": "#ffffff", "accent": "#12b76a", "on_accent": "#ffffff", "panel": "rgba(255,255,255,.96)", "panel_text": "#141414", "panel_sub": "#5b5b5b", "shadow": 0.5, "weight": 700 },
+    "seen":  { "text": "#ffffff", "accent": "#b28764", "on_accent": "#ffffff", "panel": "rgba(50,0,18,.9)", "panel_text": "#ffffff", "panel_sub": "#e2cdb9", "shadow": 0.5, "weight": 700 }
+  },
+  "tune": [
+    { "path": "out_dur", "label": "exit duration", "min": 0, "max": 1, "step": 0.05 },
+    { "path": "sfx_gain", "label": "sfx gain (dB)", "min": -24, "max": 6, "step": 1 },
+    { "path": "theme.accent", "label": "accent", "type": "color" },
+    { "path": "theme.panel_text", "label": "panel text", "type": "color" },
+    { "path": "theme.shadow", "label": "shadow", "min": 0, "max": 1, "step": 0.05 }
+  ]
+}

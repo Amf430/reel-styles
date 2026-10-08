@@ -1,0 +1,41 @@
+{
+  "style": "reel-map",
+  "name": "map",
+  "video": "../reel.mp4",
+  "start": 0,
+  "end": 5,
+  "theme": "night",
+  "params": {
+    "center": "حي النرجس، الرياض",
+    "camera": {
+      "zoom_from": 10.5,
+      "zoom_to": 14,
+      "dur": 3
+    },
+    "pin": {
+      "label": "مشروع سين — النرجس",
+      "sub": "شقق 3 غرف",
+      "at": 2.4
+    },
+    "route": {
+      "points": [
+        [
+          24.7743,
+          46.7386
+        ]
+      ],
+      "start": 0.6,
+      "dur": 2.0
+    },
+    "pois": [
+      {
+        "label": "طريق الملك سلمان",
+        "sub": "3 دقائق",
+        "at": [
+          24.8365,
+          46.662
+        ]
+      }
+    ]
+  }
+}

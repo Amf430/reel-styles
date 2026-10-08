@@ -1,0 +1,7 @@
+{
+  "style": "reel-captions",
+  "name": "captions",
+  "theme": "hormozi",
+  "start": 0, "end": 30,
+  "params": { "words": "words.json", "keywords": ["إنجاز", "حلم"] }
+}

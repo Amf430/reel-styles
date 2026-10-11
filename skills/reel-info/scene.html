@@ -1,0 +1,291 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .blk { position: absolute; left: 0; top: 0; white-space: nowrap; line-height: 1.2; }
+  .blk > .in { position: relative; }
+  .card { position: relative; border-radius: 0.5em; }
+  .ic { display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 50%; }
+  .ic svg { width: 58%; height: 58%; }
+  .w { display: inline-block; }
+  .row { display: flex; align-items: center; }
+  .col { display: flex; flex-direction: column; }
+  svg.ov { position: absolute; overflow: visible; pointer-events: none; left: 0; top: 0; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp, rand, noise1, richWords } from "/r/engine/web/base.js";
+import { icon } from "/r/engine/web/icons.js";
+
+const R = await Reel.init();
+const stage = document.getElementById("stage");
+const E = ease;
+const h = (tag, cls, parent, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent?.appendChild(e); return e; };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+const css = (el, o) => Object.assign(el.style, o);
+const plain = (s) => String(s ?? "").replace(/\*/g, "");
+const rich = (s) => richWords(s).html;
+
+// "1,250" / "٣٥٠" / "4.5" → { a, b, fmt(v) } so a number can count while keeping its look
+function numParts(str) {
+  const s = String(str ?? "");
+  const ar = /[٠-٩]/.test(s), west = s.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  const m = /^(\D*?)([\d,٬]*\d(?:[.٫]\d+)?)(.*)$/.exec(west);
+  if (!m) return null;
+  const raw = m[2], dec = (raw.split(/[.٫]/)[1] || "").length, sep = /[,٬]/.test(raw);
+  const val = parseFloat(raw.replace(/[,٬]/g, "").replace("٫", "."));
+  const fmt = (v) => { let t = v.toFixed(dec); if (sep) t = t.replace(/\B(?=(\d{3})+(?!\d))/g, ","); if (ar) t = t.replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[d]).replace(/,/g, "٬"); return m[1] + t + m[3]; };
+  return { val, fmt };
+}
+
+// ------------------------------------------------------------------ blocks
+// build(c) makes DOM in c.box; render(c, s) with s = { t, lt, o }; sfx(c) → [{ at, id, v?, gain? }]; anchor = how x,y maps
+const B = {};
+
+B.title = {
+  build(c) { const r = h("div", "row", c.box); css(r, { gap: "0.35em", alignItems: "stretch" });
+    c.bar = h("div", null, r); css(c.bar, { width: "0.12em", borderRadius: "1em", background: c.A, transformOrigin: "50% 0" });
+    const col = h("div", "col", r); css(col, { alignItems: "flex-start", justifyContent: "center" });
+    c.t1 = h("div", null, col, rich(c.it.text)); css(c.t1, { fontSize: "1em", fontWeight: 900 });
+    c.t1.querySelectorAll(".hl").forEach((w) => (w.style.color = c.A));
+    if (c.it.sub) { c.t2 = h("div", null, col, esc(c.it.sub)); css(c.t2, { fontSize: "0.48em", fontWeight: 500, opacity: 0.9 }); } },
+  render(c, s) { c.bar.style.transform = `scaleY(${tw(s.lt, 0, 0.4, E.outExpo)})`;
+    const e = tw(s.lt, 0.12, 0.5, E.outQuint); css(c.t1, { clipPath: `inset(-20% 0 -20% ${(1 - e) * 100}%)`, transform: `translateX(${(1 - e) * 0.6}em)` });
+    if (c.t2) { const f = tw(s.lt, 0.35, 0.45, E.outQuint); css(c.t2, { opacity: f * 0.9, transform: `translateY(${(1 - f) * 0.4}em)` }); } },
+  sfx: () => [{ at: 0.1, id: "whoosh_soft", gain: -3 }] };
+
+B.bar = {
+  build(c) { c.st = h("div", null, c.box); css(c.st, { background: c.it.bg || c.A, padding: "0.25em 0.8em 0.3em", display: "flex", justifyContent: "center", width: (c.it.w ?? 1) * R.W + "px", boxSizing: "border-box" });
+    c.tx = h("div", null, c.st, rich(c.it.text)); css(c.tx, { fontWeight: 800, color: c.it.text_color || c.T.on_accent, textShadow: "none" }); },
+  layout(c) { c.st.style.width = (c.it.w ?? 1) * R.W + "px"; },
+  render(c, s) { const e = tw(s.lt, 0, 0.45, E.outExpo); c.st.style.clipPath = `inset(0 0 0 ${(1 - e) * 100}%)`;
+    const f = tw(s.lt, 0.2, 0.45, E.outQuint); css(c.tx, { opacity: f, transform: `translateY(${(1 - f) * 0.5}em)` }); },
+  sfx: () => [{ at: 0, id: "swipe_ui" }] };
+
+B.highlight = {
+  build(c) { c.tx = h("div", null, c.box, rich(c.it.text)); c.tx.style.fontWeight = 800; c.ws = [...c.tx.querySelectorAll(".w")];
+    c.hl = c.ws.filter((w) => w.classList.contains("hl")); c.hl.forEach((w) => css(w, { position: "relative", padding: "0 0.15em", margin: "0 -0.05em", zIndex: 0 }));
+    c.bgs = c.hl.map((w) => { const b = h("div", null, w); css(b, { position: "absolute", inset: "0.05em 0 0", borderRadius: "0.18em", background: c.A, zIndex: -1, transformOrigin: "100% 50%" }); return b; }); },
+  render(c, s) { c.ws.forEach((w, i) => { const e = tw(s.lt, i * 0.07, 0.45, E.outQuint); css(w, { opacity: e, transform: `translateY(${(1 - e) * 0.5}em)` }); });
+    const at = c.ws.length * 0.07 + 0.25; c.bgs.forEach((b) => (b.style.transform = `scaleX(${tw(s.lt, at, 0.35, E.outExpo)})`));
+    c.hl.forEach((w) => { w.style.color = s.lt > at + 0.1 ? c.T.on_accent : ""; w.style.textShadow = s.lt > at + 0.1 ? "none" : ""; }); },
+  sfx: (c) => [{ at: c.words.length * 0.07 + 0.25, id: "pop", gain: -2 }] };
+
+B.lower = { anchor: "side",
+  build(c) { c.p = h("div", "row", c.box); css(c.p, { gap: "0.4em", background: c.T.panel, padding: "0.35em 0.7em 0.4em 0.9em", borderRadius: "0.25em", alignItems: "center" });
+    c.ac = h("div", null, c.p); css(c.ac, { width: "0.14em", alignSelf: "stretch", borderRadius: "1em", background: c.A });
+    if (c.it.icon) { c.ic = h("div", "ic", c.p, icon(c.it.icon)); css(c.ic, { width: "1.5em", height: "1.5em", background: c.A, color: c.T.on_accent }); }
+    const col = h("div", "col", c.p); css(col, { gap: "0.05em" });
+    c.n = h("div", null, col, rich(c.it.text)); css(c.n, { fontWeight: 800, fontSize: "0.9em", color: c.T.panel_text, textShadow: "none" });
+    if (c.it.sub) { c.r = h("div", null, col, esc(c.it.sub)); css(c.r, { fontWeight: 500, fontSize: "0.55em", color: c.T.panel_sub, textShadow: "none" }); } },
+  render(c, s) { const e = tw(s.lt, 0, 0.5, E.outExpo); c.p.style.clipPath = `inset(0 0 0 ${(1 - e) * 100}% round 0.25em)`;
+    c.ac.style.transform = `scaleY(${tw(s.lt, 0, 0.35, E.outBack)})`;
+    [c.n, c.r].filter(Boolean).forEach((el, i) => { const f = tw(s.lt, 0.15 + i * 0.1, 0.45, E.outQuint); css(el, { opacity: f, transform: `translateX(${(1 - f) * 0.5}em)` }); });
+    if (c.ic) c.ic.style.transform = `scale(${E.outBack(tw(s.lt, 0.1, 0.4, E.linear))})`; },
+  sfx: () => [{ at: 0, id: "swipe_ui" }] };
+
+B.card = {
+  build(c) { c.p = h("div", "card col", c.box); css(c.p, { background: c.T.panel, padding: "0.7em 0.9em 0.8em", gap: "0.25em", alignItems: "flex-start", width: (c.it.w ?? 9) + "em", whiteSpace: "normal", boxShadow: `0 0.3em 1em rgba(0,0,0,.25)` });
+    const top = h("div", "row", c.p); css(top, { gap: "0.4em" });
+    if (c.it.icon) { c.ic = h("div", "ic", top, icon(c.it.icon)); css(c.ic, { width: "1.6em", height: "1.6em", background: rgba(c.A, 0.18), color: c.A }); }
+    c.t1 = h("div", null, top, rich(c.it.text)); css(c.t1, { fontWeight: 800, fontSize: "0.95em", color: c.T.panel_text, textShadow: "none" });
+    if (c.it.sub) { c.t2 = h("div", null, c.p, esc(c.it.sub)); css(c.t2, { fontSize: "0.6em", lineHeight: 1.5, color: c.T.panel_sub, textShadow: "none" }); } },
+  render(c, s) { const e = tw(s.lt, 0, 0.5, E.linear); css(c.p, { opacity: clamp(e * 4), transform: `translateY(${(1 - E.outQuint(e)) * 0.8}em) scale(${0.92 + 0.08 * E.outBack(e)})` });
+    if (c.ic) c.ic.style.transform = `scale(${E.outBack(tw(s.lt, 0.2, 0.4, E.linear))})`;
+    if (c.t2) c.t2.style.opacity = tw(s.lt, 0.3, 0.4); },
+  sfx: () => [{ at: 0, id: "pop_low" }] };
+
+B.stats = { cdur: 1.2,
+  build(c) { c.p = h("div", "card col", c.box); css(c.p, { background: c.T.panel, padding: "0.6em 0.9em 0.7em", gap: "0.2em", alignItems: "flex-start", minWidth: "7em", boxShadow: `0 0.3em 1em rgba(0,0,0,.25)` });
+    c.lb = h("div", null, c.p, esc(plain(c.it.text))); css(c.lb, { fontSize: "0.55em", fontWeight: 600, color: c.T.panel_sub, textShadow: "none" });
+    const r = h("div", "row", c.p); css(r, { gap: "0.35em", alignItems: "baseline" });
+    c.num = numParts(c.it.value ?? "0"); c.v = h("div", null, r); css(c.v, { fontSize: "1.5em", fontWeight: 900, color: c.T.panel_text, textShadow: "none", fontVariantNumeric: "tabular-nums" });
+    if (c.it.delta) { const up = !/^[-−]/.test(c.it.delta); c.d = h("div", null, r, (up ? "▲ " : "▼ ") + esc(String(c.it.delta).replace(/^[+−-]/, "")));
+      css(c.d, { fontSize: "0.5em", fontWeight: 800, padding: "0.1em 0.4em", borderRadius: "1em", color: up ? "#0f9d58" : "#e0242b", background: up ? "rgba(15,157,88,.14)" : "rgba(224,36,43,.14)", textShadow: "none" }); }
+    const bars = c.it.bars || [3, 5, 4, 7, 6, 9]; const g = h("div", "row", c.p); css(g, { gap: "0.18em", alignItems: "flex-end", height: "1.4em", marginTop: "0.2em" });
+    const mx = Math.max(...bars); c.bars = bars.map((b, i) => { const d = h("div", null, g); css(d, { width: "0.45em", height: (b / mx) * 100 + "%", borderRadius: "0.12em", background: i === bars.length - 1 ? c.A : rgba(c.A, 0.35), transformOrigin: "50% 100%" }); return d; }); },
+  render(c, s) { const e = tw(s.lt, 0, 0.45, E.linear); css(c.p, { opacity: clamp(e * 4), transform: `translateY(${(1 - E.outQuint(e)) * 0.8}em)` });
+    const k = E.outCubic(tw(s.lt, 0.2, this.cdur, E.linear)); c.v.textContent = c.num ? c.num.fmt(c.num.val * k) : c.it.value;
+    c.bars.forEach((b, i) => (b.style.transform = `scaleY(${tw(s.lt, 0.25 + i * 0.06, 0.5, E.outBack)})`));
+    if (c.d) c.d.style.opacity = tw(s.lt, 0.2 + this.cdur, 0.3); },
+  sfx() { return [{ at: 0, id: "pop_low", gain: -3 }, { at: 0.2, id: "count_up", len: this.cdur, gain: -4 }, { at: 0.2 + this.cdur, id: "count_end", gain: -3 }]; } };
+
+B.number = { cdur: 1.4,
+  build(c) { const col = h("div", "col", c.box); css(col, { alignItems: "center" });
+    const r = h("div", "row", col); css(r, { gap: "0.15em", alignItems: "baseline" });
+    c.num = numParts(c.it.value ?? c.it.text ?? "0");
+    c.v = h("div", null, r); css(c.v, { fontSize: "2.6em", fontWeight: 900, lineHeight: 1, fontVariantNumeric: "tabular-nums" });
+    if (c.it.unit) { c.u = h("div", null, r, esc(c.it.unit)); css(c.u, { fontSize: "0.9em", fontWeight: 800, color: c.A }); }
+    c.ln = h("div", null, col); css(c.ln, { width: "60%", height: "0.09em", borderRadius: "1em", background: c.A, margin: "0.15em 0 0.2em" });
+    if (c.it.sub) { c.lb = h("div", null, col, esc(c.it.sub)); css(c.lb, { fontSize: "0.65em", fontWeight: 600 }); } },
+  render(c, s) { const k = E.outCubic(tw(s.lt, 0, this.cdur, E.linear)); c.v.textContent = c.num ? c.num.fmt(c.num.val * k) : c.it.value;
+    const e = tw(s.lt, 0, 0.35, E.outBack); c.v.style.transform = `scale(${0.6 + 0.4 * e})`; c.v.style.opacity = clamp(e * 3);
+    c.ln.style.transform = `scaleX(${tw(s.lt, 0.3, 0.5, E.outExpo)})`;
+    if (c.u) c.u.style.opacity = tw(s.lt, 0.3, 0.3);
+    if (c.lb) { const f = tw(s.lt, 0.45, 0.4, E.outQuint); css(c.lb, { opacity: f, transform: `translateY(${(1 - f) * 0.4}em)` }); } },
+  sfx() { return [{ at: 0, id: "count_up", len: this.cdur, gain: -3 }, { at: this.cdur, id: "hit_punch", gain: -6 }]; } };
+
+B.calendar = {
+  build(c) { c.p = h("div", "card col", c.box); css(c.p, { background: "#fff", width: "4.6em", overflow: "hidden", alignItems: "center", boxShadow: "0 0.3em 1em rgba(0,0,0,.3)", borderRadius: "0.45em", transformOrigin: "50% 0" });
+    const hd = h("div", null, c.p, esc(c.it.month || "")); css(hd, { width: "100%", textAlign: "center", background: c.A, color: c.T.on_accent, fontWeight: 800, fontSize: "0.7em", padding: "0.25em 0", textShadow: "none" });
+    const d = h("div", null, c.p); css(d, { position: "relative", fontSize: "2.2em", fontWeight: 900, color: "#111", lineHeight: 1.15, padding: "0.05em 0 0", textShadow: "none" });
+    c.num = numParts(c.it.day ?? "1"); c.d = d; c.d.textContent = c.it.day ?? "";
+    if (c.it.weekday) { const w = h("div", null, c.p, esc(c.it.weekday)); css(w, { fontSize: "0.55em", fontWeight: 600, color: "#555", paddingBottom: "0.5em", textShadow: "none" }); }
+    if (c.it.sub) { c.lb = h("div", null, c.box, esc(c.it.sub)); css(c.lb, { fontSize: "0.6em", fontWeight: 700, marginTop: "0.4em", textAlign: "center" }); } },
+  render(c, s) { const e = tw(s.lt, 0, 0.6, E.linear); css(c.p, { opacity: clamp(e * 4), transform: `perspective(10em) rotateX(${(1 - E.outBack(e)) * -80}deg)` });
+    if (c.lb) c.lb.style.opacity = tw(s.lt, 0.4, 0.3); },
+  sfx: () => [{ at: 0, id: "paper" }, { at: 0.35, id: "tap", gain: -4 }] };
+
+function listBlock(dir) {
+  return {
+    build(c) { const items = c.it.items || []; c.wrap = h("div", dir === "col" ? "col" : "row", c.box);
+      css(c.wrap, dir === "col" ? { gap: "0.35em", alignItems: "flex-start" } : dir === "row" ? { gap: "0.3em", flexWrap: "nowrap" } : { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.3em" });
+      c.rows = items.map((t, i) => { const o = typeof t === "string" ? { text: t } : t;
+        const r = h("div", "row", c.wrap); css(r, { gap: "0.35em", background: dir === "col" ? "transparent" : c.T.panel, padding: dir === "col" ? "0" : "0.3em 0.6em 0.35em", borderRadius: "0.35em" });
+        let b;
+        if (dir === "col") { b = h("div", "ic", r, c.it.numbered ? `<b style="font-size:.55em">${i + 1}</b>` : icon(o.icon || "check", 2.6)); css(b, { width: "1.1em", height: "1.1em", background: c.A, color: c.T.on_accent, textShadow: "none" }); }
+        else if (o.icon) { b = h("div", "ic", r, icon(o.icon)); css(b, { width: "1.2em", height: "1.2em", background: rgba(c.A, 0.18), color: c.A }); }
+        const tx = h("div", null, r, rich(o.text)); css(tx, { fontWeight: 700, fontSize: dir === "col" ? "0.85em" : "0.7em", color: dir === "col" ? "" : c.T.panel_text, textShadow: dir === "col" ? "" : "none" });
+        return { r, b, tx }; }); },
+    render(c, s) { const st = c.it.stagger ?? 0.18;
+      c.rows.forEach((o, i) => { const e = tw(s.lt, i * st, 0.45, E.linear);
+        css(o.r, { opacity: clamp(e * 3), transform: dir === "col" ? `translateX(${(1 - E.outQuint(e)) * 1}em)` : `translateY(${(1 - E.outQuint(e)) * 0.6}em) scale(${0.85 + 0.15 * E.outBack(e)})` });
+        if (o.b) o.b.style.transform = `scale(${E.outBack(tw(s.lt, i * st + 0.1, 0.35, E.linear))})`; }); },
+    sfx: (c) => (c.it.items || []).map((_, i) => ({ at: i * (c.it.stagger ?? 0.18), id: dir === "col" ? "toggle_on" : "pop", v: i, gain: -3 })) };
+}
+B.list = listBlock("col");
+B.row = listBlock("row");
+B.grid = listBlock("grid");
+
+B.pill = {
+  build(c) { c.p = h("div", "row", c.box); css(c.p, { gap: "0.35em", background: c.T.panel, borderRadius: "999px", padding: "0.2em 0.8em 0.2em 0.25em", boxShadow: "0 .2em .8em rgba(0,0,0,.25)" });
+    c.ic = h("div", "ic", c.p, icon(c.it.icon || "sparkle")); css(c.ic, { width: "1.4em", height: "1.4em", background: c.A, color: c.T.on_accent });
+    c.tx = h("div", null, c.p, rich(c.it.text)); css(c.tx, { fontWeight: 800, fontSize: "0.8em", color: c.T.panel_text, textShadow: "none" }); },
+  render(c, s) { const e = tw(s.lt, 0, 0.35, E.outBack); c.ic.style.transform = `scale(${e})`;
+    const w = tw(s.lt, 0.15, 0.5, E.outExpo); c.p.style.clipPath = `inset(0 0 0 ${(1 - w) * 100}% round 999px)`;
+    c.tx.style.opacity = tw(s.lt, 0.3, 0.3); },
+  sfx: () => [{ at: 0, id: "pop" }, { at: 0.15, id: "swipe_ui", gain: -6 }] };
+
+B.cta = {
+  build(c) { c.b = h("div", "row", c.box); css(c.b, { gap: "0.3em", background: c.A, color: c.T.on_accent, borderRadius: "999px", padding: "0.3em 1em 0.35em", fontWeight: 900, boxShadow: `0 0.25em 0.8em ${rgba(c.A, 0.45)}`, textShadow: "none" });
+    c.ic = h("div", "ic", c.b, icon(c.it.icon || "userplus", 2.2)); css(c.ic, { width: "1em", height: "1em", borderRadius: 0 });
+    c.l1 = h("span", null, c.b, esc(c.it.text || "تابعنا")); c.l2 = h("span", null, null, esc(c.it.sub || "تمت المتابعة"));
+    c.rip = h("div", null, c.b); css(c.rip, { position: "absolute", left: "50%", top: "50%", width: "1em", height: "1em", borderRadius: "50%", border: "0.08em solid #fff", opacity: 0 });
+    c.b.style.position = "relative";
+    c.cur = h("div", null, c.box, icon("cursor", 1.6)); css(c.cur, { position: "absolute", width: "1.1em", height: "1.1em", color: "#111", filter: "drop-shadow(0 .05em .1em rgba(0,0,0,.4))", left: "55%", top: "55%" });
+    c.cur.querySelector("svg").style.fill = "#fff"; c.click = c.it.click ?? 1.1; },
+  render(c, s) { const e = tw(s.lt, 0, 0.45, E.outBack); css(c.b, { transform: `scale(${Math.max(0, e) * (s.lt > c.click && s.lt < c.click + 0.15 ? 0.92 : 1)})` });
+    const m = tw(s.lt, 0.35, c.click - 0.35, E.inOutCubic); css(c.cur, { transform: `translate(${(1 - m) * 3}em, ${(1 - m) * 2.5}em) scale(${s.lt > c.click && s.lt < c.click + 0.15 ? 0.85 : 1})`, opacity: clamp((s.lt - 0.3) * 5) * (1 - tw(s.lt, c.click + 0.6, 0.3)) });
+    const r = tw(s.lt, c.click, 0.5, E.outCubic); css(c.rip, { transform: `translate(-50%,-50%) scale(${1 + r * 6})`, opacity: r > 0 && r < 1 ? 1 - r : 0 });
+    const done = s.lt > c.click + 0.08; if (done && c.l1.parentNode) { c.l1.replaceWith(c.l2); c.ic.innerHTML = icon("check", 2.6); c.b.style.background = c.it.done_bg || "#222"; }
+    if (!done && c.l2.parentNode) { c.l2.replaceWith(c.l1); c.ic.innerHTML = icon(c.it.icon || "userplus", 2.2); c.b.style.background = c.A; } },
+  sfx: (c) => [{ at: 0, id: "pop_low", gain: -3 }, { at: c.it.click ?? 1.1, id: "click" }, { at: (c.it.click ?? 1.1) + 0.1, id: "success", gain: -6 }] };
+
+B.end = { anchor: "frame",
+  build(c) { c.dim = h("div", null, c.root); css(c.dim, { position: "absolute", left: 0, top: 0, width: R.W + "px", height: R.H + "px", background: c.it.bg || "rgba(0,0,0,.62)", zIndex: -1 });
+    const col = h("div", "col", c.box); css(col, { alignItems: "center", gap: "0.3em" });
+    c.logo = h("div", "ic", col); css(c.logo, { width: "2.6em", height: "2.6em", background: c.A, color: c.T.on_accent, fontSize: "1em", fontWeight: 900, overflow: "hidden", boxShadow: `0 0 0 0.12em ${rgba("#ffffff", 0.9)}` });
+    if (c.it.logo) { const im = h("img", null, c.logo); im.src = R.asset(c.it.logo); css(im, { width: "100%", height: "100%", objectFit: "cover" }); } else c.logo.innerHTML = `<span style="font-size:1.3em">${esc([...plain(c.it.text || "س")][0])}</span>`;
+    c.nm = h("div", null, col, rich(c.it.text)); css(c.nm, { fontWeight: 900, fontSize: "1.1em" });
+    if (c.it.sub) { c.hd = h("div", null, col, esc(c.it.sub)); css(c.hd, { fontSize: "0.6em", opacity: 0.85, direction: "ltr" }); }
+    const r = h("div", "row", col); css(r, { gap: "0.3em", marginTop: "0.5em" });
+    c.btn = (c.it.buttons || [["userplus", "تابعني"], ["bookmark", "احفظ"], ["share", "شارك"]]).map(([ic, t], i) => {
+      const b = h("div", "row", r, `${icon(ic, 2.2)}<span>${esc(t)}</span>`); css(b, { gap: "0.25em", fontSize: "0.6em", fontWeight: 800, padding: "0.4em 0.9em", borderRadius: "999px", background: i === 0 ? c.A : "rgba(255,255,255,.14)", color: i === 0 ? c.T.on_accent : "#fff", border: i === 0 ? "none" : "0.06em solid rgba(255,255,255,.35)", textShadow: "none" });
+      b.querySelector("svg").style.cssText = "width:1.1em;height:1.1em"; return b; }); },
+  layout(c) { css(c.dim, { width: R.W + "px", height: R.H + "px", left: -c.root.offsetLeft + "px", top: -c.root.offsetTop + "px" }); },
+  render(c, s) { c.dim.style.opacity = tw(s.lt, 0, 0.4) * (1 - s.o);
+    const e = tw(s.lt, 0.1, 0.5, E.outBack); c.logo.style.transform = `scale(${Math.max(0, e)})`;
+    [c.nm, c.hd].filter(Boolean).forEach((el, i) => { const f = tw(s.lt, 0.3 + i * 0.1, 0.45, E.outQuint); css(el, { opacity: f, transform: `translateY(${(1 - f) * 0.5}em)` }); });
+    c.btn.forEach((b, i) => { const f = tw(s.lt, 0.55 + i * 0.1, 0.4, E.linear); css(b, { opacity: clamp(f * 3), transform: `scale(${0.6 + 0.4 * E.outBack(f)})` }); }); },
+  sfx: (c) => [{ at: 0, id: "whoosh_deep", gain: -6 }, { at: 0.1, id: "pop_low" }, ...(c.it.buttons || [0, 1, 2]).map((_, i) => ({ at: 0.55 + i * 0.1, id: "pop", v: i, gain: -5 }))] };
+
+function pointBlock(multi) {
+  return { anchor: "frame",
+    build(c) { c.svg = h("div", null, c.box); c.svg.innerHTML = `<svg class="ov"></svg>`; c.sv = c.svg.firstChild;
+      c.dot = h("div", null, c.box); css(c.dot, { position: "absolute", width: "0.45em", height: "0.45em", borderRadius: "50%", background: c.A, boxShadow: `0 0 0 0.12em ${rgba(c.A, 0.35)}` });
+      c.ring = h("div", null, c.box); css(c.ring, { position: "absolute", width: "0.45em", height: "0.45em", borderRadius: "50%", border: `0.06em solid ${c.A}` });
+      const list = multi ? (c.it.items || []) : [{ text: c.it.text, sub: c.it.sub, x: c.it.x ?? 0.5, y: c.it.y ?? 0.4, icon: c.it.icon }];
+      c.lab = list.map((o) => { o = typeof o === "string" ? { text: o } : o;
+        const l = h("div", "row", c.box); css(l, { position: "absolute", gap: "0.3em", background: c.T.panel, padding: "0.25em 0.6em 0.3em", borderRadius: "0.35em", boxShadow: "0 .2em .6em rgba(0,0,0,.25)" });
+        if (o.icon) { const ic = h("div", "ic", l, icon(o.icon)); css(ic, { width: "1.1em", height: "1.1em", background: c.A, color: c.T.on_accent }); }
+        const col = h("div", "col", l); h("div", null, col, rich(o.text)).style.cssText = `font-weight:800;font-size:.75em;color:${c.T.panel_text};text-shadow:none`;
+        if (o.sub) h("div", null, col, esc(o.sub)).style.cssText = `font-size:.5em;color:${c.T.panel_sub};text-shadow:none`;
+        const ln = document.createElementNS("http://www.w3.org/2000/svg", "path"); ln.setAttribute("fill", "none"); ln.setAttribute("stroke", c.A); ln.setAttribute("stroke-linecap", "round"); c.sv.appendChild(ln);
+        return { o, l, ln }; }); },
+    layout(c) { const W = R.W, H = R.H, fs = parseFloat(getComputedStyle(c.root).fontSize), px = (c.it.px ?? 0.5) * W, py = (c.it.py ?? 0.6) * H, n = c.lab.length;
+      css(c.sv, { width: W + "px", height: H + "px" });
+      [c.dot, c.ring].forEach((d) => css(d, { left: px - 0.225 * fs + "px", top: py - 0.225 * fs + "px" }));
+      c.lab.forEach((L, i) => { let lx, ly;
+        if (multi) { const a = (L.o.angle ?? (-90 + (360 / n) * i)) * Math.PI / 180, rr = (c.it.radius ?? 0.28) * Math.min(W, H); lx = px + Math.cos(a) * rr; ly = py + Math.sin(a) * rr; }
+        else { lx = (L.o.x ?? 0.5) * W; ly = (L.o.y ?? 0.4) * H; }
+        css(L.l, { left: lx - L.l.offsetWidth / 2 + "px", top: ly - L.l.offsetHeight / 2 + "px" });
+        L.ln.setAttribute("d", `M${px},${py} L${lx},${ly}`); L.ln.setAttribute("stroke-width", 0.06 * fs); L.len = Math.hypot(lx - px, ly - py); L.ln.style.strokeDasharray = L.len; }); },
+    render(c, s) { const e = tw(s.lt, 0, 0.35, E.outBack); c.dot.style.transform = `scale(${Math.max(0, e)})`;
+      const p = (s.lt * 1.2) % 1; css(c.ring, { transform: `scale(${1 + p * 2.5})`, opacity: (1 - p) * clamp(s.lt * 4) });
+      c.lab.forEach((L, i) => { const a = 0.2 + i * 0.15; L.ln.style.strokeDashoffset = L.len * (1 - tw(s.lt, a, 0.4, E.outCubic));
+        const f = tw(s.lt, a + 0.3, 0.4, E.linear); css(L.l, { opacity: clamp(f * 3), transform: `scale(${0.7 + 0.3 * E.outBack(f)})` }); }); },
+    sfx: (c) => [{ at: 0, id: "pop", gain: -3 }, ...c.lab.map((_, i) => ({ at: 0.5 + i * 0.15, id: "pop", v: i + 1, gain: -4 }))] };
+}
+B.callout = pointBlock(false);
+B.orbit = pointBlock(true);
+
+// ------------------------------------------------------------------ build / layout / render
+let items = [];
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  stage.innerHTML = ""; R.clearItems();
+  items = (R.P.items || []).map((it, idx) => {
+    const blk = B[it.type] || B.title, T = R.T, A = it.accent || T.accent;
+    const root = h("div", "blk", stage), box = h("div", "in", root);
+    const c = { it, blk, T, A, root, box, words: richWords(it.text ?? "").words };
+    root.style.fontWeight = T.weight ?? 700;
+    if (it.font || R.P.font) root.style.fontFamily = `"${it.font || R.P.font}", Tajawal`;
+    root.style.color = it.color || T.text;
+    root.style.textShadow = T.shadow > 0 ? `0 0.04em 0.18em rgba(0,0,0,${T.shadow})` : "none";
+    blk.build(c);
+    R.item({ id: "blk" + idx, label: `${it.type}: ${plain(it.text ?? "").slice(0, 24)}`, els: [root], in: `items.${idx}.in`, out: `items.${idx}.out`, xf: `items.${idx}.xf` });
+    return c;
+  });
+  style();
+}
+function style() {
+  for (const c of items) {
+    c.root.style.fontSize = (c.it.size ?? 70) * R.u + "px";
+    if (c.blk.anchor === "frame" && c.it.type !== "end") { css(c.root, { left: "0px", top: "0px" }); }
+    else { css(c.root, { left: (c.it.x ?? 0.5) * R.W + "px", top: (c.it.y ?? 0.5) * R.H + "px" });
+      const al = c.it.align ?? (c.blk.anchor === "side" ? "right" : "center");
+      c.box.style.transform = al === "right" ? "translate(-100%, -50%)" : al === "left" ? "translate(0, -50%)" : "translate(-50%, -50%)"; }
+    c.blk.layout?.(c);
+  }
+}
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const outDur = R.P.out_dur ?? 0.35;
+  for (const c of items) {
+    const tin = c.it.in ?? R.start, tout = c.it.out ?? R.end, vis = t >= tin && t <= tout;
+    c.root.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    const lt = t - tin, o = c.it.out_anim === "cut" ? 0 : tw(t, tout - outDur, outDur, E.inCubic);
+    c.blk.render(c, { t, lt, o });
+    c.root.style.opacity = 1 - o;
+    c.root.style.filter = o > 0.01 ? `blur(${o * 6 * R.u}px)` : "";
+  }
+}
+function meta() {
+  const sfx = [];
+  for (const c of items) {
+    if (c.it.sfx === false || !c.blk.sfx) continue;
+    const tin = c.it.in ?? R.start;
+    for (const e of c.blk.sfx(c)) sfx.push({ ...e, t: +(tin + e.at).toFixed(3), gain: (e.gain ?? 0) + (c.it.sfx_gain ?? 0) });
+  }
+  return { sfx };
+}
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
+</script>
+</body>
+</html>

@@ -87,6 +87,8 @@ def prepare(job):
     vw, vh, _ = common.viewport(job)
     cam = P.get("camera", {})
     z0, z1 = float(cam.get("zoom_from", 11)), float(cam.get("zoom_to", 15))
+    if P.get("base") == "vector":
+        return _prepare_vector(job, places, vw, vh, min(z0, z1))
     # Route endpoints must stay in view at the widest zoom: cover them too.
     pts = [center] + [v for k, v in places.items() if k.startswith(("route", "poi"))]
     levels = {}
@@ -112,6 +114,75 @@ def prepare(job):
                 files.append(path)
         levels[str(L)] = {"tx0": tx0, "ty0": ty0, "nx": tx1 - tx0 + 1, "ny": ty1 - ty0 + 1, "files": files}
     manifest = {"places": places, "levels": levels, "attribution": "© OpenStreetMap"}
+    out = os.path.join(job["_dir"], ".reel_cache", f"map_{os.path.splitext(os.path.basename(job['_path']))[0]}.json")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    json.dump(manifest, open(out, "w"), ensure_ascii=False)
+    job["map_manifest"] = out  # top-level: never saved into the job's params
+    return out
+
+
+# Public Overpass instances, tried in turn (the main one is often busy).
+OVERPASS = ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter",
+            "https://overpass.private.coffee/api/interpreter"]
+ROADS = "motorway|trunk|primary|secondary|tertiary|motorway_link|trunk_link|primary_link"
+
+
+def _prepare_vector(job, places, vw, vh, zmin):
+    """Coastline + main roads + water as vectors (Overpass, cached) for the drawn 'vector' base."""
+    import hashlib
+    lat, lon = places["center"]
+    # Area the widest view can see once tilted (generous: the tilted plane shows more toward the horizon).
+    cx, cy = world_px(lat, lon, zmin)
+    half_w, half_h = vw * 1.1, vh * 1.5
+
+    def unproject(x, y):
+        s = 256 * 2 ** zmin
+        return math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * y / s)))), x / s * 360 - 180
+
+    north, west = unproject(cx - half_w, cy - half_h)
+    south, east = unproject(cx + half_w, cy + half_h)
+    for la, lo in [v for k, v in places.items() if k != "center"]:
+        north, south, west, east = max(north, la + 0.01), min(south, la - 0.01), min(west, lo - 0.01), max(east, lo + 0.01)
+    bbox = f"{south:.5f},{west:.5f},{north:.5f},{east:.5f}"
+    os.makedirs(CACHE, exist_ok=True)
+    path = os.path.join(CACHE, "vector_" + hashlib.sha1(bbox.encode()).hexdigest()[:16] + ".json")
+    if not os.path.exists(path):
+        q = (f'[out:json][timeout:90];('
+             f'way["natural"="coastline"]({bbox});'
+             f'way["highway"~"^({ROADS})$"]({bbox});'
+             f'way["natural"="water"]({bbox});'
+             f');out geom;')
+        raw, errs = None, []
+        for attempt in range(2):
+            for url in OVERPASS:
+                try:
+                    req = urllib.request.Request(url, data=urllib.parse.urlencode({"data": q}).encode(), headers={"User-Agent": UA})
+                    with urllib.request.urlopen(req, timeout=120) as r:
+                        raw = json.loads(r.read())
+                    break
+                except Exception as e:  # busy / timeout → next instance
+                    errs.append(f"{url}: {e}")
+            if raw is not None:
+                break
+            time.sleep(5)
+        if raw is None:
+            common.die("Overpass unreachable:\n  " + "\n  ".join(errs))
+        coast, roads, water = [], [], []
+        for el in raw.get("elements", []):
+            g = [[round(p["lat"], 6), round(p["lon"], 6)] for p in el.get("geometry", [])]
+            if len(g) < 2:
+                continue
+            tg = el.get("tags", {})
+            if tg.get("natural") == "coastline":
+                coast.append(g)
+            elif tg.get("natural") == "water":
+                water.append(g)
+            elif "highway" in tg:
+                roads.append({"k": tg["highway"].replace("_link", ""), "p": g})
+        with open(path + ".part", "w") as f:
+            json.dump({"bbox": [south, west, north, east], "coast": coast, "roads": roads, "water": water}, f)
+        os.replace(path + ".part", path)
+    manifest = {"places": places, "vector": path, "attribution": "© OpenStreetMap"}
     out = os.path.join(job["_dir"], ".reel_cache", f"map_{os.path.splitext(os.path.basename(job['_path']))[0]}.json")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump(manifest, open(out, "w"), ensure_ascii=False)

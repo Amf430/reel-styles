@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  .fr { position: absolute; left: 0; top: 0; }
+  .fr > * { position: absolute; }
+  .ln { background: currentColor; }
+  .dot { border-radius: 50%; }
+  .tx { display: flex; flex-direction: column; align-items: center; justify-content: center; white-space: nowrap; line-height: 1.25; text-align: center; }
+  .ph { overflow: hidden; }
+  .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lab { white-space: nowrap; font-weight: 800; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp, richWords } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const stage = document.getElementById("stage");
+const h = (tag, cls, parent, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent?.appendChild(e); return e; };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const css = (el, o) => Object.assign(el.style, o);
+const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+const rich = (s) => String(s ?? "").split(/\s*\|\s*/).map((l) => `<div>${richWords(l).html}</div>`).join("");
+
+// A frame = a box (centre x,y; size w×h) drawn as blueprint lines that run past its edges, with glowing dots
+// on the corners ("lines" look), or a glowing border ("glow" look). Its content is a list of steps — phrases or
+// photos — that swap in place, and the box morphs between their sizes.
+let items = [];
+
+function steps(it) {
+  if (it.type === "photo") return (it.images || [{ src: it.img, label: it.label, aspect: it.aspect }]).map((s, i) => ({ ...s, at: s.at ?? i * (it.every ?? 2.5) }));
+  return (it.phrases || [{ text: it.text }]).map((s, i) => (typeof s === "string" ? { text: s, at: i * (it.every ?? 2.5) } : { ...s, at: s.at ?? i * (it.every ?? 2.5) }));
+}
+
+function build() {
+  document.body.dir = R.P.dir || "rtl";
+  stage.innerHTML = ""; R.clearItems();
+  items = (R.P.items || []).map((it, idx) => {
+    const T = R.T, A = it.accent || T.accent, look = it.look || (it.type === "photo" && it.glow ? "glow" : "lines");
+    const root = h("div", "fr", stage);
+    const c = { it, A, root, look, st: steps(it) };
+    if (R.P.font || it.font) root.style.fontFamily = `"${it.font || R.P.font}", Tajawal`;
+    c.lines = look === "lines" ? [0, 1, 2, 3].map(() => h("div", "ln", root)) : [];
+    c.dots = look === "lines" ? [0, 1, 2, 3].map(() => h("div", "dot", root)) : [];
+    c.border = look === "glow" ? h("div", null, root) : null;
+    c.panes = c.st.map((s) => {
+      if (it.type === "photo") {
+        const p = h("div", "ph", root); const im = h("img", null, p); im.src = R.asset(s.src);
+        const lab = s.label ? h("div", "lab", root, richWords(s.label).html) : null; lab?.querySelectorAll(".hl").forEach((w) => (w.style.color = A)); return { p, lab };
+      }
+      const p = h("div", "tx", root, rich(s.text)); p.querySelectorAll(".hl").forEach((w) => (w.style.color = A)); return { p };
+    });
+    R.item({ id: "fr" + idx, label: `${it.type || "text"}: ${String(it.text ?? it.phrases?.[0]?.text ?? it.phrases?.[0] ?? "").slice(0, 20)}`, els: [root], in: `items.${idx}.in`, out: `items.${idx}.out`, xf: `items.${idx}.xf` });
+    return c;
+  });
+  style();
+}
+
+function style() {
+  for (const c of items) {
+    const it = c.it, T = R.T, u = R.u, fs = (it.size ?? 60) * u;
+    c.fs = fs;
+    c.root.style.fontSize = fs + "px";
+    for (const l of c.lines) css(l, { color: rgba(T.line, it.line_opacity ?? 0.5) });
+    for (const d of c.dots) css(d, { width: 0.16 * fs + "px", height: 0.16 * fs + "px", background: c.A, boxShadow: `0 0 ${0.25 * fs}px ${c.A}, 0 0 ${0.08 * fs}px #fff` });
+    if (c.border) css(c.border, { border: `${3 * u}px solid ${c.A}`, borderRadius: 10 * u + "px", boxShadow: `0 0 ${18 * u}px ${rgba(c.A, 0.8)}, inset 0 0 ${12 * u}px ${rgba(c.A, 0.4)}` });
+    // measure each step's natural box
+    c.sizes = c.st.map((s, i) => {
+      const P = c.panes[i].p;
+      if (it.type === "photo") { const w = (s.w ?? it.w ?? 0.5) * R.W; return [w, w / (s.aspect ?? it.aspect ?? 0.78)]; }
+      css(P, { fontWeight: it.weight ?? T.weight ?? 800, color: it.color || T.text, textShadow: `0 ${0.04}em ${0.18}em rgba(0,0,0,${T.shadow})`, left: "0px", top: "0px", width: "auto", height: "auto" });
+      return [P.offsetWidth + (it.pad ?? 0.8) * fs * 2, P.offsetHeight + (it.pad ?? 0.8) * fs * 0.9];
+    });
+    c.panes.forEach((pn) => pn.lab && css(pn.lab, { fontSize: "0.5em", color: "#fff" }));
+  }
+}
+
+function renderAt(t) {
+  if (R._needsLayout) { style(); R._needsLayout = false; }
+  const u = R.u;
+  for (const c of items) {
+    const it = c.it, tin = it.in ?? R.start, tout = it.out ?? R.end, vis = t >= tin && t <= tout;
+    c.root.style.display = vis ? "" : "none";
+    if (!vis) continue;
+    const lt = t - tin, fs = c.fs;
+    // current step and morph to it
+    let k = 0; c.st.forEach((s, i) => { if (lt >= s.at) k = i; });
+    const prev = Math.max(0, k - 1), m = k === 0 ? 1 : tw(lt, c.st[k].at, 0.55, ease.inOutCubic);
+    const W = lerp(c.sizes[prev][0], c.sizes[k][0], m), H = lerp(c.sizes[prev][1], c.sizes[k][1], m);
+    const cx = (it.x ?? 0.5) * R.W, cy = (it.y ?? 0.5) * R.H, L = cx - W / 2, Tp = cy - H / 2;
+    const e = tw(lt, 0, 0.6, ease.outExpo), ext = (it.ext ?? 1.1) * fs * e, lw = Math.max(1, 1.2 * u);
+    // lines: top, bottom (horizontal), left, right (vertical) — they grow out from the corners
+    if (c.lines.length) {
+      css(c.lines[0], { left: L - ext + "px", top: Tp + "px", width: W * e + ext * 2 + "px", height: lw + "px" });
+      css(c.lines[1], { left: L - ext + "px", top: Tp + H + "px", width: W * e + ext * 2 + "px", height: lw + "px" });
+      css(c.lines[2], { left: L + "px", top: Tp - ext + "px", width: lw + "px", height: H * e + ext * 2 + "px" });
+      css(c.lines[3], { left: L + W + "px", top: Tp - ext + "px", width: lw + "px", height: H * e + ext * 2 + "px" });
+      const ds = 0.16 * fs; [[L, Tp], [L + W, Tp], [L, Tp + H], [L + W, Tp + H]].forEach(([x, y], i) => css(c.dots[i], { left: x - ds / 2 + "px", top: y - ds / 2 + "px", transform: `scale(${ease.outBack(tw(lt, 0.15 + i * 0.05, 0.4, ease.linear))})` }));
+    }
+    if (c.border) { const d = tw(lt, 0, 0.6, ease.outCubic); css(c.border, { left: L + "px", top: Tp + "px", width: W + "px", height: H + "px", clipPath: `inset(0 0 ${(1 - d) * 100}% 0)` }); }
+    c.panes.forEach((pn, i) => {
+      const on = i === k, was = i === prev && k !== prev;
+      const op = on ? (k === 0 ? tw(lt, 0.25, 0.45) : tw(lt, c.st[k].at + 0.05, 0.35)) : was ? 1 - tw(lt, c.st[k].at + 0.1, 0.3) : 0;
+      pn.p.style.display = op > 0 ? "" : "none";
+      if (it.type === "photo") {
+        const pad = c.border ? 6 * u : 0;
+        css(pn.p, { left: L + pad + "px", top: Tp + pad + "px", width: W - pad * 2 + "px", height: H - pad * 2 + "px", opacity: op, borderRadius: (c.border ? 6 : 2) * u + "px" });
+        if (pn.lab) { pn.lab.style.display = op > 0 ? "" : "none"; css(pn.lab, { left: (c.border ? L + W / 2 : L + W) + "px", top: Tp - 0.08 * fs + "px", transform: c.border ? "translate(-50%, -100%)" : "translate(-100%, -100%)", opacity: op }); }
+      } else {
+        css(pn.p, { left: cx + "px", top: cy + "px", transform: `translate(-50%, -50%) translateY(${(1 - op) * 0.3}em)`, opacity: op });
+      }
+    });
+    const od = R.P.out_dur ?? 0.35, o = tw(t, tout - od, od, ease.inCubic);
+    c.root.style.opacity = 1 - o;
+  }
+}
+
+function meta() {
+  const sfx = [];
+  for (const c of items) { if (c.it.sfx === false) continue; const tin = c.it.in ?? R.start;
+    sfx.push({ t: tin, id: "draw_line", v: 1, gain: -8 }, { t: tin + 0.15, id: "tick", gain: -6 });
+    c.st.slice(1).forEach((s) => sfx.push({ t: +(tin + s.at).toFixed(3), id: c.it.type === "photo" ? "shutter" : "swipe_ui", gain: -5 })); }
+  return { sfx };
+}
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  #cv { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hit { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas><div id="hit"></div></div>
+<script type="module">
+import { Reel, tw, ease, clamp, lerp, rand, noise1 } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+const off = document.createElement("canvas"), ox = off.getContext("2d");   // scratch (pixelate, glass)
+
+// Everything happens on the footage itself. A transition is centred on a cut: before the cut it builds up on
+// clip A, the cut happens at its peak, and it settles on clip B — so each frame only needs its own source frame.
+// k in [-1, 1]: -1 = start, 0 = the cut, +1 = end.  e = 1 - |k| eased = strength (1 at the cut).
+
+function cam(t) {
+  // camera moves: [{ in, out, type: punch|zoom|pan|shake, ... }] → { s, x, y, r } (scale, offset as frame fraction, deg)
+  let s = 1, x = 0, y = 0, r = 0;
+  for (const m of R.P.camera || []) {
+    const a = m.in ?? 0, b = m.out ?? a + 1;
+    if (t < a - 0.001 || t > b + (m.type === "punch" ? 0 : 0.001)) continue;
+    const p = tw(t, a, b - a, ease.inOutCubic);
+    if (m.type === "punch") { const q = tw(t, a, m.dur ?? 0.12, ease.outCubic); s *= lerp(1, m.scale ?? 1.18, q); x += (m.x ?? 0) * q; y += (m.y ?? 0) * q; }
+    else if (m.type === "zoom") { s *= lerp(m.from ?? 1, m.to ?? 1.15, p); x += lerp(m.x0 ?? 0, m.x1 ?? 0, p); y += lerp(m.y0 ?? 0, m.y1 ?? 0, p); }
+    else if (m.type === "pan") { s *= m.scale ?? 1.12; x += lerp(m.x0 ?? -0.04, m.x1 ?? 0.04, p); y += lerp(m.y0 ?? 0, m.y1 ?? 0, p); }
+    else if (m.type === "shake") { const a2 = (m.amount ?? 1) * 0.008, f = m.freq ?? 9; s *= 1.03 + a2; x += noise1(t * f, 1) * a2; y += noise1(t * f, 2) * a2; r += noise1(t * f * 0.7, 3) * (m.amount ?? 1) * 0.6; }
+  }
+  return { s, x, y, r };
+}
+
+function drawSrc(c, { s = 1, x = 0, y = 0, r = 0, filter = "none", alpha = 1, op = "source-over" } = {}) {
+  const src = R.source, W = cv.width, H = cv.height;
+  if (!src || (src.readyState !== undefined && src.readyState < 2)) return;
+  c.save(); c.globalAlpha = alpha; c.globalCompositeOperation = op; c.filter = filter;
+  c.translate(W / 2 + x * W, H / 2 + y * H); c.rotate(r * Math.PI / 180); c.scale(s, s); c.translate(-W / 2, -H / 2);
+  c.drawImage(src, 0, 0, W, H); c.restore();
+}
+
+const FX = {
+  whip(c, k, e, d) { const dir = d.dir === "left" ? -1 : 1, n = 9, sh = Math.sign(k || 1) * Math.pow(e, 2.2) * 0.35 * dir;
+    for (let i = 0; i < n; i++) drawSrc(c, { ...d.cam, s: d.cam.s * (1 + 0.5 * e), x: d.cam.x + sh + (i / (n - 1) - 0.5) * e * 0.18 * dir, alpha: i === 0 ? 1 : 1 / (i + 1) }); },
+  zoom(c, k, e, d) { const n = 8, base = d.cam.s * (1 + e * 0.6);
+    for (let i = 0; i < n; i++) drawSrc(c, { ...d.cam, s: base * (1 + i * e * 0.05), alpha: i === 0 ? 1 : 1 / (i + 1) }); },
+  spin(c, k, e, d) { const n = 8, rot = Math.sign(k || 1) * Math.pow(e, 2) * 45;
+    for (let i = 0; i < n; i++) drawSrc(c, { ...d.cam, s: d.cam.s * (1 + e * 0.75), r: d.cam.r + rot + i * e * 2.5, alpha: i === 0 ? 1 : 1 / (i + 1) }); },
+  defocus(c, k, e, d) { drawSrc(c, { ...d.cam, s: d.cam.s * (1 + e * 0.04), filter: `blur(${e * 28 * R.u}px) brightness(${1 + e * 0.25})` });
+    bokeh(c, e * 0.8); },
+  pixel(c, k, e, d) { const W = cv.width, H = cv.height, n = Math.max(6, Math.round(lerp(W, 18, Math.pow(e, 0.6))));
+    off.width = n; off.height = Math.max(4, Math.round(n * H / W)); ox.imageSmoothingEnabled = true; ox.clearRect(0, 0, off.width, off.height);
+    drawSrcInto(ox, off, d.cam); c.imageSmoothingEnabled = false; c.drawImage(off, 0, 0, W, H); c.imageSmoothingEnabled = true;
+    if (e > 0.1) { const cell = W / n; c.save(); c.globalAlpha = e * 0.55; c.strokeStyle = "#000"; c.lineWidth = Math.max(1, cell * 0.12);
+      c.beginPath(); for (let x = 0; x <= W; x += cell) { c.moveTo(x, 0); c.lineTo(x, H); } for (let y = 0; y <= H; y += cell) { c.moveTo(0, y); c.lineTo(W, y); } c.stroke(); c.restore(); } },
+  grid(c, k, e, d) { const W = cv.width, H = cv.height, cols = d.cols ?? 4, rows = Math.round(cols * H / W), cw = W / cols, ch = H / rows;
+    c.fillStyle = d.color || "#000"; c.fillRect(0, 0, W, H);
+    for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+      const delay = (i + j) / (cols + rows) * 0.6, q = clamp((e - delay) / (1 - delay + 1e-6)), sc = 1 - 0.82 * ease.inOutCubic(q);
+      if (sc <= 0.01) continue;
+      c.save(); c.beginPath(); c.rect(i * cw + (1 - sc) * cw / 2, j * ch + (1 - sc) * ch / 2, cw * sc - 2, ch * sc - 2); c.clip(); drawSrc(c, d.cam); c.restore();
+    } },
+  iris(c, k, e, d) { const W = cv.width, H = cv.height, far = Math.hypot(W, H) / 2, col = d.color || "#ff7a1a";
+    drawSrc(c, d.cam);
+    // before the cut a ring closes in and darkens the outside; after it the ring opens out of the centre
+    const r = k < 0 ? lerp(far, 0.12 * far, ease.inOutCubic(1 + k)) : lerp(0.12 * far, far, ease.inOutCubic(k));
+    c.save(); c.fillStyle = "#000"; c.globalAlpha = 0.85 * e; c.beginPath(); c.rect(0, 0, W, H); c.arc(W / 2, H / 2, r, 0, Math.PI * 2, true); c.fill("evenodd"); c.restore();
+    c.save(); c.globalAlpha = Math.min(1, e * 1.6); c.shadowColor = col; c.shadowBlur = 30 * R.u; c.strokeStyle = col; c.lineWidth = 7 * R.u;
+    c.beginPath(); for (let a = 0; a <= 64; a++) { const t = a / 64 * Math.PI * 2, rr = r * (1 + 0.03 * noise1(a * 0.7 + d.t * 6, 4)); a ? c.lineTo(W / 2 + Math.cos(t) * rr, H / 2 + Math.sin(t) * rr) : c.moveTo(W / 2 + rr, H / 2); }
+    c.closePath(); c.stroke(); c.strokeStyle = "#fff6c8"; c.lineWidth = 2 * R.u; c.stroke(); c.restore(); },
+  glass(c, k, e, d) { const W = cv.width, H = cv.height; drawSrc(c, d.cam);
+    const pw = W * 0.55, x = lerp(W * 1.05, -pw - W * 0.05, (k + 1) / 2);
+    c.save(); c.beginPath(); c.roundRect(x, H * 0.08, pw, H * 0.84, 28 * R.u); c.clip();
+    drawSrc(c, { ...d.cam, s: d.cam.s * 1.12, filter: `blur(${10 * R.u}px) brightness(1.12) saturate(1.2)` });
+    const g = c.createLinearGradient(x, 0, x + pw, H); g.addColorStop(0, "rgba(255,255,255,.35)"); g.addColorStop(0.4, "rgba(255,255,255,.05)"); g.addColorStop(1, "rgba(255,255,255,.18)");
+    c.fillStyle = g; c.fillRect(x, 0, pw, H); c.restore();
+    c.save(); c.strokeStyle = "rgba(255,255,255,.75)"; c.lineWidth = 2.5 * R.u; c.beginPath(); c.roundRect(x, H * 0.08, pw, H * 0.84, 28 * R.u); c.stroke(); c.restore(); },
+  xray(c, k, e, d) { const W = cv.width, H = cv.height, neg = Math.abs(k) < 0.35;
+    drawSrc(c, { ...d.cam, s: d.cam.s * (1 + e * 0.08), filter: neg ? `invert(1) hue-rotate(180deg) contrast(1.3) brightness(${1 + e * 0.4})` : `brightness(${1 + e * 0.6}) contrast(${1 + e * 0.3})` });
+    if (e > 0.05) { c.save(); c.globalCompositeOperation = "screen"; c.translate(W / 2, H / 2);
+      for (let i = 0; i < 18; i++) { const a = rand(i, 3) * Math.PI * 2, L = Math.hypot(W, H) * (0.4 + 0.6 * e), w = (0.01 + rand(i, 4) * 0.03);
+        const g = c.createLinearGradient(0, 0, Math.cos(a) * L, Math.sin(a) * L); g.addColorStop(0, `rgba(190,230,255,${0.55 * e})`); g.addColorStop(1, "rgba(190,230,255,0)");
+        c.fillStyle = g; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a - w) * L, Math.sin(a - w) * L); c.lineTo(Math.cos(a + w) * L, Math.sin(a + w) * L); c.fill(); }
+      c.restore(); } },
+  streak(c, k, e, d) { const W = cv.width, H = cv.height; FX.zoom(c, k, e * 0.6, d);
+    const col = d.color || "#ffd28a", y = H * (d.y ?? 0.5), w = W * (0.3 + 0.9 * e);
+    c.save(); c.globalCompositeOperation = "screen"; c.globalAlpha = e;
+    const g = c.createLinearGradient(W / 2 - w / 2, 0, W / 2 + w / 2, 0); g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(0.5, "#fff"); g.addColorStop(1, "rgba(255,255,255,0)");
+    c.shadowColor = col; c.shadowBlur = 40 * R.u; c.fillStyle = g; c.fillRect(W / 2 - w / 2, y - 6 * R.u, w, 12 * R.u); c.fillRect(W / 2 - w / 2, y - 6 * R.u, w, 12 * R.u);
+    c.fillStyle = `rgba(255,255,255,${0.35 * Math.pow(e, 3)})`; c.fillRect(0, 0, W, H); c.restore(); },
+  flash(c, k, e, d) { drawSrc(c, d.cam); c.save(); c.globalAlpha = Math.pow(e, 1.6) * (d.strength ?? 1); c.fillStyle = d.color || "#ffffff"; c.fillRect(0, 0, cv.width, cv.height); c.restore(); },
+  glitch(c, k, e, d) { const W = cv.width, H = cv.height, f = Math.floor(d.t * 30);
+    drawSrc(c, d.cam);
+    if (e < 0.05) return;
+    c.save(); c.globalAlpha = 0.3 * e; drawSrc(c, { ...d.cam, x: d.cam.x + 0.015 * e }); drawSrc(c, { ...d.cam, x: d.cam.x - 0.015 * e }); c.restore();
+    c.save(); for (let i = 0; i < Math.round(6 * e); i++) { c.globalAlpha = 0.5 * e; c.fillStyle = i % 2 ? "#00f0ff" : "#ff2a6d";
+      c.fillRect(rand(f, i, 7) * W * 0.6, rand(f, i, 8) * H, (0.1 + rand(f, i, 9) * 0.5) * W, (0.004 + rand(f, i, 6) * 0.012) * H); } c.restore();
+    for (let i = 0; i < Math.round(8 * e); i++) { const y = rand(f, i, 1) * H, h = (0.01 + rand(f, i, 2) * 0.06) * H, dx = (rand(f, i, 3) - 0.5) * 0.25 * W * e;
+      c.save(); c.beginPath(); c.rect(0, y, W, h); c.clip(); c.translate(dx, 0); drawSrc(c, d.cam); c.restore(); } },
+};
+
+function drawSrcInto(c2, canvas, camv) {
+  const src = R.source; if (!src) return;
+  c2.save(); const W = canvas.width, H = canvas.height;
+  c2.translate(W / 2 + camv.x * W, H / 2 + camv.y * H); c2.rotate(camv.r * Math.PI / 180); c2.scale(camv.s, camv.s); c2.translate(-W / 2, -H / 2);
+  c2.drawImage(src, 0, 0, W, H); c2.restore();
+}
+function bokeh(c, a) {
+  if (a < 0.05) return; const W = cv.width, H = cv.height;
+  c.save(); c.globalCompositeOperation = "screen";
+  for (let i = 0; i < 14; i++) { const x = rand(i, 1) * W, y = rand(i, 2) * H, r = (20 + rand(i, 3) * 60) * R.u;
+    const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(255,220,170,${0.25 * a})`); g.addColorStop(1, "rgba(255,220,170,0)"); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
+  c.restore();
+}
+
+function build() {
+  R.clearItems();
+  const hit = document.getElementById("hit");
+  hit.innerHTML = "";
+  (R.P.cuts || []).forEach((cu, i) => { const el = document.createElement("div"); el.style.cssText = "position:absolute;inset:0"; hit.appendChild(el);
+    R.item({ id: "cut" + i, label: `${cu.fx} @ ${cu.t}`, els: [el], in: `cuts.${i}.from`, out: `cuts.${i}.to` }); });
+  layout();
+}
+function layout() { const dpr = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(R.W * dpr); cv.height = Math.round(R.H * dpr); }
+
+function renderAt(t) {
+  if (R._needsLayout || cv.width !== Math.round(R.W * Math.min(2, devicePixelRatio || 1))) { layout(); R._needsLayout = false; }
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, cv.width, cv.height);
+  const camv = cam(t);
+  // the active cut: within [t - dur/2, t + dur/2] (or explicit from/to)
+  let act = null;
+  for (const cu of R.P.cuts || []) { const a = cu.from ?? cu.t - (cu.dur ?? 0.5) / 2, b = cu.to ?? cu.t + (cu.dur ?? 0.5) / 2; if (t >= a && t <= b) { act = { cu, a, b }; break; } }
+  if (!act) { drawSrc(ctx, camv); return; }
+  const { cu, a, b } = act, k = t < cu.t ? -(cu.t - t) / Math.max(1e-6, cu.t - a) : (t - cu.t) / Math.max(1e-6, b - cu.t);
+  const e = ease.inOutCubic(1 - Math.min(1, Math.abs(k)));
+  (FX[cu.fx] || FX.whip)(ctx, k, e, { ...cu, cam: camv, t });
+}
+
+function meta() {
+  const SND = { whip: "whip", zoom: "whoosh_in", spin: "whoosh_fast", defocus: "whoosh_deep", pixel: "glitch", grid: "whip", iris: "reverse_swell", glass: "swipe_ui", xray: "stinger", streak: "whoosh_in", flash: "hit_punch", glitch: "glitch" };
+  const sfx = [];
+  for (const cu of R.P.cuts || []) { if (cu.sfx === false) continue; const a = cu.from ?? cu.t - (cu.dur ?? 0.5) / 2;
+    const id = typeof cu.sfx === "string" ? cu.sfx : SND[cu.fx] || "whip";
+    // sounds that build up end on the cut; hits start on it
+    const lead = { whoosh_in: 0.9, reverse_swell: 2.68 }[id];
+    if (lead) { const t0 = cu.t - lead, skip = Math.max(0, R.start - t0); sfx.push({ t: +(t0 + skip).toFixed(3), id, gain: -3, ...(skip ? { from: +skip.toFixed(3) } : {}) }); }
+    else sfx.push({ t: +(id === "hit_punch" || id === "stinger" ? cu.t : a).toFixed(3), id, gain: -3 }); }
+  for (const m of R.P.camera || []) if (m.type === "punch" && m.sfx !== false) sfx.push({ t: m.in ?? 0, id: "hit_punch", gain: -8 });
+  return { sfx };
+}
+
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
+</script>
+</body>
+</html>

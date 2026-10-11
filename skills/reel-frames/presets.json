@@ -1,0 +1,18 @@
+{
+  "output": "alpha",
+  "needs_frames": false,
+  "default_theme": "gold",
+  "defaults": { "dir": "rtl", "items": [], "out_dur": 0.35, "sfx": true, "sfx_gain": 0 },
+  "themes": {
+    "gold":  { "text": "#ffffff", "accent": "#ffc21a", "line": "#ffffff", "shadow": 0.55, "weight": 800 },
+    "cyan":  { "text": "#ffffff", "accent": "#36e2ff", "line": "#ffffff", "shadow": 0.55, "weight": 800 },
+    "red":   { "text": "#ffffff", "accent": "#ff3b3b", "line": "#ffffff", "shadow": 0.55, "weight": 800 },
+    "white": { "text": "#ffffff", "accent": "#ffffff", "line": "#ffffff", "shadow": 0.55, "weight": 800 },
+    "seen":  { "text": "#ffffff", "accent": "#e2c086", "line": "#ffffff", "shadow": 0.6, "weight": 800 }
+  },
+  "tune": [
+    { "path": "out_dur", "label": "exit duration", "min": 0, "max": 1, "step": 0.05 },
+    { "path": "theme.accent", "label": "accent", "type": "color" },
+    { "path": "theme.shadow", "label": "shadow", "min": 0, "max": 1, "step": 0.05 }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+ "style": "reel-transitions",
+ "name": "transitions",
+ "video": "../reel.mp4",
+ "start": 2.5,
+ "end": 8.0,
+ "params": {
+  "cuts": [
+   {
+    "t": 3.233,
+    "fx": "zoom",
+    "dur": 0.6
+   },
+   {
+    "t": 7.333,
+    "fx": "iris",
+    "dur": 1.0
+   }
+  ],
+  "camera": [
+   {
+    "type": "punch",
+    "in": 5.0,
+    "out": 7.0,
+    "scale": 1.2
+   }
+  ]
+ }
+}

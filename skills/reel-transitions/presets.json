@@ -1,0 +1,8 @@
+{
+  "output": "opaque",
+  "needs_frames": true,
+  "default_theme": "default",
+  "defaults": { "cuts": [], "camera": [], "sfx": true, "sfx_gain": 0 },
+  "themes": { "default": {} },
+  "tune": [ { "path": "sfx_gain", "label": "sfx gain (dB)", "min": -24, "max": 6, "step": 1 } ]
+}

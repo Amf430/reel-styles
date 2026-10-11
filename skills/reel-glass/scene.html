@@ -21,6 +21,16 @@
   .content .s { line-height: 1.25; margin-top: .18em; }
   .content .v { line-height: 1; font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .shadow { position: absolute; border-radius: 40px; z-index: -1; }
+  .content.col { flex-direction: column; justify-content: center; text-align: center; }
+  .content.col .tx { text-align: center; align-items: center; flex: none; }
+  .content.col.rev { flex-direction: column-reverse; }
+  .content .im { flex: none; overflow: hidden; }
+  .content .im img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .content .t.multi { white-space: pre-line; }
+  .orb { position: absolute; pointer-events: none; overflow: visible; }
+  .gicon { position: absolute; }
+  .gicon > canvas { position: absolute; }
+  .gicon > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 </style>
 </head>
 <body>
@@ -28,6 +38,8 @@
 <script type="module">
 import { Reel, tw, ease, clamp, lerp } from "/r/engine/web/base.js";
 import { icon } from "/r/engine/web/icons.js";
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const SHAPED = new Set(["arch", "lens", "bubble", "orbit", "icon"]);   // never flow into the stack
 
 const R = await Reel.init();
 let cards = [];
@@ -39,22 +51,30 @@ function build() {
   cards = (R.P.cards || []).map((c, i) => {
     const sh = document.createElement("div");
     sh.className = "shadow";
+    const kind = c.kind || "card";
+    if (kind === "icon") return buildIcon(c, i, sh);
     const el = document.createElement("div");
     el.className = "card";
-    const kind = c.kind || "card";
     const ic = c.icon ? `<div class="ic">${icon(c.icon)}</div>` : "";
     let tx;
     if (kind === "stat") {
       tx = `<div class="tx"><div class="v"><bdi dir="ltr" class="num">${c.value ?? ""}</bdi><span class="unit"> ${c.unit ?? ""}</span></div>${c.label ? `<div class="s">${c.label}</div>` : ""}</div>`;
     } else {
-      tx = `<div class="tx"><div class="t">${c.text ?? ""}</div>${c.sub ? `<div class="s">${c.sub}</div>` : ""}</div>`;
+      tx = c.text || c.sub ? `<div class="tx"><div class="t${/\n/.test(c.text ?? "") ? " multi" : ""}">${esc(c.text)}</div>${c.sub ? `<div class="s">${esc(c.sub)}</div>` : ""}</div>` : "";
     }
-    el.innerHTML = `<canvas class="fill"></canvas><canvas class="refr"></canvas><div class="tint"></div><div class="spec"></div><div class="hl"></div><div class="stroke"></div><div class="content">${ic}${tx}</div>`;
+    const im = c.img ? `<div class="im"><img src="${R.asset(c.img)}"></div>` : "";
+    const col = c.layout ? c.layout !== "row" : ["title", "arch", "lens", "bubble", "orbit"].includes(kind);
+    const rev = c.layout === "bottom";
+    el.innerHTML = `<canvas class="fill"></canvas><canvas class="refr"></canvas><div class="tint"></div><div class="spec"></div><div class="hl"></div><div class="stroke"></div><div class="content${col ? " col" : ""}${rev ? " rev" : ""}">${im}${ic}${tx}</div>`;
     R.stage.append(sh, el);
-    R.item({ id: "card" + i, label: c.text || `${c.value ?? ""} ${c.label ?? ""}`.trim(), els: [sh, el],
+    let orb = null;
+    if (kind === "orbit") {
+      orb = document.createElementNS("http://www.w3.org/2000/svg", "svg"); orb.classList.add("orb"); R.stage.append(orb);
+    }
+    R.item({ id: "card" + i, label: c.text || `${c.value ?? ""} ${c.label ?? ""}`.trim() || kind, els: [sh, el, orb],
              in: `cards.${i}.in`, out: `cards.${i}.out`, xf: `cards.${i}.xf` });
     return { c, el, sh, kind, canvas: el.querySelector(".fill"), refr: el.querySelector(".refr"), spec: el.querySelector(".spec"),
-             content: el.querySelector(".content"), num: el.querySelector(".num") };
+             content: el.querySelector(".content"), num: el.querySelector(".num"), im: el.querySelector(".im"), orb };
   });
   style();
 }
@@ -63,6 +83,7 @@ function style() {
   const { glass: G, text: X } = R.P, T = R.T, u = R.u;
   document.documentElement.style.setProperty("--corner", G.corner || "round");
   for (const k of cards) {
+    if (k.kind === "icon") continue;
     const c = k.c, el = k.el;
     // One padding and one radius for every kind, so a stack reads as a set.
     const pad = 26 * u;
@@ -94,6 +115,13 @@ function style() {
     content.style.justifyContent = c.align === "center" ? "center" : "";
     el.style.width = c.w ? c.w * R.W + "px" : "auto";
     el.style.height = c.h ? c.h * R.H + "px" : "auto";
+    if (k.im) {
+      const s = (c.img_size ?? (k.kind === "pill" ? 1.6 : 3.2)) * (c.size ?? X.size) * u;
+      Object.assign(k.im.style, { width: s + "px", height: (c.img_shape === "wide" ? s * 0.62 : s) + "px",
+        borderRadius: c.img_shape === "square" || c.img_shape === "wide" ? radius * 0.55 + "px" : "50%", boxShadow: `0 0 0 ${2 * u}px rgba(255,255,255,.55)` });
+    }
+    if (k.kind === "title") { if (t) t.style.fontSize = (c.size ?? X.size * 1.35) * u + "px"; content.style.justifyContent = "center"; }
+    if (SHAPED.has(k.kind)) styleShape(k);
   }
   layoutStack();
 }
@@ -101,8 +129,8 @@ function style() {
 // Cards without their own x/y flow into one column: equal width, one shared edge, equal gaps.
 function layoutStack() {
   const S = R.P.stack, u = R.u;
-  const free = cards.filter((k) => k.c.x == null || k.c.y == null);
-  for (const k of cards) if (!free.includes(k)) { k.el.style.left = k.c.x * R.W + "px"; k.el.style.top = k.c.y * R.H + "px"; }
+  const free = cards.filter((k) => (k.c.x == null || k.c.y == null) && !SHAPED.has(k.kind));
+  for (const k of cards) if (!free.includes(k) && !SHAPED.has(k.kind)) { k.el.style.left = k.c.x * R.W + "px"; k.el.style.top = k.c.y * R.H + "px"; }
   if (!free.length) return;
   // Measure visible and with the final stat value, so the width never depends on the frame we're on.
   const hidden = free.map((k) => k.el.style.display);
@@ -134,23 +162,123 @@ function countUp(str, k) {
   return m[1] + s + m[3];
 }
 
+// ---- shaped glass: arch (rises from the bottom), lens / bubble / orbit (circles), glass icon
+const minWH = () => Math.min(R.W, R.H);
+function styleShape(k) {
+  const c = k.c, el = k.el, u = R.u, G = R.P.glass;
+  if (k.kind === "icon") return;
+  el.style.setProperty("--corner", "round");
+  const cx = (c.cx ?? 0.5) * R.W, cy = (c.cy ?? 0.5) * R.H;
+  if (k.kind === "arch") {
+    const w = (c.w ?? 0.62) * R.W, hh = (c.h ?? 0.5) * R.H, r0 = (c.radius ?? G.radius) * u;
+    Object.assign(el.style, { width: w + "px", height: hh + "px", borderRadius: `${w / 2}px ${w / 2}px ${r0}px ${r0}px`, padding: `${w * 0.14}px ${w * 0.1}px ${w * 0.12}px`,
+      left: cx - w / 2 + "px", top: (c.y != null ? c.y * R.H : R.H - hh + (c.sink ?? 0.05) * R.H) + "px" });
+    k.content.style.justifyContent = "space-between";
+    if (k.im) { const s = w * (c.img_scale ?? 0.6); Object.assign(k.im.style, { width: s + "px", height: s + "px" }); }
+    return;
+  }
+  const d = (c.d ?? (k.kind === "orbit" ? 0.36 : k.kind === "bubble" ? 0.3 : 0.32)) * minWH();
+  Object.assign(el.style, { width: d + "px", height: d + "px", borderRadius: "50%", padding: d * (k.kind === "bubble" ? 0.06 : 0.12) + "px", left: cx - d / 2 + "px", top: cy - d / 2 + "px" });
+  k.content.style.justifyContent = "center";
+  if (k.im) { const s = d * (k.kind === "bubble" ? 0.88 : 0.5); Object.assign(k.im.style, { width: s + "px", height: s + "px", borderRadius: "50%" }); }
+  if (k.orb) {
+    const rr = d / 2 * (c.ring ?? 1.42), m = 30 * u, S = 2 * (rr + m);
+    Object.assign(k.orb.style, { left: cx - S / 2 + "px", top: cy - S / 2 + "px", width: S + "px", height: S + "px" });
+    k.orb.setAttribute("viewBox", `${-S / 2} ${-S / 2} ${S} ${S}`);
+    const n = c.steps ?? 5;
+    k.orb.innerHTML = `<circle r="${rr}" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="${1.6 * u}" pathLength="1" class="ring"/>` +
+      Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
+        return `<g class="dot" transform="translate(${(Math.cos(a) * rr).toFixed(1)} ${(Math.sin(a) * rr).toFixed(1)})"><circle r="${16 * u}" fill="#fff"/><text text-anchor="middle" dominant-baseline="central" font-size="${18 * u}" font-weight="800" fill="#111" font-family="Tajawal">${i + 1}</text></g>`; }).join("");
+  }
+}
+
+function buildIcon(c, i, sh) {
+  const el = document.createElement("div"); el.className = "gicon";
+  const name = c.icon || "bulb", sw = c.stroke ?? 2.6, rim = c.rim ?? 0.42, A = c.accent || R.T.accent || "#7fb2ff";
+  const geo = icon(name, 1).replace(/^<svg[^>]*>|<\/svg>$/g, "").replace(/<(path|circle|rect|ellipse|line|polyline)/g, '<$1 pathLength="1"');
+  const g = (st, w, extra = "") => `<g fill="none" stroke="${st}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}>${geo}</g>`;
+  el.innerHTML = `<canvas class="fill"></canvas><svg viewBox="-2 -2 28 28"><defs>
+      <mask id="gm${i}" maskUnits="userSpaceOnUse" x="-2" y="-2" width="28" height="28">${g("#fff", sw, 'class="d"')}${g("#000", sw - rim * 2, 'class="d"')}</mask>
+      <linearGradient id="gg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient></defs>
+    ${g("rgba(255,255,255,.14)", sw, 'class="d"')}
+    <rect x="-2" y="-2" width="28" height="28" fill="url(#gg${i})" mask="url(#gm${i})"/>
+    ${g("rgba(255,255,255,.55)", 0.22, 'class="d" transform="translate(-0.25 -0.25)"')}</svg>`;
+  const maskSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 28 28">${g("#fff", sw)}</svg>`;
+  const cv = el.querySelector("canvas");
+  Object.assign(cv.style, { inset: 0, width: "100%", height: "100%", webkitMaskImage: `url("data:image/svg+xml,${encodeURIComponent(maskSvg)}")`, webkitMaskSize: "100% 100%" });
+  el.querySelector("svg").style.filter = `drop-shadow(0 0 ${0.02 * minWH()}px ${A})`;
+  R.stage.append(el);
+  R.item({ id: "card" + i, label: "icon: " + name, els: [el], in: `cards.${i}.in`, out: `cards.${i}.out`, xf: `cards.${i}.xf` });
+  return { c, el, sh, kind: "icon", canvas: cv, draws: [...el.querySelectorAll(".d")] };
+}
+
+function renderIcon(k, t) {
+  const c = k.c, M = R.P.motion, G = R.P.glass, u = R.u;
+  const tin = c.in ?? 0, tout = c.out ?? R.end, vis = t >= tin && t <= tout;
+  k.el.style.display = vis ? "" : "none";
+  if (!vis) return;
+  const s = (c.s ?? 0.36) * minWH();
+  Object.assign(k.el.style, { width: s + "px", height: s + "px", left: (c.cx ?? 0.5) * R.W - s / 2 + "px", top: (c.cy ?? 0.5) * R.H - s / 2 + "px" });
+  const e = tw(t, tin, 0.55, ease.outBack), pOut = tw(t, tout - (c.out_dur ?? M.out), c.out_dur ?? M.out, ease.inExpo);
+  k.el.style.transform = `translateY(${Math.sin((t - tin) * 1.6) * 6 * u}px) scale(${(0.6 + 0.4 * e) * (1 - 0.15 * pOut)})`;
+  k.el.style.opacity = clamp(e * 3) * (1 - pOut);
+  const p = tw(t, tin, c.draw ?? 0.9, ease.inOutCubic);
+  for (const d of k.draws) { d.style.strokeDasharray = "1 1"; d.style.strokeDashoffset = 1 - p; }
+  R.drawSourceFor(k.el, k.canvas, `blur(${(c.blur ?? 10) * u}px) brightness(${(G.brightness ?? 0.85) * 1.35}) saturate(1.4)`, 0);
+  k.canvas.style.opacity = tw(t, tin + 0.35, 0.5);
+}
+
+function renderOrbit(k, t, op) {
+  const c = k.c, n = c.steps ?? 5, tin = c.in ?? 0;
+  const ring = k.orb.querySelector(".ring"); ring.style.strokeDasharray = "1 1"; ring.style.strokeDashoffset = 1 - tw(t, tin + 0.2, 0.8, ease.inOutCubic);
+  let active = c.active ?? 0;
+  if (c.step_times) c.step_times.forEach((st, i) => { if (t >= st) active = i; });
+  k.orb.querySelectorAll(".dot").forEach((g, i) => {
+    const e = tw(t, tin + 0.4 + i * 0.08, 0.35, ease.outBack), on = i === active;
+    const base = g.getAttribute("transform").replace(/ scale\([^)]*\)/, "");
+    g.setAttribute("transform", `${base} scale(${Math.max(0, e) * (on ? 1 : 0.42)})`);
+    g.querySelector("text").style.opacity = on ? 1 : 0;
+  });
+  k.orb.style.opacity = op;
+}
+
+function meta() {
+  const sfx = [];
+  for (const k of cards) {
+    const c = k.c, tin = c.in ?? 0, g = c.sfx_gain ?? 0;
+    if (c.sfx === false) continue;
+    const add = (at, id, gain = 0, x = {}) => sfx.push({ t: +(tin + at).toFixed(3), id, gain: gain + g, ...x });
+    if (k.kind === "icon") { add(0, "pop_low", -3); add(0.3, "shine", -4); }
+    else if (k.kind === "stat") { add(0, "swipe_ui", -2); add(0.05, "count_up", -5, { len: c.count_dur ?? 1.4 }); add(c.count_dur ?? 1.4, "count_end", -4); }
+    else if (k.kind === "arch") add(0, "whoosh_deep", -5);
+    else if (k.kind === "lens" || k.kind === "bubble") { add(0, "bubble", -2); if (k.kind === "lens") add(0.2, "shine", -6); }
+    else if (k.kind === "orbit") { add(0, "pop_low", -3); for (let i = 0; i < (c.steps ?? 5); i++) add(0.4 + i * 0.08, "tick", -6);
+      (c.step_times || []).slice(1).forEach((st) => sfx.push({ t: st, id: "pop", gain: -3 + g })); }
+    else add(0, k.kind === "pill" ? "pop" : "swipe_ui", -2);
+  }
+  return { sfx };
+}
+
 function renderAt(t) {
   if (R._needsLayout) { style(); R._needsLayout = false; }
   const { glass: G, motion: M } = R.P, u = R.u;
   for (const k of cards) {
     const c = k.c;
+    if (k.kind === "icon") { renderIcon(k, t); continue; }
     const tin = c.in ?? 0, tout = c.out ?? R.end, din = c.in_dur ?? M.in, dout = c.out_dur ?? M.out;
     const pIn = tw(t, tin, din, ease.outExpo);
     const pOut = tw(t, tout - dout, dout, ease.inExpo);
     const vis = t >= tin && t <= tout;
     k.el.style.display = k.sh.style.display = vis ? "" : "none";
+    if (k.orb) k.orb.style.display = vis ? "" : "none";
     if (!vis) continue;
     const d = (c.dist ?? M.dist) * u;
-    const from = c.from || "bottom";
+    const from = c.from || "bottom", round = ["lens", "bubble", "orbit"].includes(k.kind);
     const off = (1 - pIn) * d - pOut * d * 0.35;
     const [dx, dy] = { bottom: [0, off], top: [0, -off], left: [-off, 0], right: [off, 0] }[from];
     const op = clamp(pIn * 2.2) * (1 - pOut);
-    k.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    k.el.style.transform = round ? `scale(${0.7 + 0.3 * pIn - 0.1 * pOut})` : `translate(${dx}px, ${dy}px)`;
+    if (k.orb) renderOrbit(k, t, op);
     k.el.style.opacity = op;
     const pc = tw(t, tin + (M.content_delay ?? 0.1), din, ease.outCubic);
     k.content.style.opacity = clamp(pc * 1.6) * (1 - pOut);
@@ -158,7 +286,7 @@ function renderAt(t) {
     if (k.num) k.num.textContent = countUp(c.value, tw(t, tin, c.count_dur ?? 1.4, ease.outCubic));
 
     // Glass: the footage behind the card, blurred and darkened, clipped to the card (follows the item transform).
-    const liquid = G.material === "liquid", L = G.liquid || {};
+    const lens = k.kind === "lens", liquid = G.material === "liquid" || lens, L = G.liquid || {};
     let blur = (liquid ? L.blur ?? 3 : G.blur) * u, pad = G.pad * u + blur;
     const glassFilter = () => `blur(${blur}px) brightness(${G.brightness}) saturate(${G.saturate})`;
     let r = R.drawSourceFor(k.el, k.canvas, glassFilter(), pad);
@@ -177,8 +305,10 @@ function renderAt(t) {
       dark = clamp((mean - 0.6) * 0.9 + busy * 0.5, 0, 0.45);
       if (busy > 0.02) { blur += busy * 60 * u; pad = G.pad * u + blur; r = R.drawSourceFor(k.el, k.canvas, glassFilter(), pad); }
     }
+    const tint = c.tint || (lens ? "rgba(255,255,255,.03)" : R.T.tint);
+    if (lens) dark = 0;
     k.el.querySelector(".tint").style.background = dark > 0
-      ? `linear-gradient(rgba(0,0,0,${dark.toFixed(3)}), rgba(0,0,0,${dark.toFixed(3)})), ${c.tint || R.T.tint}` : (c.tint || R.T.tint);
+      ? `linear-gradient(rgba(0,0,0,${dark.toFixed(3)}), rgba(0,0,0,${dark.toFixed(3)})), ${tint}` : tint;
     const box = { left: -pad + "px", top: -pad + "px", width: r.width + pad * 2 + "px", height: r.height + pad * 2 + "px" };
     Object.assign(k.canvas.style, box);
     k.refr.style.display = k.spec.style.display = liquid ? "" : "none";
@@ -186,11 +316,11 @@ function renderAt(t) {
       // Refraction: a magnified copy of what's behind, seen only in a soft band along the edge,
       // with a little colour fringing — the bent-glass edge of Apple's Liquid Glass.
       const edge = (L.edge ?? 22) * u;
-      R.drawSourceFor(k.el, k.refr, `blur(${blur * 0.5}px) brightness(${G.brightness * 1.08}) saturate(${G.saturate * 1.15})`, pad, 1 + (L.refract ?? 0.09));
+      R.drawSourceFor(k.el, k.refr, `blur(${lens ? 0 : blur * 0.5}px) brightness(${G.brightness * 1.08}) saturate(${G.saturate * 1.15})`, pad, 1 + (lens ? c.zoom ?? 0.4 : L.refract ?? 0.09));
       // Soft band: strongest at the rim, fading to nothing `edge` px inside (no visible seam).
       const band = (dir) => `linear-gradient(${dir}, #000 ${pad}px, transparent ${pad + edge}px, transparent calc(100% - ${pad + edge}px), #000 calc(100% - ${pad}px))`;
       Object.assign(k.refr.style, box, {
-        webkitMaskImage: `${band("to right")}, ${band("to bottom")}`, webkitMaskComposite: "source-over",
+        webkitMaskImage: lens ? `radial-gradient(circle closest-side, #000 calc(100% - ${pad + edge * 2.5}px), transparent calc(100% - ${pad}px))` : `${band("to right")}, ${band("to bottom")}`, webkitMaskComposite: "source-over",
         filter: `drop-shadow(${(L.chroma ?? 0.6) * u}px 0 0 rgba(255,60,60,.35)) drop-shadow(${-(L.chroma ?? 0.6) * u}px 0 0 rgba(60,140,255,.35))`,
       });
       // Specular rim: a bright arc that slowly travels around the edge.
@@ -211,7 +341,7 @@ function renderAt(t) {
   }
 }
 
-R.define({ ready: build, renderAt, onParams: () => style() });
+R.define({ ready: build, renderAt, meta, onParams: () => build() });
 </script>
 </body>
 </html>

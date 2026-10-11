@@ -8,12 +8,15 @@
   .line { position: relative; white-space: nowrap; line-height: 1.12; }
   .line > span { display: inline-block; }
   .line .bloom { position: absolute; inset: 0; pointer-events: none; }
+  .it { position: absolute; left: 0; top: 0; white-space: nowrap; line-height: 1.2; }
+  .it > .in { position: relative; display: flex; flex-direction: column; align-items: center; }
+  .full { position: absolute; left: 0; top: 0; pointer-events: none; }
 </style>
 </head>
 <body>
-<div id="stage"><div id="block"></div></div>
+<div id="stage"><div id="block"></div><div id="items"></div></div>
 <script type="module">
-import { Reel, tw, ease, clamp, noise1, rand } from "/r/engine/web/base.js";
+import { Reel, tw, ease, clamp, noise1, rand, lerp } from "/r/engine/web/base.js";
 
 const R = await Reel.init();
 const block = document.getElementById("block");
@@ -37,7 +40,8 @@ function build() {
     block.appendChild(el);
     return { l, el, main: el.querySelector(".main"), bloom: el.querySelector(".bloom") };
   });
-  R.item({ id: "title", label: (R.P.lines || []).map((l) => l.text).join(" / ") || "title", els: [block], in: "in", out: "out", xf: "xf" });
+  if (lines.length) R.item({ id: "title", label: (R.P.lines || []).map((l) => l.text).join(" / ") || "title", els: [block], in: "in", out: "out", xf: "xf" });
+  buildItems();
   style();
 }
 
@@ -53,6 +57,7 @@ function style() {
     R.fit(k.el, P.max_width * R.W);
   }
   // Anchor: x,y is the block's center for "center", its outer edge otherwise.
+  for (const c of items) styleItem(c);
   const b = { w: block.offsetWidth, h: block.offsetHeight };
   const ax = P.align === "center" ? 0.5 : P.align === "right" ? 1 : 0;
   block.style.left = P.x * R.W - b.w * ax + "px";
@@ -79,8 +84,129 @@ function flicker(t, seed) {
   return on;
 }
 
+// ------------------------------------------------------------------ «نيون المتحدث»: blocks around a talking head
+// items: [{ type: word|pill|banner|number|side|flash, in, out, x, y, size, ... }]
+const itemsEl = document.getElementById("items");
+let items = [];
+const h = (tag, cls, parent, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent?.appendChild(e); return e; };
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const css = (el, o) => Object.assign(el.style, o);
+const splitLines = (s) => String(s ?? "").split(/\s*\|\s*/).filter(Boolean);
+
+const NB = {};
+NB.word = {
+  build(c) { c.ls = splitLines(c.it.text).map((t) => { const w = h("div", null, c.box); css(w, { position: "relative", fontWeight: 800, color: "#fff", textShadow: "0 .04em .2em rgba(0,0,0,.55)" });
+      const tx = h("span", null, w, esc(t)); tx.style.position = "relative"; tx.style.zIndex = 1;
+      const bar = h("div", null, w); css(bar, { position: "absolute", top: "58%", height: "0.2em", borderRadius: "1em", background: c.G, boxShadow: `0 0 .25em ${c.G}, 0 0 .6em ${hexA(c.G, 0.6)}` });
+      return { w, tx, bar }; }); },
+  render(c, lt) { c.ls.forEach((L, i) => { const st = i * 0.4, p = tw(lt, st, 0.5, ease.inOutCubic), q = tw(lt, st + 0.3, 0.45, ease.inOutCubic);
+      L.tx.style.clipPath = `inset(-30% 0 -30% ${(1 - p) * 100}%)`;
+      css(L.bar, { right: q * 100 + "%", left: (1 - p) * 100 + "%", opacity: p > 0 && q < 1 ? 1 : 0 }); }); },
+  sfx: (c) => splitLines(c.it.text).map((_, i) => ({ at: i * 0.4, id: "whoosh_fast", gain: -4 })) };
+
+NB.pill = {
+  build(c) { c.t1 = h("div", null, c.box, esc(c.it.text)); css(c.t1, { fontWeight: 800, color: "#fff", textShadow: "0 .04em .2em rgba(0,0,0,.55)" });
+    c.p = h("div", null, c.box, esc(c.it.sub || "")); css(c.p, { marginTop: "0.15em", fontSize: "0.48em", fontWeight: 800, color: "#062b14", background: c.G, padding: "0.15em 0.7em 0.2em", borderRadius: "0.3em", boxShadow: `0 0 .5em ${hexA(c.G, 0.8)}` }); },
+  render(c, lt) { const e = tw(lt, 0, 0.45, ease.outExpo); css(c.t1, { opacity: clamp(e * 2), transform: `translateY(${(1 - e) * 0.4}em)`, textShadow: `0 0 ${(1 - e) * 0.6}em ${c.G}, 0 .04em .2em rgba(0,0,0,.55)` });
+    const s = tw(lt, 0.3, 0.45, ease.outBack); c.p.style.transform = `scale(${Math.max(0, s)}, ${Math.max(0, Math.min(1, s * 1.5))})`; c.p.style.opacity = clamp(s * 3); },
+  sfx: () => [{ at: 0, id: "whoosh_soft", gain: -4 }, { at: 0.3, id: "pop", gain: -2 }] };
+
+NB.banner = { full: true,
+  build(c) { c.svg = h("div", "full", c.root); c.svg.innerHTML = `<svg style="position:absolute;left:0;top:0;overflow:visible"><path/></svg>`; c.path = c.svg.querySelector("path"); c.sv = c.svg.querySelector("svg");
+    c.word = h("div", null, c.root, esc(c.it.text || "")); css(c.word, { position: "absolute", fontWeight: 900, color: "#062b14", whiteSpace: "nowrap" });
+    if (c.it.img) { c.img = h("div", null, c.root); css(c.img, { position: "absolute", overflow: "hidden", borderRadius: "0.25em", boxShadow: `0 0 0 .06em ${c.G}, 0 0 .6em ${hexA(c.G, 0.7)}` });
+      const im = h("img", null, c.img); im.src = R.asset(c.it.img); css(im, { width: "100%", height: "100%", objectFit: "cover", filter: `sepia(.25) hue-rotate(60deg) saturate(1.3)` }); }
+    if (c.it.label) { c.lab = h("div", null, c.root, esc(c.it.label)); css(c.lab, { position: "absolute", fontSize: "0.4em", fontWeight: 800, color: "#062b14", background: hexA("#ffffff", 0.85), padding: "0.15em 0.6em", borderRadius: "0.3em" }); } },
+  layout(c) { const W = R.W, H = R.H, y = (c.it.y ?? 0.62) * H, th = (c.it.thick ?? 0.07) * H, fs = parseFloat(c.root.style.fontSize);
+    css(c.sv, { width: W + "px", height: H + "px" }); c.y = y; c.th = th; c.path.setAttribute("fill", c.G); c.path.style.filter = `drop-shadow(0 0 ${8 * R.u}px ${hexA(c.G, 0.7)})`;
+    css(c.word, { fontSize: th * 0.95 + "px", top: y - th * 0.62 + "px", left: (c.it.x ?? 0.5) * W + "px", transform: "translateX(-50%)" });
+    if (c.img) { const iw = (c.it.img_w ?? 0.32) * W; css(c.img, { width: iw + "px", height: iw * 1.25 + "px", left: (c.it.img_x ?? 0.35) * W - iw / 2 + "px", top: y - th / 2 - iw * 1.25 - 0.01 * H + "px" }); }
+    if (c.lab) css(c.lab, { left: (c.it.img_x ?? 0.35) * W + "px", top: y - th * 0.35 + "px", transform: "translateX(-50%)" }); },
+  render(c, lt, t) { const W = R.W, p = tw(lt, 0, 0.55, ease.outExpo), ph = t * 3, y = c.y, th = c.th, amp = th * 0.18;
+    const x0 = W * (1 - p), pts = [];
+    for (let i = 0; i <= 24; i++) { const x = lerp(x0, W, i / 24); pts.push(`${x.toFixed(1)},${(y - th / 2 + Math.sin(i / 3 + ph) * amp).toFixed(1)}`); }
+    const bot = []; for (let i = 24; i >= 0; i--) { const x = lerp(x0, W, i / 24); bot.push(`${x.toFixed(1)},${(y + th / 2 + Math.sin(i / 3 + ph + 1) * amp).toFixed(1)}`); }
+    c.path.setAttribute("d", "M" + pts.join(" L") + " L" + bot.join(" L") + "Z");
+    c.word.style.clipPath = `inset(-20% 0 -20% ${(1 - tw(lt, 0.2, 0.45, ease.outCubic)) * 100}%)`;
+    if (c.img) { const e = tw(lt, 0.1, 0.55, ease.outBack); css(c.img, { transform: `translateY(${(1 - e) * -40}%)`, opacity: clamp(e * 3) }); }
+    if (c.lab) c.lab.style.opacity = tw(lt, 0.5, 0.3); },
+  sfx: (c) => [{ at: 0, id: "whoosh_fast" }, ...(c.it.img ? [{ at: 0.1, id: "swipe_ui", gain: -4 }] : [])] };
+
+NB.number = { full: true,
+  build(c) { c.tint = h("div", "full", c.root); css(c.tint, { background: hexA(c.G, c.it.tint ?? 0.22), mixBlendMode: "normal" });
+    c.g = h("div", null, c.root, esc(c.it.text || "?")); css(c.g, { position: "absolute", fontWeight: 900, lineHeight: 1, color: "transparent", webkitTextStroke: `0.012em ${c.G}`,
+      backgroundImage: `repeating-linear-gradient(135deg, ${hexA(c.G, 0.55)} 0 0.012em, transparent 0.012em 0.06em)`, webkitBackgroundClip: "text", backgroundClip: "text",
+      filter: `drop-shadow(0 0 0.04em ${c.G})` });
+    c.ws = (c.it.words || []).map((w) => { const o = typeof w === "string" ? { text: w } : w; const e = h("div", null, c.root, esc(o.text)); css(e, { position: "absolute", fontWeight: 800, color: "#fff", fontSize: "0.5em", textShadow: `0 0 .3em ${c.G}`, transform: "translateX(-50%)" }); return { o, e }; }); },
+  layout(c) { const W = R.W, H = R.H; css(c.tint, { width: W + "px", height: H + "px" });
+    const gs = (c.it.glyph ?? 0.55) * H; css(c.g, { fontSize: gs + "px", left: (c.it.x ?? 0.5) * W + "px", top: (c.it.y ?? 0.35) * H + "px", transform: "translate(-50%,-50%)" });
+    c.ws.forEach((w) => css(w.e, { left: (c.it.x ?? 0.5) * W + "px", top: (c.it.wy ?? (c.it.y ?? 0.35) + 0.18) * H + "px" })); },
+  render(c, lt, t) { c.tint.style.opacity = tw(lt, 0, 0.3);
+    const e = tw(lt, 0.1, 0.6, ease.outExpo); css(c.g, { opacity: clamp(e * 2) * (0.85 + 0.15 * noise1(t * 7, 3)), transform: `translate(-50%,-50%) scale(${1.25 - 0.25 * e})` });
+    const n = c.ws.length; c.ws.forEach((w, i) => { const a = w.o.at ?? 0.5 + i * 0.9, b = c.ws[i + 1] ? (c.ws[i + 1].o.at ?? 0.5 + (i + 1) * 0.9) : 1e9;
+      const fi = tw(lt, a, 0.3, ease.outCubic), fo = tw(lt, b - 0.05, 0.25); css(w.e, { opacity: fi * (1 - fo), transform: `translateX(-50%) translateY(${(1 - fi) * 0.4 - fo * 0.4}em)` }); }); },
+  sfx: (c) => [{ at: 0, id: "hit_deep", gain: -6 }, ...(c.it.words || []).map((w, i) => ({ at: (typeof w === "object" && w.at != null ? w.at : 0.5 + i * 0.9), id: "pop", v: i, gain: -4 }))] };
+
+NB.side = { full: true,
+  build(c) { c.fl = h("div", "full", c.root); css(c.fl, { background: c.G });
+    c.ci = h("div", null, c.root); css(c.ci, { position: "absolute", borderRadius: "50%", background: `radial-gradient(circle, ${hexA(c.G, 0.55)}, ${hexA(c.G, 0.35)} 70%, ${hexA(c.G, 0.5)})`,
+      boxShadow: `inset 0 0 0 .04em ${hexA("#ffffff", 0.35)}, 0 0 1em ${hexA(c.G, 0.6)}`, overflow: "hidden" });
+    c.rings = [0.8, 0.62, 0.44].map((k) => { const r = h("div", null, c.ci); css(r, { position: "absolute", left: (1 - k) * 50 + "%", top: (1 - k) * 50 + "%", width: k * 100 + "%", height: k * 100 + "%", borderRadius: "50%", border: `0.025em solid ${hexA("#ffffff", 0.22)}` }); return r; });
+    c.tx = h("div", null, c.root); css(c.tx, { position: "absolute", display: "flex", flexDirection: "column", alignItems: "center", fontWeight: 800, color: "#fff", fontSize: "0.5em", lineHeight: 1.25, textShadow: "0 .03em .15em rgba(0,0,0,.4)" });
+    c.ls = splitLines(c.it.text).map((t) => h("div", null, c.tx, esc(t))); },
+  layout(c) { const W = R.W, H = R.H, d = (c.it.d ?? 0.75) * W, right = (c.it.side ?? "right") === "right";
+    css(c.fl, { width: W + "px", height: H + "px" });
+    const cx = right ? W - d * 0.18 : d * 0.18, cy = (c.it.y ?? 0.42) * H; c.cx = cx;
+    css(c.ci, { width: d + "px", height: d + "px", left: cx - d / 2 + "px", top: cy - d / 2 + "px" });
+    css(c.tx, { left: (right ? W - d * 0.42 : d * 0.42) + "px", top: cy + "px", transform: "translate(-50%,-50%)" }); },
+  render(c, lt) { c.fl.style.opacity = c.it.flash === false ? 0 : 0.55 * (1 - tw(lt, 0, 0.35, ease.outCubic));
+    const e = tw(lt, 0.05, 0.6, ease.outExpo); c.ci.style.transform = `scale(${0.4 + 0.6 * e})`; c.ci.style.opacity = clamp(e * 2);
+    c.ls.forEach((l, i) => { const f = tw(lt, 0.35 + i * 0.15, 0.4, ease.outQuint); css(l, { opacity: f, transform: `translateY(${(1 - f) * 0.5}em)` }); }); },
+  sfx: (c) => [{ at: 0, id: "whoosh_deep", gain: -5 }, ...splitLines(c.it.text).map((_, i) => ({ at: 0.35 + i * 0.15, id: "tap", v: i, gain: -6 }))] };
+
+NB.flash = { full: true,
+  build(c) { c.fl = h("div", "full", c.root); css(c.fl, { background: c.G }); },
+  layout(c) { css(c.fl, { width: R.W + "px", height: R.H + "px" }); },
+  render(c, lt) { c.fl.style.opacity = (c.it.strength ?? 0.7) * (lt < 0.06 ? lt / 0.06 : 1 - tw(lt, 0.06, c.it.dur ?? 0.4, ease.outCubic)); },
+  sfx: () => [{ at: 0, id: "whip", gain: -3 }] };
+
+function buildItems() {
+  itemsEl.innerHTML = "";
+  items = (R.P.items || []).map((it, idx) => {
+    const nb = NB[it.type] || NB.word, G = it.glow || R.T.glow;
+    const root = h("div", "it", itemsEl), box = h("div", "in", root);
+    const c = { it, nb, G, root, box };
+    if (R.P.font || it.font) root.style.fontFamily = `"${it.font || R.P.font}", Tajawal`;
+    nb.build(c);
+    R.item({ id: "it" + idx, label: `${it.type}: ${String(it.text ?? "").slice(0, 20)}`, els: [root], in: `items.${idx}.in`, out: `items.${idx}.out`, xf: `items.${idx}.xf` });
+    return c;
+  });
+}
+function styleItem(c) {
+  c.root.style.fontSize = (c.it.size ?? 90) * R.u + "px";
+  if (c.nb.full) css(c.root, { left: "0px", top: "0px" });
+  else { css(c.root, { left: (c.it.x ?? 0.5) * R.W + "px", top: (c.it.y ?? 0.5) * R.H + "px" }); c.box.style.transform = "translate(-50%, -50%)"; }
+  c.nb.layout?.(c);
+}
+function renderItem(c, t) {
+  const tin = c.it.in ?? R.start, tout = c.it.out ?? R.end, vis = t >= tin && t <= tout;
+  c.root.style.display = vis ? "" : "none";
+  if (!vis) return;
+  c.nb.render(c, t - tin, t);
+  const o = tw(t, tout - (R.P.out_dur ?? 0.4), R.P.out_dur ?? 0.4, ease.inCubic);
+  c.root.style.opacity = 1 - o;
+}
+function meta() {
+  const sfx = [];
+  if (lines.length && R.P.sfx_title !== false) sfx.push({ t: R.P.in ?? R.start, id: R.P.anim === "flicker" ? "neon_on" : "whoosh_soft", gain: -3 });
+  for (const c of items) { if (c.it.sfx === false || !c.nb.sfx) continue;
+    for (const e of c.nb.sfx(c)) sfx.push({ ...e, t: +((c.it.in ?? R.start) + e.at).toFixed(3) }); }
+  return { sfx };
+}
+
 function renderAt(t) {
   if (R._needsLayout) { style(); R._needsLayout = false; }
+  for (const c of items) renderItem(c, t);
   const P = R.P, T = R.T, G = P.glow, u = R.u;
   const tout = P.out ?? R.end;
   const pOut = tw(t, tout - P.out_dur, P.out_dur, ease.inCubic);
@@ -122,7 +248,7 @@ function renderAt(t) {
   });
 }
 
-R.define({ ready: build, renderAt, onParams: () => { build(); } });
+R.define({ ready: build, renderAt, meta, onParams: () => { build(); } });
 </script>
 </body>
 </html>

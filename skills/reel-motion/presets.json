@@ -1,0 +1,270 @@
+{
+  "output": "opaque",
+  "needs_frames": false,
+  "prepare": "motionclips",
+  "default_theme": "blue",
+  "defaults": {
+    "dir": "rtl",
+    "google_fonts": [
+      "Readex Pro"
+    ],
+    "font": "Readex Pro",
+    "font_latin": "Readex Pro",
+    "logo_src": null,
+    "text": {
+      "size": 100,
+      "weight": 400,
+      "line": 1.4,
+      "stagger": 0.16,
+      "word_dur": 0.55,
+      "blur": 16,
+      "rise": 10,
+      "dim": 0.4,
+      "glow": 0,
+      "kashida": 0.15,
+      "justify": true,
+      "slide": 70
+    },
+    "bg": {
+      "speed": 1.6,
+      "rays": 4,
+      "ray_strength": 0.75,
+      "ray_len": 0.7,
+      "shade": 0.75
+    },
+    "tones": [],
+    "beats": [],
+    "cam": {
+      "scale": 1.2,
+      "rot": -6,
+      "dur": 3,
+      "drift": 0.012,
+      "sway": 0.6
+    },
+    "float": 1,
+    "camera": []
+  },
+  "themes": {
+    "blue": {
+      "base": {
+        "deep": "#030c3c",
+        "mid": "#0a1f80",
+        "ray": "#1f45ff",
+        "shade": "#01041c"
+      },
+      "alert": {
+        "deep": "#2c0307",
+        "mid": "#6e0f1a",
+        "ray": "#c0182e",
+        "shade": "#120103"
+      },
+      "text": "#ffffff",
+      "hl": "#9fb4ff",
+      "glass": "rgba(16,26,100,0.28)",
+      "glass_alert": "rgba(150,30,45,0.28)",
+      "stroke": "rgba(210,220,255,0.55)",
+      "spark": "#ffffff",
+      "tab": "#18191c",
+      "tab_text": "#ffffff",
+      "band": "linear-gradient(180deg, rgba(8,14,60,0.55), rgba(12,20,80,0.35))",
+      "line": "#cdd8ff",
+      "pill": "rgba(28,44,150,0.45)",
+      "ray": "#3355ff",
+      "logo": "#eef1ff",
+      "purple": {
+        "deep": "#1a0630",
+        "mid": "#4b1067",
+        "ray": "#8a32d6",
+        "shade": "#0a0218"
+      }
+    },
+    "seen": {
+      "base": {
+        "deep": "#16020c",
+        "mid": "#46081f",
+        "ray": "#8c2448",
+        "shade": "#070004"
+      },
+      "alert": {
+        "deep": "#2a0303",
+        "mid": "#7d0d12",
+        "ray": "#d0202a",
+        "shade": "#100101"
+      },
+      "text": "#ffffff",
+      "hl": "#e2c3a4",
+      "glass": "rgba(120,40,70,0.22)",
+      "glass_alert": "rgba(170,30,40,0.30)",
+      "stroke": "rgba(226,195,164,0.45)",
+      "spark": "#f3dcc4",
+      "tab": "#1a1214",
+      "tab_text": "#f3e4d6",
+      "band": "linear-gradient(180deg, rgba(40,4,20,0.55), rgba(60,8,28,0.35))",
+      "line": "#e2c3a4",
+      "pill": "rgba(40,4,20,0.65)",
+      "ray": "#b28764",
+      "logo": "#f3dcc4",
+      "purple": {
+        "deep": "#1a0420",
+        "mid": "#4a0a3a",
+        "ray": "#a03070",
+        "shade": "#08010a"
+      }
+    },
+    "mono": {
+      "base": {
+        "deep": "#08080a",
+        "mid": "#1e1f26",
+        "ray": "#5a5d70",
+        "shade": "#020203"
+      },
+      "alert": {
+        "deep": "#2a0303",
+        "mid": "#6e0f1a",
+        "ray": "#c0182e",
+        "shade": "#100101"
+      },
+      "text": "#ffffff",
+      "hl": "#c9ccd8",
+      "glass": "rgba(120,125,150,0.16)",
+      "glass_alert": "rgba(150,30,45,0.28)",
+      "stroke": "rgba(230,232,240,0.38)",
+      "spark": "#ffffff",
+      "tab": "#151517",
+      "tab_text": "#ffffff",
+      "band": "linear-gradient(180deg, rgba(20,20,26,0.55), rgba(30,30,38,0.35))",
+      "line": "#e4e6ef",
+      "pill": "rgba(20,20,26,0.65)",
+      "ray": "#8a8fa8",
+      "logo": "#f2f3f7",
+      "purple": {
+        "deep": "#120a18",
+        "mid": "#2a1a36",
+        "ray": "#6a4a8a",
+        "shade": "#050208"
+      }
+    }
+  },
+  "tune": [
+    {
+      "path": "text.size",
+      "label": "text size",
+      "min": 30,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "path": "text.stagger",
+      "label": "word gap (s)",
+      "min": 0.04,
+      "max": 0.5,
+      "step": 0.01
+    },
+    {
+      "path": "text.word_dur",
+      "label": "word reveal (s)",
+      "min": 0.15,
+      "max": 1.2,
+      "step": 0.01
+    },
+    {
+      "path": "text.blur",
+      "label": "word blur",
+      "min": 0,
+      "max": 40,
+      "step": 1
+    },
+    {
+      "path": "text.slide",
+      "label": "word slide",
+      "min": 0,
+      "max": 200,
+      "step": 1
+    },
+    {
+      "path": "text.dim",
+      "label": "grey step",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "path": "text.kashida",
+      "label": "kashida base (em per ـ)",
+      "min": 0.05,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "path": "bg.speed",
+      "label": "bg speed",
+      "min": 0,
+      "max": 4,
+      "step": 0.05
+    },
+    {
+      "path": "bg.rays",
+      "label": "light shafts",
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "path": "bg.ray_strength",
+      "label": "shaft strength",
+      "min": 0,
+      "max": 1.5,
+      "step": 0.05
+    },
+    {
+      "path": "bg.shade",
+      "label": "dark pools",
+      "min": 0,
+      "max": 1,
+      "step": 0.05
+    },
+    {
+      "path": "theme.base.mid",
+      "label": "bg colour",
+      "type": "color"
+    },
+    {
+      "path": "theme.base.ray",
+      "label": "shaft colour",
+      "type": "color"
+    },
+    {
+      "path": "theme.hl",
+      "label": "highlight",
+      "type": "color"
+    },
+    {
+      "path": "cam.scale",
+      "label": "camera push-in",
+      "min": 1,
+      "max": 2,
+      "step": 0.01
+    },
+    {
+      "path": "cam.rot",
+      "label": "camera tilt",
+      "min": -15,
+      "max": 15,
+      "step": 0.5
+    },
+    {
+      "path": "cam.dur",
+      "label": "camera settle (s)",
+      "min": 0.3,
+      "max": 4,
+      "step": 0.05
+    },
+    {
+      "path": "float",
+      "label": "handheld float",
+      "min": 0,
+      "max": 3,
+      "step": 0.1
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="content.js"></script>
+<script src="logo/parts.js"></script>
+<script src="lib/icons.js"></script>
+<script src="lib/logobuild.js"></script>
+<script src="lib/endcard.js"></script>
+<link rel="stylesheet" href="lib/charity.css">
+<style>
+/* stats */
+.decor { position: absolute; left: 960px; top: 590px; width: 0; height: 0; }
+.decor svg { position: absolute; left: -900px; top: -900px; width: 1800px; height: 1800px; }
+.title { position: absolute; top: 185px; left: 0; right: 0; text-align: center; color: var(--primary); font-weight: 800; font-size: 68px; }
+.title .w { display: inline-block; }
+.title-line { position: absolute; top: 290px; left: 50%; width: 280px; height: 7px; margin-left: -140px;
+  background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 4px; }
+.card { position: absolute; top: 440px; width: 380px; margin-left: -190px; display: flex; flex-direction: column; align-items: center; }
+.dial { position: relative; width: 300px; height: 300px; }
+.dial > svg { position: absolute; inset: 0; width: 300px; height: 300px; overflow: visible; }
+.glow { position: absolute; left: 50%; top: 50%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--accent) 32%, transparent) 0%, transparent 62%); }
+.icon { position: absolute; left: 50%; top: 58px; width: 46px; height: 46px; margin-left: -23px; }
+.icon svg { width: 46px; height: 46px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.num { position: absolute; left: 0; right: 0; top: 108px; text-align: center; font-weight: 800; font-size: 92px; line-height: 1;
+  color: var(--primary); direction: ltr; font-variant-numeric: tabular-nums; }
+.label { margin-top: 38px; text-align: center; color: var(--ink); font-weight: 700; font-size: 40px; line-height: 1.35; }
+
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="20.5">
+  <section id="stats" class="scene clip" data-start="0" data-duration="8.6">
+    <div class="cam" id="statsCam">
+      <div class="decor"><svg viewBox="-900 -900 1800 1800">
+        <circle r="520" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle r="700" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle r="860" fill="none" stroke="var(--mist)" stroke-width="2"/>
+        <g id="arcA"><circle r="610" fill="none" stroke="var(--accent)" stroke-opacity=".18" stroke-width="5" stroke-dasharray="180 520 90 900 260 1880" stroke-linecap="round"/></g>
+        <g id="arcB"><circle r="780" fill="none" stroke="var(--primary)" stroke-opacity=".1" stroke-width="4" stroke-dasharray="320 760 140 1300 120 2260" stroke-linecap="round"/></g>
+      </svg></div>
+      <div class="title" id="title"></div>
+      <div class="title-line" id="titleLine"></div>
+      <div id="cards"></div>
+    </div>
+  </section>
+
+  <section id="outro" class="scene clip" data-start="8.6" data-duration="11.9">
+    <div class="cam" id="outroCam"><div id="card"></div></div>
+  </section>
+
+  <svg class="fx" viewBox="0 0 1920 1080">
+    <circle id="d1" cx="960" cy="540" r="0"/><circle id="d2" cx="960" cy="540" r="0"/><circle id="d3" cx="960" cy="540" r="0"/>
+    <circle id="k1" fill="none" opacity="0"/><circle id="k2" fill="none" opacity="0"/><circle id="k3" fill="none" opacity="0"/>
+  </svg>
+</div>
+<script>
+const P = CONTENT.palette;
+applyPalette(P);
+const disc = [P.light, P.accent, P.primary];
+["d", "k"].forEach((p) => disc.forEach((c, i) => {
+  const el = document.getElementById(p + (i + 1));
+  el.setAttribute(p === "d" ? "fill" : "stroke", c);
+}));
+
+// ── stats cards: centres spread from the middle, first card on the right (no measuring at tween time)
+const S = CONTENT.stats.items;
+const gap = { 2: 620, 3: 520, 4: 420 }[S.length] || 420;
+const CARD_X = S.map((_, i) => 960 + ((S.length - 1) / 2 - i) * gap), DIAL_Y = 590;
+const R = 128, C = 2 * Math.PI * R;
+document.getElementById("title").innerHTML = CONTENT.stats.title.split(" ").map((w) => `<span class="w">${w}</span>`).join(" ");
+const cards = document.getElementById("cards");
+S.forEach((s, i) => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.left = `${CARD_X[i]}px`;
+  card.innerHTML = `
+    <div class="dial">
+      <div class="glow"></div>
+      <svg viewBox="0 0 300 300">
+        <defs><linearGradient id="g${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${P.primary}"/><stop offset="1" stop-color="${P.accent}"/></linearGradient></defs>
+        <circle cx="150" cy="150" r="146" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="150" cy="150" r="${R}" fill="#fff" stroke="var(--mist)" stroke-width="16"/>
+        <circle class="prog" cx="150" cy="150" r="${R}" fill="none" stroke="url(#g${i})" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="${C}" stroke-dashoffset="${C}" transform="rotate(-90 150 150)"/>
+        <g class="orbit"><circle cx="150" cy="150" r="160" fill="none" stroke="${P.accent}" stroke-width="3" stroke-dasharray="36 28 6 28" stroke-linecap="round" opacity=".7"/></g>
+        <g class="dot"><circle cx="150" cy="${150 - R}" r="12" fill="${P.accent}"/></g>
+      </svg>
+      <div class="icon">${icon(s.icon)}</div>
+      <div class="num">0</div>
+    </div>
+    <div class="label">${s.label}</div>`;
+  cards.appendChild(card);
+});
+
+const { rect } = mountEndCard(document.getElementById("card"), CONTENT);
+
+const tl = gsap.timeline({ paused: true });
+
+// ── enter: coloured discs bloom over the cut, then close back to a point that seeds the stats
+["#d1", "#d2", "#d3"].forEach((d, i) => tl.fromTo(d, { attr: { r: 0 }, opacity: 1 }, { attr: { r: 1150 }, duration: 0.42, ease: "power3.in" }, i * 0.07));
+tl.set(["#d1", "#d2"], { opacity: 0 }, 0.56);
+tl.to("#d3", { attr: { r: 0 }, duration: 0.5, ease: "power3.inOut" }, 0.56);
+
+// ── stats: slow push-in, drifting arcs, word-by-word title, cards burst out of the centre and count up
+tl.fromTo("#statsCam", { scale: 1 }, { scale: 1.045, duration: 7.6, ease: "none" }, 0.6);
+tl.fromTo("#arcA", { rotation: -40 }, { rotation: 40, duration: 8.6, ease: "none", svgOrigin: "0 0" }, 0);
+tl.fromTo("#arcB", { rotation: 30 }, { rotation: -30, duration: 8.6, ease: "none", svgOrigin: "0 0" }, 0);
+tl.fromTo(".decor", { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.4, ease: "expo.out" }, 0.75);
+tl.fromTo("#title .w", { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out", stagger: 0.07 }, 0.9);
+tl.fromTo("#titleLine", { scaleX: 0 }, { scaleX: 1, duration: 0.7, ease: "power3.out" }, 1.3);
+document.querySelectorAll(".card").forEach((card, i) => {
+  const t = 1.05 + i * 0.12;
+  tl.fromTo(card, { x: 960 - CARD_X[i], y: 540 - DIAL_Y, scale: 0.25, opacity: 0 }, { x: 0, y: 0, scale: 1, opacity: 1, duration: 0.9, ease: "expo.out" }, t);
+  const fillAt = t + 0.45;
+  const num = card.querySelector(".num"), glow = card.querySelector(".glow");
+  tl.fromTo(card.querySelector(".prog"), { attr: { "stroke-dashoffset": C } }, { attr: { "stroke-dashoffset": 0 }, duration: 1.7, ease: "power2.inOut" }, fillAt);
+  tl.fromTo(card.querySelector(".dot"), { rotation: 0 }, { rotation: 360, duration: 1.7, ease: "power2.inOut", svgOrigin: "150 150" }, fillAt);
+  tl.fromTo(card.querySelector(".orbit"), { rotation: 0 }, { rotation: 140, duration: 7, ease: "none", svgOrigin: "150 150" }, t);
+  tl.fromTo(card.querySelector(".icon"), { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: 0.6, ease: "back.out(2.4)" }, t + 0.4);
+  // the number counts on the ring's ease, grows with its value, and lands with a small kick
+  const counter = { v: 0 };
+  tl.fromTo(counter, { v: 0 }, { v: S[i].value, duration: 1.7, ease: "power2.inOut", onUpdate: () => { num.textContent = String(Math.round(counter.v)); } }, fillAt);
+  tl.fromTo(num, { scale: 0.55 }, { scale: 1, duration: 1.7, ease: "power2.inOut" }, fillAt);
+  tl.fromTo(num, { scale: 1 }, { scale: 1.12, duration: 0.16, ease: "power2.out", immediateRender: false }, fillAt + 1.7);
+  tl.to(num, { scale: 1, duration: 0.35, ease: "back.out(3)" }, fillAt + 1.86);
+  tl.fromTo(glow, { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: "power2.out" }, fillAt + 1.6);
+  tl.to(glow, { scale: 1.12, opacity: 0.6, duration: 1.4, ease: "sine.inOut", yoyo: true, repeat: 2 }, fillAt + 2.4);
+  tl.fromTo(card.querySelector(".label"), { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, t + 0.6);
+});
+
+// ── stats → end card: discs bloom again; three rings close in and land on the logo's focus point
+["#d1", "#d2", "#d3"].forEach((d, i) => tl.fromTo(d, { attr: { r: 0 }, opacity: 1 }, { attr: { r: 1150 }, duration: 0.45, ease: "power3.in", immediateRender: false }, 8.1 + i * 0.07));
+tl.set(["#d1", "#d2", "#d3"], { opacity: 0 }, 8.62);
+const f = focusPoint(rect, LOGO);
+ringsTo(tl, ["#k1", "#k2", "#k3"], { x: 960, y: 540, r: 700, w: 1400 }, { x: f.x, y: f.y, r: 30, w: 5 }, 8.6, 0.65, false);
+tl.fromTo("#outroCam", { scale: 0.99 }, { scale: 1.01, duration: 11.4, ease: "none" }, 9.0);
+endCardIn(tl, document.getElementById("card"), 9.0);
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

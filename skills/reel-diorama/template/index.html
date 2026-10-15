@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="content.js"></script>
+<script src="logo/parts.js"></script>
+<script src="lib/icons.js"></script>
+<script src="lib/logobuild.js"></script>
+<script src="lib/endcard.js"></script>
+<script src="lib/diorama.js"></script>
+<script src="lib/people.js"></script>
+<link rel="stylesheet" href="lib/charity.css">
+<link rel="stylesheet" href="lib/diorama.css">
+</head>
+<body>
+<!-- A 27-second sample of the paper-diorama film: a child and a dream → into the bubble, the logo →
+     the year in numbers → «be a partner» over the whole world → the closing card, square-on.
+     Every cue below is in film time; with a voiceover, take word times from engine/transcribe.py. -->
+<div id="root" data-composition-id="main" data-start="0" data-width="1920" data-height="1080" data-duration="27">
+  <section id="film" class="clip" data-start="0" data-duration="27" style="position:absolute;inset:0">
+    <div id="bg"></div><div id="bgGlow"></div>
+    <div id="stage"><div id="cam"></div></div>
+    <div id="veil"></div><div id="call"></div>
+  </section>
+</div>
+<script>
+const DURATION = 27;
+const tl = gsap.timeline();
+dioInit(document.getElementById("cam"), tl, paletteFrom(CONTENT.palette));
+applyPalette(CONTENT.palette);
+
+// ═══ 1 · the child and the dream (0–5.3) ═══
+const S1 = [0, 0], from1 = mark();
+dressAt(S1[0], 0, 330, 0.0);
+sticker(CHILD(), 470, -60, 330, 0, 0.1, 5.4, 470 * 0.52);
+const bubble = leaf(`<div class="dot" style="width:190px;height:190px;background:var(--paper);box-shadow:0 3px 0 var(--far2),0 6px 0 var(--edge),0 24px 44px rgba(10,40,40,.22);display:flex;align-items:center;justify-content:center">
+  <svg viewBox="0 0 24 24" style="width:96px;height:96px;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linejoin:round">${ICONS.star}</svg></div>`, { x: 280, y: -260, z: 100 });
+const bub1 = leaf("", { x: 110, y: -120, z: 80 }, "dot", "width:30px;height:30px;background:var(--paper);box-shadow:0 8px 16px rgba(10,40,40,.18)");
+const bub2 = leaf("", { x: 185, y: -180, z: 90 }, "dot", "width:46px;height:46px;background:var(--paper);box-shadow:0 10px 20px rgba(10,40,40,.18)");
+const t1a = leaf(TITLE("خلف كل", "طفل…"), { x: 0, y: -470, z: 0, sharp: 1, o: 0 });
+const t1b = leaf(SUB("حلمٌ ينتظر من يؤمن به"), { x: 0, y: -375, z: 0, sharp: 1, o: 0 });
+sayWords(t1a, [0.65, 1.0, 1.4]);
+[[bub1, 2.35, 0.4], [bub2, 2.45, 0.4], [bubble, 2.55, 0.8]].forEach(([b, t, d]) => tl.fromTo(b, { s: 0, o: 0 }, { s: 1, o: 1, duration: d, ease: "back.out(2)" }, t));
+tl.fromTo(bubble, { rz: -6 }, { rz: 6, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: 1 }, 2.6);
+sayWords(t1b, [2.6, 2.9, 3.3, 3.55, 3.9]);
+scene(from1, 0, 5.33);
+
+// ═══ 2 · inside the bubble: the logo on a paper card (5.3–10) — the bubble's paper becomes the next world ═══
+const S2 = [4000, 0], from2 = mark();
+dressAt(S2[0], 0, 420, 5.3);
+const LW = 640, LH = Math.min(440, LW * LOGO.h / LOGO.w);
+const logoCard = leaf(`<div class="card" style="width:${LW + 160}px;height:${LH + 160}px;position:relative"><div id="logo2" style="left:80px;top:80px;width:${LW}px;height:${LH}px"></div></div>`, { x: S2[0], y: S2[1], z: 0 });
+const logo2 = document.getElementById("logo2");
+mountLogo(logo2, LOGO, [CONTENT.palette.primary, CONTENT.palette.accent, CONTENT.palette.lightAccent]);
+cardIn(logoCard, 5.25, 1.1, 8, 3);
+buildLogo(tl, logo2, LOGO, 5.5, 1.15);
+tl.to(logoCard, { ry: 4, rx: 2, duration: 3, ease: "sine.inOut" }, 6.4);
+scene(from2, 5.33, 10.6);
+
+// ═══ 3 · the year in numbers: paper cards stand on the ground and count (10–16.6) ═══
+const S3 = [6400, 0], from3 = mark(), FY3 = 380;
+dressAt(S3[0], 0, FY3, 9.9, { clear: 1050 });
+const t3 = leaf(TITLE("أثرنا", "هذا العام"), { x: S3[0], y: -470, z: 0, sharp: 1, o: 0 });
+sayWords(t3, [10.5, 10.8, 11.1]);
+const STATS = CONTENT.stats.items.slice(0, 3);
+STATS.forEach((st, i) => {
+  const x = S3[0] + (1 - i) * 430, at = 10.45 + i * 0.35;
+  const card = popLeaf(`<div class="card stat">${icon(st.icon)}<div class="n">0</div><div class="t">${st.label}</div></div>`, { x, y: FY3 - 175, z: 0 });
+  popUp(card, at, 1.0);
+  const n = card.el.querySelector(".n"), c = { v: 0 };
+  tl.fromTo(c, { v: 0 }, { v: st.value, duration: 1.6, ease: "power2.inOut", onUpdate: () => { n.textContent = String(Math.round(c.v)); } }, at + 0.5);
+});
+sticker(MAN(), 420, S3[0] + 760, FY3, 120, 11.0, 19.5, 420 * 0.46);
+sticker(WOMAN(), 400, S3[0] - 760, FY3, 120, 11.3, 19.5, 400 * 0.46);
+
+// ═══ 4 · «be a partner»: one screen-space line over a veil while the camera pulls back over the world (16.6–19.4) ═══
+document.getElementById("call").innerHTML = `${words("كن")} ${words("شريكاً", "color:var(--accent)")}<br>${words("في صناعة مستقبلهم")}`;
+tl.fromTo("#veil", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out" }, 17.2);
+tl.set("#call", { opacity: 1 }, 17.2);
+document.querySelectorAll("#call .w").forEach((w, i) => tl.fromTo(w, { opacity: 0, x: 34, scale: 0.9, filter: "blur(14px)" }, { opacity: 1, x: 0, scale: 1, filter: "blur(0px)", duration: 0.55, ease: "expo.out" }, 17.3 + i * 0.3));
+tl.to(["#veil", "#call"], { opacity: 0, duration: 0.35, ease: "power2.in" }, 19.25);
+tl.to(DIO.camK, { k: 0.3, duration: 1.8, ease: "power2.inOut" }, 16.6);
+tl.to(DIO.camK, { k: 1, duration: 1.0, ease: "power3.inOut" }, 19.3);
+scene(from3, 9.9, 19.6);
+
+// ═══ 5 · the closing card, square-on: no tilt, no blur, no drift — the QR must scan (19.5–27) ═══
+// it is already up while the camera comes down onto it, so the cut passes through the card, never an empty frame
+const SE = [12000, -1900];
+const endLeaf = leaf('<div class="endleaf" id="end"></div>', { x: SE[0], y: SE[1], z: 0, sharp: 1, o: 0 });
+mountEndCard(document.getElementById("end"), CONTENT);
+tl.to(endLeaf, { o: 1, duration: 0.4 }, 18.6);
+endCardIn(tl, document.getElementById("end"), 19.6, 1.4);
+
+// ── camera: every scene opens wide and pushes in; cuts happen through things, never on an empty frame ──
+key(0, 0, 0, -480, 0, -2, 0);
+key(4.25, 0, -40, -230, 0, 1, 0, "sine.inOut");
+key(5.32, bubble.x, bubble.y, DIO.P * (1 - 1 / 12) - bubble.z, 0, 0, bubble.z, "power3.in");   // into the bubble…
+key(5.33, S2[0], S2[1], 520, 0, 0, 0, "none");                                                 // …its paper is the next world
+key(6.6, S2[0], S2[1], -400, 0, -1.5, 0, "expo.out");
+key(9.6, S2[0], S2[1], -230, 0, 1, 0, "sine.inOut");
+key(10.6, S3[0], S3[1], -620, 4, -1.5, 0, "power3.inOut");                                      // whip to the numbers
+key(16.6, S3[0], S3[1], -330, 4, 1.5, 0, "sine.inOut");
+key(18.6, S3[0], S3[1] - 300, 1400, 40, 0, -1400, "power2.inOut");                              // up over the stop
+key(19.45, SE[0], SE[1], 0, 0, 0, 0, "power3.inOut");                                            // the closing card
+key(DURATION, SE[0], SE[1], 0, 0, 0, 0, "none");
+
+window.__timelines = window.__timelines || {};
+window.__timelines["main"] = dioMaster(gsap.timeline({ paused: true }), DURATION);
+</script>
+</body>
+</html>

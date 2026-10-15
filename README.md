@@ -15,6 +15,8 @@
 | `reel-frames` | خطوط وزوايا blueprint بنقاط مضيئة: عبارات تتبدل، معرض صور بإطار يتشكل، إطار متوهج قبل/بعد | أي تصوير |
 | `reel-transitions` | 12 انتقال على القطع (whip، زووم، فوكس، بكسل، حلقة نار، زجاج، أشعة…) + حركة كاميرا (punch، زووم، pan، اهتزاز) | أي تصوير — يطلع مقطع بديل |
 | `reel-sfx` | مؤثرات صوتية خاصة متولّدة بالكود (هواء، بوب، ضربات، رايزر، نيون، ماركر…) تمشي ويا الطبقات | — |
+| `reel-charity` | ستايل عاصم: مقدمة بناء الشعار بطبقات ألوان + إحصائيات بعدّاد + بطاقة نهاية (QR، رقم، آيبان) — HyperFrames | شاشة كاملة قبل/بعد الفيديو |
+| `reel-diorama` | ستايل رحماء: فيلم ديوراما ورقية 2.5D بكاميرا تطير بين المحطات، عمق ميدان، عناوين على الصوت — HyperFrames | بدون تصوير (تعليق صوتي) |
 | `reel-style-new` | يحلل فيديو مرجعي ويطلع منه ستايل جديد | — |
 | `reel-engine` | المحرّك المشترك: الرندر، البرفيو، فصل المقدّم، الظل، التركيب | — |
 
@@ -24,6 +26,7 @@ git clone https://github.com/Amf430/reel-styles.git ~/Coding/reel-styles
 bash ~/Coding/reel-styles/install.sh
 ```
 يربط المهارات في `~/.claude/skills/` ويفحص: Python 3 + `playwright`، Chromium، ffmpeg فيه `prores_ks`.
+`reel-charity` و`reel-diorama` يحتاجون بعد Node (`npx hyperframes`) و`pip3 install pillow numpy scipy qrcode opencv-python-headless` (تقسيم الشعار والـ QR).
 بعد أي `git pull` شغّل `install.sh` مرة ثانية عشان تنربط الستايلات الجديدة.
 
 ## الاستخدام

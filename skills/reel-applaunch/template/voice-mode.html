@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Brand"; src: url("assets/fonts/Tajawal-Regular.ttf"); font-weight: 400; }
+      @font-face { font-family: "Brand"; src: url("assets/fonts/Tajawal-Medium.ttf"); font-weight: 500; }
+      @font-face { font-family: "Brand"; src: url("assets/fonts/Tajawal-Bold.ttf"); font-weight: 700; }
+
+      :root { --teal: #4bcddb; --ink: #1d1d22; --mic: #494a4c; --bgq: #f7f9ff; --bubble: #e1e8f6; --soft: #eef0f6; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bgq); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; font-family: "Brand", sans-serif; color: var(--ink); }
+      #bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #ffffff 0%, #f8f9ff 60%, #eef1fb 100%); }
+      #cam { position: absolute; left: 0; top: 0; width: 1920px; height: 1500px; transform-origin: 0 0; }
+
+      /* edge depth-of-field: blur at the frame edges only, a little stronger while the camera moves */
+      #dof { position: absolute; inset: 0; pointer-events: none; }
+      #dof i { position: absolute; display: block; }
+      #dof .l { left: 0; top: 0; bottom: 0; -webkit-mask-image: linear-gradient(90deg, #000 35%, transparent 100%); mask-image: linear-gradient(90deg, #000 35%, transparent 100%); }
+      #dof .r { right: 0; top: 0; bottom: 0; -webkit-mask-image: linear-gradient(270deg, #000 35%, transparent 100%); mask-image: linear-gradient(270deg, #000 35%, transparent 100%); }
+      #dof .t { top: 0; left: 0; right: 0; -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 100%); mask-image: linear-gradient(180deg, #000 30%, transparent 100%); }
+      #dof .b { bottom: 0; left: 0; right: 0; -webkit-mask-image: linear-gradient(0deg, #000 30%, transparent 100%); mask-image: linear-gradient(0deg, #000 30%, transparent 100%); }
+      #edge { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 230px 0 160px -60px rgba(247,249,255,0.85), inset -230px 0 160px -60px rgba(247,249,255,0.85), inset 0 110px 120px -60px rgba(247,249,255,0.6), inset 0 -110px 120px -60px rgba(247,249,255,0.6); }
+      .caret { display: inline-block; width: 1.5px; height: 1.15em; margin-right: 2px; background: #3d7bf7; vertical-align: middle; }
+
+      /* ---------- opening: title, then the orb ---------- */
+      #title { position: absolute; top: 515px; height: 50px; display: flex; align-items: center; font-size: 30px; font-weight: 700; direction: rtl; white-space: nowrap; }
+      #title .caret { background: var(--ink); }
+      #orbw { position: absolute; left: 860px; top: 420px; width: 200px; height: 200px; transform-origin: 50% 50%; }
+      #orb { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; box-shadow: 0 18px 50px rgba(120,140,240,0.25); }
+      #orb img { width: 100%; height: 100%; display: block; }
+
+      /* ---------- the phone: drawn around the bar the camera was inside ---------- */
+      #phone { position: absolute; left: 660px; top: 100px; width: 600px; height: 1240px; }
+      /* a real handset (iPhone Pro proportions): thin black bezel, narrow titanium band, side buttons, glass glare */
+      #shell { position: absolute; inset: -18px; }
+      #device { position: absolute; inset: 0; border-radius: 96px;
+        background:
+          linear-gradient(90deg, rgba(255,255,255,0.6) 0px, rgba(255,255,255,0) 4px, rgba(255,255,255,0) calc(100% - 4px), rgba(255,255,255,0.6) 100%),
+          linear-gradient(180deg, #dcdde0 0%, #a3a5a9 6%, #bfc1c4 30%, #b2b4b7 70%, #a3a5a9 94%, #dcdde0 100%);
+        box-shadow: 0 60px 120px rgba(30,35,60,0.20), 0 18px 36px rgba(30,35,60,0.14), 0 2px 4px rgba(0,0,0,0.18); }
+      #device::before { content: ""; position: absolute; inset: 7px; border-radius: 89px; background: #050506; box-shadow: inset 0 0 0 1.5px #1d1d21; }
+      #device::after { content: ""; position: absolute; inset: 2.5px; border-radius: 93.5px; border: 1px solid rgba(255,255,255,0.45); }
+      .sbtn { position: absolute; width: 5px; border-radius: 3px; background: linear-gradient(90deg, #8c8e92, #e1e2e4 50%, #9a9ca0); box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+      #pbg { position: absolute; inset: 0; border-radius: 78px; background: #fbfcff; overflow: hidden; }
+      #glare { position: absolute; inset: 0; border-radius: 78px; pointer-events: none; z-index: 5;
+        background: linear-gradient(118deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 26%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 72%, rgba(255,255,255,0.07) 100%); }
+      .status { position: absolute; left: 0; right: 0; top: 24px; height: 40px; direction: ltr; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; font-family: "Brand"; font-weight: 700; font-size: 19px; }
+      .island { position: absolute; left: 50%; top: 2px; width: 140px; height: 38px; margin-left: -70px; border-radius: 19px; background: #111; }
+      .status svg { height: 15px; }
+      .top { position: absolute; left: 26px; right: 26px; top: 78px; height: 62px; display: flex; justify-content: space-between; direction: rtl; }
+      .top .cb { width: 62px; height: 62px; border-radius: 50%; background: #fff; border: 1.5px solid #e4e7ef; display: flex; align-items: center; justify-content: center; position: relative; }
+      .top svg { width: 24px; height: 24px; }
+      #badge { position: absolute; top: -4px; left: -4px; width: 28px; height: 28px; border-radius: 14px; background: #157783; color: #fff; font-family: "Brand"; font-size: 15px; font-weight: 700; transform: scale(0); }
+      #badge b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; }
+      #chat { position: absolute; left: 26px; right: 26px; top: 150px; direction: rtl; }
+      .ubub { width: fit-content; max-width: 470px; padding: 11px 18px; border-radius: 22px 22px 6px 22px; background: var(--bubble); font-size: 19px; font-weight: 500; }
+      .ubub span { display: inline-block; }
+      .ai { margin-top: 20px; display: flex; gap: 12px; align-items: flex-start; }
+      .ai .ic { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; background: #e8eefc; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+      .ai .ic svg { width: 18px; height: 18px; }
+      .reply { display: flex; flex-wrap: wrap; gap: 0 6px; font-size: 19px; font-weight: 500; line-height: 1.55; }
+      .reply span { display: inline-block; }
+      .rec { margin-top: 24px; display: flex; align-items: center; gap: 10px; }
+      .rec h2 { font-size: 30px; font-weight: 700; margin-left: 6px; }
+      .pp { height: 36px; padding: 0 12px; border-radius: 18px; background: var(--soft); display: flex; align-items: center; gap: 6px; font-size: 16px; color: #555865; }
+      .grid { margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px 12px; }
+      .tile { position: relative; }
+      .tile .im { position: relative; width: 100%; aspect-ratio: 324 / 344; border-radius: 20px; overflow: hidden; background: #fff; }
+      .tile .im img { width: 100%; height: 100%; display: block; }
+      .tile .ok { position: absolute; right: 7%; bottom: 6.5%; width: 21%; aspect-ratio: 1; border-radius: 28%; background: var(--ink); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      .tile .ok svg { width: 60%; height: 60%; }
+      .tile .nm { margin-top: 10px; font-size: 16px; font-weight: 500; line-height: 1.35; }
+      .tile .qt { margin-top: 6px; width: fit-content; height: 26px; padding: 0 9px; border-radius: 13px; background: var(--soft); font-size: 14px; font-weight: 700; display: flex; align-items: center; }
+      .checkout { position: relative; margin-top: 30px; height: 74px; border-radius: 37px; background: var(--teal); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 23px; font-weight: 700; overflow: hidden; }
+      .checkout .cnt { height: 32px; min-width: 32px; padding: 0 10px; border-radius: 16px; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-family: "Brand"; font-size: 16px; }
+      .checkout .lbl { display: flex; align-items: center; gap: 12px; }
+      .checkout .rip { position: absolute; left: 50%; top: 50%; width: 80px; height: 80px; margin: -40px 0 0 -40px; border-radius: 50%; background: rgba(255,255,255,0.35); opacity: 0; }
+
+      /* voice mode, as in the app: aurora along the bottom, a glass mic in the middle, the words live above it */
+      /* before the phone exists the aurora has no hard edge anywhere; once the phone is drawn it is trimmed to the screen */
+      #aurora { position: absolute; left: -60px; right: -60px; bottom: -150px; height: 520px; overflow: hidden; opacity: 0;
+        -webkit-mask-image: linear-gradient(0deg, transparent 0px, #000 150px, #000 290px, transparent 100%), linear-gradient(90deg, transparent 0px, #000 120px, #000 calc(100% - 120px), transparent 100%);
+        -webkit-mask-composite: source-in; mask-composite: intersect;
+        mask-image: linear-gradient(0deg, transparent 0px, #000 150px, #000 290px, transparent 100%), linear-gradient(90deg, transparent 0px, #000 120px, #000 calc(100% - 120px), transparent 100%); }
+      #aurora i { position: absolute; display: block; border-radius: 50%; filter: blur(46px); }
+      #aurora .a1 { left: -60px; bottom: 30px; width: 420px; height: 300px; background: #a9e6df; }
+      #aurora .a2 { left: 180px; bottom: 0px; width: 420px; height: 320px; background: #b3bff4; }
+      #aurora .a3 { right: -80px; bottom: 30px; width: 420px; height: 300px; background: #c6c4f6; }
+      .gbtn { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        background: radial-gradient(circle at 38% 30%, #ffffff 0%, #f1f4fd 55%, #e3e9fa 100%);
+        border: 1.5px solid rgba(255,255,255,0.95); box-shadow: 0 10px 28px rgba(90,110,190,0.20), inset 0 -4px 10px rgba(150,165,220,0.22); }
+      #dotsb { left: 30px; bottom: 44px; width: 58px; height: 58px; }
+      #kbdb { right: 30px; bottom: 44px; width: 58px; height: 58px; }
+      #kbdb svg { width: 26px; height: 26px; }
+      #micb { left: 254px; bottom: 28px; width: 92px; height: 92px; }
+      #micb svg.mic, #micb svg.skip { position: absolute; width: 34px; height: 34px; }
+      #micb .skip { opacity: 0; }
+      #halo { position: absolute; inset: -16px; border-radius: 50%; opacity: 0; z-index: -1;
+        background: radial-gradient(circle, rgba(140,195,240,0.0) 52%, rgba(120,175,235,0.55) 64%, rgba(150,160,240,0.22) 78%, rgba(150,160,240,0) 92%); }
+      #arc { position: absolute; left: -7px; top: -7px; width: 106px; height: 106px; opacity: 0; overflow: visible; }
+      #arc circle { fill: none; stroke: #2f5fd0; stroke-width: 3.5; stroke-linecap: round; }
+      .dots { display: flex; gap: 4px; } .dots i { width: 5px; height: 5px; border-radius: 3px; background: var(--ink); display: block; }
+      #live { position: absolute; left: 30px; right: 30px; bottom: 150px; height: 40px; display: flex; align-items: center; justify-content: center; direction: rtl; white-space: nowrap; font-size: 22px; font-weight: 500; transform-origin: 50% 50%; }
+
+      /* ---------- the checkout button grows into the closing frame ---------- */
+      #flood { position: absolute; background: var(--teal); opacity: 0; }
+      #lock { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; direction: rtl; color: #fff; pointer-events: none; }
+      #lock img { width: 430px; display: block; }
+      #lock .tag { margin-top: 26px; font-size: 54px; font-weight: 700; }
+      #lock .slo { margin-top: 10px; font-size: 30px; font-weight: 500; opacity: 0.8; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1920" data-height="1080">
+      <div id="bg"></div>
+      <audio id="music" src="assets/music.wav" data-start="0" data-duration="16" data-track-index="8" data-volume="0.5"></audio>
+      <audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="16" data-track-index="9" data-volume="0.7"></audio>
+
+      <div id="cam">
+        <div id="title"><span id="tt"></span><i class="caret" id="tcar"></i></div>
+        <div id="phone"></div>
+        <div id="orbw"><div id="orb"><img src="assets/orb.png" alt="" /></div></div>
+        <div id="flood"></div>
+      </div>
+
+      <div id="dof">
+        <i class="l"></i><i class="l"></i><i class="l"></i><i class="l"></i>
+        <i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i>
+        <i class="t"></i><i class="t"></i>
+        <i class="b"></i><i class="b"></i>
+      </div>
+      <div id="edge"></div>
+      <div id="lock">
+        <img src="assets/logo-white.png" alt="كيو" />
+        <div class="tag">اسأل كيو أي شي</div>
+        <div class="slo">سعر أقل · قيمة أكثر</div>
+      </div>
+    </div>
+
+    <script>
+      // ================= content (SCENARIO.md, v3) =================
+      const ICON = {
+        mic: '<svg class="mic" viewBox="0 0 24 24" fill="none" stroke="#1d1d22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>',
+        skip: '<svg class="skip" viewBox="0 0 24 24" fill="none" stroke="#1d1d22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5.5v13l9.5-6.5z"/><path d="M18.5 5.5v13"/></svg>',
+        spark: '<svg viewBox="0 0 24 24"><path d="M12 2.5c.6 4.6 2.9 6.9 7.5 7.5v.1c-4.6.6-6.9 2.9-7.5 7.5h-.1c-.6-4.6-2.9-6.9-7.5-7.5V10c4.6-.6 6.9-2.9 7.5-7.5z" fill="#2f5fd0" transform="translate(0 1.5)"/></svg>',
+        kbd: '<svg viewBox="0 0 24 24" fill="none" stroke="#1d1d22" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M7 10h.01M10 10h.01M13 10h.01M16 10h.01M7 13.5h.01M17 13.5h.01M10 13.5h4"/></svg>',
+        bag: (c) => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8h13l-1 12h-11z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/></svg>`,
+        x: '<svg viewBox="0 0 24 24" fill="none" stroke="#1d1d22" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+        ok: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+      };
+      const tile = (img, nm, qt) => `<div class="tile"><div class="im"><img src="assets/${img}.png" alt="" /><div class="ok">${ICON.ok}</div></div><div class="nm">${nm}</div><div class="qt">${qt}</div></div>`;
+      const TITLE = "الطلب التفاعلي";
+      const PROMPT = "ابغى اطبخ كبسة دجاج الليلة لأربع اشخاص";
+      // natural speaking pace for the request (word starts/ends, seconds) — taken from a spoken take of the line
+      const TYPE_SPEED = 1.5;                            // the request types this much faster than it was spoken
+      const SPEECH = { w: [0.04, 0.3, 0.61, 0.92, 1.29, 1.6, 1.95].map((v) => v / TYPE_SPEED), we: [0.27, 0.58, 0.9, 1.26, 1.57, 1.93, 2.55].map((v) => v / TYPE_SPEED) };
+
+      document.getElementById("phone").innerHTML = `<div id="shell">
+          <div class="sbtn" style="left:-3px;top:240px;height:58px"></div>
+          <div class="sbtn" style="left:-3px;top:330px;height:104px"></div>
+          <div class="sbtn" style="left:-3px;top:452px;height:104px"></div>
+          <div class="sbtn" style="right:-3px;top:360px;height:160px"></div>
+          <div id="device"></div>
+        </div>
+        <div id="pbg"></div>
+        <div class="status"><span>9:41</span><div class="island"></div><svg viewBox="0 0 64 14"><rect x="0" y="9" width="3" height="5" rx="1" fill="#111"/><rect x="5" y="6" width="3" height="8" rx="1" fill="#111"/><rect x="10" y="3" width="3" height="11" rx="1" fill="#111"/><rect x="15" y="0" width="3" height="14" rx="1" fill="#111"/><rect x="36" y="1" width="24" height="12" rx="3" fill="none" stroke="#111" stroke-width="1.5"/><rect x="38" y="3" width="18" height="8" rx="1.5" fill="#111"/></svg></div>
+        <div class="top"><div class="cb">${ICON.bag("#1d1d22")}<div id="badge">${[1,2,3,4,5,6].map((n) => `<b>${n}</b>`).join("")}</div></div><div class="cb">${ICON.x}</div></div>
+        <div id="chat">
+          <div class="ubub"><span>${PROMPT}</span></div>
+          <div class="ai"><div class="ic">${ICON.spark}</div><div class="reply">${"كبسة الدجاج تكفي ٤ أشخاص ووقت تجهيزها تقريبًا ٨٥ دقيقة، تبي أجهّز لك مكوّناتها للشراء؟".split(" ").map((w) => `<span>${w}</span>`).join("")}</div></div>
+          <div class="rec"><h2>كبسة الدجاج</h2><div class="pp">👤 4 أشخاص</div><div class="pp">🕒 85 دقيقة</div></div>
+          <div class="grid">
+            ${tile("p1", "انتاج دجاج مبرد", "1 كيلوغرام")}${tile("p2", "ساره أرز بسمتي", "3 أكواب")}${tile("p3", "بصل صحن", "2 حبة")}
+            ${tile("p4", "طماطم كرزية", "3 حبة")}${tile("p5", "ثوم", "4 فصوص")}${tile("p6", "صني زيت دوار الشمس", "4 ملاعق")}
+          </div>
+          <div class="checkout"><div class="rip"></div><div class="lbl">إتمام الطلب<span class="cnt">6</span></div></div>
+        </div>
+        <div id="aurora"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
+        <div id="live"><span id="pt"></span></div>
+        <div class="gbtn" id="dotsb"><div class="dots"><i></i><i></i><i></i></div></div>
+        <div class="gbtn" id="micb"><div id="halo"></div><svg id="arc" viewBox="0 0 106 106"><circle cx="53" cy="53" r="46.5" stroke-dasharray="0 400"/></svg>${ICON.mic}${ICON.skip}</div>
+        <div class="gbtn" id="kbdb">${ICON.kbd}</div>
+        <div id="glare"></div>`;
+
+      document.fonts.ready.then(() => {
+        const W = 1920, H = 1080, D = 16;
+        const $ = (s, r = document) => r.querySelector(s);
+        const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+        const camEl = $("#cam");
+        function box(el) {
+          let x = 0, y = 0, n = el;
+          while (n && n !== camEl) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+          return { l: x, t: y, w: el.offsetWidth, h: el.offsetHeight, x: x + el.offsetWidth / 2, y: y + el.offsetHeight / 2, r: x + el.offsetWidth, b: y + el.offsetHeight };
+        }
+        const ctx = document.createElement("canvas").getContext("2d");
+        const measure = (txt, font) => { ctx.font = font; ctx.direction = "rtl"; return ctx.measureText(txt).width; };
+        const tl = gsap.timeline({ paused: true });
+
+        // ---------- geometry (world px) ----------
+        const PH = box($("#phone")), MICC = box($("#micb")), LIVE = box($("#live"));
+        const ORB = box($("#orbw")), BUB = box($(".ubub span")), GRID = box($(".grid")), CO = box($(".checkout"));
+        const TFONT = '700 30px "Brand"';
+        const tW = measure(TITLE, TFONT), TR = 960 + tW / 2, TL = 960 - tW / 2;
+
+        // ---------- beat clock ----------
+        const T_TYPE = 0.2, T_CH = 0.055, T_DEL = 1.25, D_CH = 0.028;
+        const ORB_IN = 1.62, DIVE = 2.4, DROP = 1.4, LAND = DIVE + DROP, Q_T = LAND + 0.75;
+        const Q_END = Q_T + SPEECH.we[SPEECH.we.length - 1];
+        const PULL = Q_END + 0.45, LIFT = PULL + 1.0, ANS = LIFT + 0.7;
+        const GRID_IN = ANS + 1.75, TICK = GRID_IN + 0.9, TO_CO = TICK + 0.75, PRESS = TO_CO + 0.85, GROW = PRESS + 0.3;
+
+        // ---------- typing ----------
+        const tt = $("#tt"), tcar = $("#tcar"), titleEl = $("#title"), pt = $("#pt");
+        function applyType(t) {
+          const nT = TITLE.length, typed = Math.max(0, Math.min(nT, Math.ceil((t - T_TYPE) / T_CH)));
+          const gone = Math.max(0, Math.min(nT, Math.floor((t - T_DEL) / D_CH) + 1));
+          let txt;
+          if (t < T_DEL) { txt = TITLE.slice(0, typed); titleEl.style.left = TR - measure(txt, TFONT) - 3 + "px"; }
+          else { txt = TITLE.slice(gone); titleEl.style.left = TL - 3 + "px"; }
+          tt.textContent = txt;
+          tcar.style.opacity = t < T_DEL && ((t >= T_TYPE && t < T_TYPE + nT * T_CH) || Math.floor(t * 2.6) % 2 === 0) ? 1 : 0;
+          titleEl.style.opacity = gone >= nT ? 0 : 1;
+          // the live transcript types in above the mic, letter by letter, paced by how the line is spoken
+          let shown = "";
+          PROMPT.split(" ").forEach((w, i) => {
+            const a = Q_T + SPEECH.w[i], b = Q_T + SPEECH.we[i];
+            if (t >= b) shown += (i ? " " : "") + w;
+            else if (t > a) shown += (i ? " " : "") + w.slice(0, Math.ceil(w.length * (t - a) / (b - a)));
+          });
+          pt.textContent = shown;
+        }
+
+        // ---------- camera: Grok's measured ease, one move at a time ----------
+        const LUT = [0, 0.0045, 0.0105, 0.0175, 0.0254, 0.0345, 0.0454, 0.0581, 0.0736, 0.0905, 0.1103, 0.1322, 0.1584, 0.1881, 0.2248, 0.2657, 0.3061, 0.3489, 0.3932, 0.4415, 0.4926, 0.543, 0.5924, 0.641, 0.6898, 0.7333, 0.7746, 0.8084, 0.8388, 0.8641, 0.8889, 0.9103, 0.9285, 0.9433, 0.9554, 0.9659, 0.9748, 0.9827, 0.9899, 0.9957, 1];
+        const grokEase = (p) => { const f = Math.min(1, Math.max(0, p)) * (LUT.length - 1), i = Math.min(LUT.length - 2, Math.floor(f)); return LUT[i] + (LUT[i + 1] - LUT[i]) * (f - i); };
+        const S_ALL = 0.82;
+        const MOVES = [
+          [DIVE, DROP, { s: 2.9, y: MICC.y - 70 }],                         // ride the orb straight down onto the mic
+          [Q_T, Q_END - Q_T + 0.4, { s: 3.15 }],                             // a slow push while the request is spoken
+          [PULL, 1.3, { s: S_ALL, x: PH.x, y: PH.y, pin: { x: MICC.x, y: MICC.y } }],   // pull back pinned to the mic: the phone draws around it
+          [GRID_IN, 0.9, { s: 1.4, y: GRID.y }],                           // in on the ingredients
+          [TO_CO, 0.6, { y: CO.y - 40 }],                                  // down to checkout
+        ];
+        const cam0 = { x: ORB.x, y: ORB.y, s: 2.4 };                        // the orb is born at the centre of frame
+        function camAt(t) {
+          const c = { ...cam0 };
+          for (const [t0, d, to] of MOVES) {
+            if (t <= t0) break;
+            const p = grokEase((t - t0) / d), from = { ...c };
+            if (to.pin) {
+              // the pinned point glides in a straight line on screen while the scale changes around it
+              const sx0 = W / 2 + (to.pin.x - from.x) * from.s, sy0 = H / 2 + (to.pin.y - from.y) * from.s;
+              const sx1 = W / 2 + (to.pin.x - to.x) * to.s, sy1 = H / 2 + (to.pin.y - to.y) * to.s;
+              c.s = Math.exp(Math.log(from.s) + (Math.log(to.s) - Math.log(from.s)) * p);
+              c.x = to.pin.x - (sx0 + (sx1 - sx0) * p - W / 2) / c.s;
+              c.y = to.pin.y - (sy0 + (sy1 - sy0) * p - H / 2) / c.s;
+              continue;
+            }
+            if (to.s !== undefined) c.s = Math.exp(Math.log(from.s) + (Math.log(to.s) - Math.log(from.s)) * p);
+            if (to.x !== undefined) c.x = from.x + (to.x - from.x) * p;
+            if (to.y !== undefined) c.y = from.y + (to.y - from.y) * p;
+          }
+          return c;
+        }
+        const screen = (t) => { const c = camAt(t); return { s: c.s, x: W / 2 - c.x * c.s, y: H / 2 - c.y * c.s }; };
+        const dof = $$("#dof i"), BASE = [1.5, 4, 8, 14, 1.5, 4, 8, 14, 2, 6, 2, 6], SIZE = [440, 330, 220, 120, 440, 330, 220, 120, 170, 80, 170, 80];
+        dof.forEach((d, i) => (i < 8 ? (d.style.width = SIZE[i] + "px") : (d.style.height = SIZE[i] + "px")));
+        function applyCam(t) {
+          const c = screen(t), a = screen(t - 1 / 60), b = screen(t + 1 / 60);
+          camEl.style.transform = `translate(${c.x}px, ${c.y}px) scale(${c.s})`;
+          const v = Math.hypot(b.x - a.x, b.y - a.y) * 30 + Math.abs(Math.log(b.s / a.s)) * 30 * 1400;
+          const f = 1 + Math.min(1.4, v / 2000);
+          dof.forEach((d, i) => { const fl = `blur(${(BASE[i] * f).toFixed(2)}px)`; d.style.backdropFilter = fl; d.style.webkitBackdropFilter = fl; });
+        }
+
+        // ---------- the orb travels down and becomes the mic button ----------
+        const orbEl = $("#orbw"), oscale = MICC.w / ORB.w;
+        function applyOrb(t) {
+          const p = grokEase((t - DIVE) / DROP);        // same ease and length as the camera, so it never drifts out of frame
+          orbEl.style.transform = `translate(${(MICC.x - ORB.x) * p}px, ${(MICC.y - ORB.y) * p}px) scale(${1 + (oscale - 1) * p})`;
+        }
+        // ---------- voice: the aurora and the mic's halo breathe with every spoken word ----------
+        const blobs = $$("#aurora i"), halo = $("#halo"), arc = $("#arc");
+        const BUSY0 = Q_END + 0.25, BUSY1 = ANS + 1.4;                 // the assistant is answering: skip icon + spinning ring
+        function applyVoice(t) {
+          let speak = 0;
+          SPEECH.w.forEach((a, i) => { const b = SPEECH.we[i], u = t - Q_T; if (u > a - 0.05 && u < b + 0.08) speak = Math.max(speak, Math.sin(Math.PI * Math.min(1, Math.max(0, (u - a + 0.05) / (b - a + 0.13))))); });
+          const listen = Math.min(1, Math.max(0, (t - LAND) / 0.5)) * Math.min(1, Math.max(0, (Q_END + 0.3 - t) / 0.4));
+          blobs.forEach((b, i) => {
+            const dx = Math.sin(t * (0.9 + i * 0.37) + i * 1.7) * 40, sc = 1 + 0.12 * Math.sin(t * (1.3 + i * 0.29) + i) + 0.25 * speak * listen;
+            b.style.transform = `translate(${dx.toFixed(1)}px, ${(-30 * speak * listen).toFixed(1)}px) scale(${sc.toFixed(3)})`;
+          });
+          halo.style.opacity = (listen * (0.45 + 0.55 * speak)).toFixed(3);
+          halo.style.transform = `scale(${(1 + 0.08 * speak * listen).toFixed(3)})`;
+          // mic → skip and back: never both at once — the outgoing icon shrinks away, then the incoming one grows in
+          const OUT = 0.14, IN = 0.26;
+          const into = (u) => { if (u <= 0) return [1, 0]; if (u < OUT) return [1 - u / OUT, 0]; return [0, Math.min(1, (u - OUT) / IN)]; };
+          let [m, k] = t < BUSY1 ? into(t - BUSY0) : (() => { const [a, b] = into(t - BUSY1); return [b, a]; })();
+          if (t < BUSY0) { m = 1; k = 0; }
+          const pop = (v) => 1 - Math.pow(1 - v, 3);                               // ease-out for the incoming icon
+          const micEl = $("#micb .mic"), skEl = $("#micb .skip");
+          micEl.style.opacity = m.toFixed(3); micEl.style.transform = `scale(${(0.55 + 0.45 * (t < BUSY1 ? m : pop(m))).toFixed(3)})`;
+          skEl.style.opacity = k.toFixed(3); skEl.style.transform = `scale(${(0.55 + 0.45 * (t < BUSY1 ? pop(k) : k)).toFixed(3)})`;
+          // the progress ring hugs the rim: it grows out of a point once the skip icon is in, spins, and shrinks away before the mic returns
+          const grow = Math.min(1, Math.max(0, (t - BUSY0 - OUT) / 0.35)), shrink = Math.min(1, Math.max(0, (BUSY1 - t) / 0.3));
+          const len = 70 * pop(Math.min(grow, shrink));
+          arc.style.opacity = len > 0.5 ? 1 : 0;
+          // the arc runs along the rim itself (dash offset), so it always hugs the button's edge
+          const C = 2 * Math.PI * 46.5, ring = arc.querySelector("circle");
+          ring.setAttribute("stroke-dasharray", `${len.toFixed(1)} ${C.toFixed(1)}`);
+          ring.setAttribute("stroke-dashoffset", (-(((t - BUSY0) * 0.9 * C) % C)).toFixed(1));
+        }
+        const clock = { t: 0 };
+        tl.to(clock, { t: D, duration: D, ease: "none", onUpdate: () => { applyCam(clock.t); applyType(clock.t); applyOrb(clock.t); applyVoice(clock.t); } }, 0);
+        applyCam(0); applyType(0); applyOrb(0); applyVoice(0);
+
+        // ================= beats =================
+        // 1–2: title types and deletes; the orb appears in its place
+        gsap.set(orbEl, { opacity: 0 });
+        tl.to(orbEl, { opacity: 1, duration: 0.35 }, ORB_IN);
+        tl.fromTo("#orb", { scale: 0.5, filter: "blur(14px)" }, { scale: 1, filter: "blur(0px)", duration: 0.9, ease: "expo.out" }, ORB_IN);
+        tl.to("#orb img", { rotation: 140, duration: 3, ease: "sine.inOut" }, ORB_IN);
+
+        // 3: the orb lands as the mic; its colours spread out into the aurora along the bottom
+        const vctl = ["#micb", "#dotsb", "#kbdb"];
+        gsap.set(vctl, { opacity: 0 });
+        tl.to("#micb", { opacity: 1, duration: 0.6, ease: "sine.inOut" }, LAND - 0.2)
+          .to(orbEl, { opacity: 0, duration: 0.7, ease: "sine.inOut" }, LAND - 0.15)
+          .fromTo("#aurora", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 1.3, ease: "sine.inOut" }, LAND - 0.25)
+          .fromTo(["#dotsb", "#kbdb"], { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.6, ease: "expo.out", stagger: 0.08 }, LAND + 0.15);
+
+        // 5: pulling back, the phone draws upward from the bar
+        // one reveal line rises from below the bar; frame and screen open on the same line, so no black band leads
+        const SH_T = PH.t - 18, SH_B = PH.b + 18, shell = $("#shell"), pbg = $("#pbg"), rv = { p: 0 };
+        const reveal = () => {
+          const line = SH_B + (SH_T - SH_B) * rv.p;
+          shell.style.clipPath = `inset(${Math.max(0, line - SH_T).toFixed(1)}px 0px 0px 0px round 96px)`;
+          pbg.style.clipPath = `inset(${Math.min(PH.h, Math.max(0, line - PH.t)).toFixed(1)}px 0px 0px 0px round 78px)`;
+        };
+        reveal();
+        tl.to(rv, { p: 1, duration: 1.15, ease: "expo.inOut", onUpdate: reveal }, PULL + 0.2);
+        // as the screen arrives the aurora is trimmed to it (its soft tail below/beside the glass goes)
+        const au = { p: 0 };
+        const trim = () => (document.getElementById("aurora").style.clipPath = `inset(0px ${60 * au.p}px ${150 * au.p}px ${60 * au.p}px round 0px 0px ${78 * au.p}px ${78 * au.p}px)`);
+        trim();
+        tl.to(au, { p: 1, duration: 0.6, ease: "sine.inOut", onUpdate: trim }, PULL + 0.3);
+        gsap.set("#glare", { opacity: 0 });
+        tl.to("#glare", { opacity: 1, duration: 0.8, ease: "power2.out" }, PULL + 0.9);
+        gsap.set([".status", ".top"], { opacity: 0, y: -14 });
+        tl.to([".status", ".top"], { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: 0.08 }, PULL + 0.95);
+
+        // 6: the live words rise from above the mic into the request bubble
+        gsap.set(".ubub", { opacity: 0 });
+        tl.to("#live", { x: BUB.x - LIVE.x, y: BUB.y - LIVE.y, scale: 19 / 22, duration: 0.75, ease: "expo.inOut" }, LIFT)
+          .to(".ubub", { opacity: 1, duration: 0.3 }, LIFT + 0.55)
+          .to("#live", { opacity: 0, duration: 0.15 }, LIFT + 0.75);
+
+        // 7: the answer, the recipe, the ingredients
+        gsap.set(".ai", { opacity: 0 });
+        gsap.set(".reply span", { opacity: 0, filter: "blur(8px)" });
+        gsap.set(".rec", { opacity: 0, y: 16 });
+        tl.to(".ai", { opacity: 1, duration: 0.3 }, ANS);
+        $$(".reply span").forEach((w, i) => tl.to(w, { opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "power2.out" }, ANS + 0.05 + i * 0.045));
+        tl.to(".rec", { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, ANS + 0.7);
+        const gt = $$(".grid .tile");
+        gsap.set(gt, { opacity: 0, y: 40, filter: "blur(10px)" });
+        gt.forEach((c, i) => tl.to(c, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.9, ease: "expo.out" }, ANS + 1.0 + i * 0.08));
+
+        // 8: picked 1 → 6, checkout rises and is pressed
+        const nums = $$("#badge b");
+        gt.forEach((c, i) => {
+          const t = TICK + i * 0.1;
+          tl.fromTo($(".ok", c), { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "expo.out" }, t);
+          tl.fromTo($(".im", c), { scale: 1 }, { scale: 0.96, duration: 0.12, ease: "power2.inOut", yoyo: true, repeat: 1 }, t - 0.05);
+          nums.forEach((b, j) => tl.set(b, { opacity: j === i ? 1 : 0 }, t + 0.1));
+          tl.fromTo("#badge", { scale: i ? 1.3 : 0 }, { scale: 1, duration: 0.35, ease: "expo.out", immediateRender: false }, t + 0.1);
+        });
+        const co = $(".checkout");
+        gsap.set(co, { opacity: 0, y: 30 });
+        tl.to(co, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, TO_CO - 0.15);
+        tl.to(co, { scale: 0.96, duration: 0.14, ease: "power2.inOut" }, PRESS)
+          .to(co, { scale: 1, duration: 0.4, ease: "expo.out" }, PRESS + 0.14)
+          .fromTo($(".rip", co), { opacity: 0.6, scale: 0.4 }, { opacity: 0, scale: 9, duration: 0.8, ease: "power2.out" }, PRESS + 0.05)
+          .to($(".lbl", co), { opacity: 0, duration: 0.25 }, GROW);
+
+        // 9: the button itself grows to fill the frame and becomes the closing
+        const camEnd = camAt(D), vw = W / camEnd.s, vh = H / camEnd.s;
+        const flood = $("#flood");
+        // the flood already covers the final frame; a clip that starts as the button's own shape opens out to it
+        const FL = camEnd.x - vw / 2 - 40, FT = camEnd.y - vh / 2 - 40, FW = vw + 80, FH = vh + 80;
+        gsap.set(flood, { left: FL, top: FT, width: FW, height: FH });
+        const clipAt = (p) => `inset(${(CO.t - FT) * (1 - p)}px ${(FL + FW - CO.r) * (1 - p)}px ${(FT + FH - CO.b) * (1 - p)}px ${(CO.l - FL) * (1 - p)}px round ${37 * (1 - p)}px)`;
+        gsap.set(flood, { clipPath: clipAt(0) });
+        const fp = { p: 0 };
+        tl.set(flood, { opacity: 1 }, GROW)
+          .to(fp, { p: 1, duration: 1.0, ease: "expo.inOut", onUpdate: () => (flood.style.clipPath = clipAt(fp.p)) }, GROW);
+        tl.to("#edge, #dof", { opacity: 0, duration: 0.5 }, GROW + 0.4);
+        gsap.set("#lock img, #lock .tag, #lock .slo", { opacity: 0 });
+        tl.fromTo("#lock img", { opacity: 0, scale: 1.06, filter: "blur(16px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.0, ease: "expo.out" }, GROW + 0.8);
+        tl.fromTo("#lock .tag", { opacity: 0, y: 20, filter: "blur(8px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, GROW + 1.15);
+        tl.fromTo("#lock .slo", { opacity: 0 }, { opacity: 0.8, duration: 0.6 }, GROW + 1.45);
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>

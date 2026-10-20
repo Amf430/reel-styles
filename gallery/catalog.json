@@ -1,0 +1,3460 @@
+[
+ {
+  "id": "hook-punch",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — ضربة",
+  "desc": "يكبر وينزل بارتداد",
+  "theme": "punch",
+  "params": {
+   "lines": [
+    {
+     "text": "شقة *180 م²*",
+     "size": 150
+    },
+    {
+     "text": "بـ *سعر* ما تتوقعه",
+     "size": 105
+    }
+   ],
+   "sub": "حي النرجس — الرياض",
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "punch"
+  }
+ },
+ {
+  "id": "hook-slam",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — سقوط",
+  "desc": "يطيح من فوق ببلور وهزّة عند الهبوط",
+  "theme": "punch",
+  "params": {
+   "lines": [
+    {
+     "text": "شقة *180 م²*",
+     "size": 150
+    },
+    {
+     "text": "بـ *سعر* ما تتوقعه",
+     "size": 105
+    }
+   ],
+   "sub": "حي النرجس — الرياض",
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "slam"
+  }
+ },
+ {
+  "id": "hook-type",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "هادي",
+  "name": "هوك — كلمة كلمة",
+  "desc": "الكلمات تطلع وحدة وحدة",
+  "theme": "punch",
+  "params": {
+   "lines": [
+    {
+     "text": "شقة *180 م²*",
+     "size": 150
+    },
+    {
+     "text": "بـ *سعر* ما تتوقعه",
+     "size": 105
+    }
+   ],
+   "sub": "حي النرجس — الرياض",
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "type"
+  }
+ },
+ {
+  "id": "hook-rise",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "هادي",
+  "name": "هوك — طلوع",
+  "desc": "يطلع من تحت بنعومة",
+  "theme": "punch",
+  "params": {
+   "lines": [
+    {
+     "text": "شقة *180 م²*",
+     "size": 150
+    },
+    {
+     "text": "بـ *سعر* ما تتوقعه",
+     "size": 105
+    }
+   ],
+   "sub": "حي النرجس — الرياض",
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "rise"
+  }
+ },
+ {
+  "id": "hook-stretch",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — تمطيط",
+  "desc": "يتمدد أفقياً ويستقر",
+  "theme": "punch",
+  "params": {
+   "lines": [
+    {
+     "text": "شقة *180 م²*",
+     "size": 150
+    },
+    {
+     "text": "بـ *سعر* ما تتوقعه",
+     "size": 105
+    }
+   ],
+   "sub": "حي النرجس — الرياض",
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "stretch"
+  }
+ },
+ {
+  "id": "hook-theme-box",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — ثيم بوكس أسود",
+  "desc": "نفس الهوك بثيم مختلف",
+  "theme": "box",
+  "params": {
+   "lines": [
+    {
+     "text": "لا تشتري *قبل*",
+     "size": 130
+    },
+    {
+     "text": "ما تشوف هذا",
+     "size": 110
+    }
+   ],
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "punch"
+  }
+ },
+ {
+  "id": "hook-theme-white-box",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — ثيم بوكس أبيض",
+  "desc": "نفس الهوك بثيم مختلف",
+  "theme": "white-box",
+  "params": {
+   "lines": [
+    {
+     "text": "لا تشتري *قبل*",
+     "size": 130
+    },
+    {
+     "text": "ما تشوف هذا",
+     "size": 110
+    }
+   ],
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "punch"
+  }
+ },
+ {
+  "id": "hook-theme-red",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — ثيم بوكس أحمر",
+  "desc": "نفس الهوك بثيم مختلف",
+  "theme": "red",
+  "params": {
+   "lines": [
+    {
+     "text": "لا تشتري *قبل*",
+     "size": 130
+    },
+    {
+     "text": "ما تشوف هذا",
+     "size": 110
+    }
+   ],
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "punch"
+  }
+ },
+ {
+  "id": "hook-theme-clean",
+  "skill": "reel-hook",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "هوك — ثيم نظيف بظل",
+  "desc": "نفس الهوك بثيم مختلف",
+  "theme": "clean",
+  "params": {
+   "lines": [
+    {
+     "text": "لا تشتري *قبل*",
+     "size": 130
+    },
+    {
+     "text": "ما تشوف هذا",
+     "size": 110
+    }
+   ],
+   "y": 0.36,
+   "in": 0.25,
+   "out": 3.3,
+   "anim": "punch"
+  }
+ },
+ {
+  "id": "neon-rise",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "نيون — طلوع",
+  "desc": "يطلع من تحت ببلور",
+  "theme": "seen",
+  "params": {
+   "y": 0.2,
+   "anim": "rise",
+   "in": 0.25,
+   "lines": [
+    {
+     "text": "كل مدرسة",
+     "size": 110,
+     "weight": 800
+    },
+    {
+     "text": "نـاجـحـة",
+     "size": 140,
+     "weight": 900
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-flicker",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون — تشغيل نيون",
+  "desc": "يقطّع ثم يثبت مثل لوحة نيون",
+  "theme": "amber",
+  "params": {
+   "y": 0.2,
+   "anim": "flicker",
+   "in": 0.25,
+   "lines": [
+    {
+     "text": "كل مدرسة",
+     "size": 110,
+     "weight": 800
+    },
+    {
+     "text": "نـاجـحـة",
+     "size": 140,
+     "weight": 900
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-write",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون — كشف",
+  "desc": "ينكشف بالاتجاه",
+  "theme": "amber",
+  "params": {
+   "y": 0.2,
+   "anim": "write",
+   "in": 0.25,
+   "lines": [
+    {
+     "text": "كل مدرسة",
+     "size": 110,
+     "weight": 800
+    },
+    {
+     "text": "نـاجـحـة",
+     "size": 140,
+     "weight": 900
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-glow",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "نيون — توهّج",
+  "desc": "التوهج يزيد تدريجياً",
+  "theme": "seen",
+  "params": {
+   "y": 0.2,
+   "anim": "glow",
+   "in": 0.25,
+   "lines": [
+    {
+     "text": "كل مدرسة",
+     "size": 110,
+     "weight": 800
+    },
+    {
+     "text": "نـاجـحـة",
+     "size": 140,
+     "weight": 900
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-word",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — سطور بخط نيون",
+  "desc": "خط نيون يمسح تحت كل سطر ويكشفه",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "word",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "text": "الفكرة|أهم من الأداة"
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-pill",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — عنوان وكبسولة",
+  "desc": "عنوان وتحته كبسولة نيون",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "pill",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "text": "أحمد الشهري",
+     "sub": "مؤسس الشركة"
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-banner",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — شريط متموج",
+  "desc": "شريط نيون عرض الشاشة عليه كلمة",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "banner",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "text": "عرض خاص"
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-number",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — رقم عملاق",
+  "desc": "رقم مخطط بالنيون وكلمات تتبدل تحته",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "number",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "text": "3",
+     "words": [
+      {
+       "text": "خطوات",
+       "at": 0
+      },
+      {
+       "text": "بس",
+       "at": 1.3
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-side",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — دائرة جانبية",
+  "desc": "دائرة نيون كبيرة على جنب الشاشة فيها سطور",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "side",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "text": "سؤال|اليوم"
+    }
+   ]
+  }
+ },
+ {
+  "id": "neon-item-flash",
+  "skill": "reel-neon",
+  "cat": "عناوين وهوك",
+  "mood": "طاقة",
+  "name": "نيون المتحدث — ومضة",
+  "desc": "ومضة لون على الشاشة كاملة (فاصل)",
+  "theme": "green",
+  "params": {
+   "lines": [],
+   "items": [
+    {
+     "type": "flash",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25
+    }
+   ]
+  },
+  "poster": 0.4
+ },
+ {
+  "id": "textfx-select",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "نص — تحديد نص",
+  "desc": "تظليل يمشي على النص ثم ينشال",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "select",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-type",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "نص — كتابة حرف حرف",
+  "desc": "مع مؤشر يرمش",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "type",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-neon",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — نيون",
+  "desc": "يرمش ثم يثبت مع توهج",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "neon",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-shine",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — لمعة",
+  "desc": "ضوء يعبر النص ويتكرر",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "shine",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-pop",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — تطاير",
+  "desc": "الكلمات تطير من أماكن مختلفة وتنط مكانها",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "pop",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-rise",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "نص — صعود ببلور",
+  "desc": "الكلمات تصعد من بلور",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "rise",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-drop",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — سقوط",
+  "desc": "الكلمات تطيح من فوق وترتد",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "drop",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-wave",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "نص — تموّج",
+  "desc": "الكلمات تتموج باستمرار",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "wave",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-kashida",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — كشيدة",
+  "desc": "الكلمة المميزة تتمطط بكشيدة",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "kashida",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-underline",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "نص — خط تحت",
+  "desc": "خط يترسم والنص يطلع من تحته",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "underline",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-box",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — صندوق",
+  "desc": "صندوق ملون يكشف النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "box",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-marker",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "يدوي",
+  "name": "نص — هايلايتر",
+  "desc": "يمسح ورا النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "marker",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-pill",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — كبسولة",
+  "desc": "كبسولة متوهجة تنفتح من خط",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "pill",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-cine",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — سينمائي",
+  "desc": "دخول بطيء من بلور وتكبير",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "cine",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-slice",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "نص — شرائح",
+  "desc": "النص شرائح أفقية تتجمع",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "slice",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-brackets",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "نص — زوايا تركيز",
+  "desc": "زوايا تنفتح حوالين النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "brackets",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-glitch",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — قلتش",
+  "desc": "قلتش RGB يتكرر",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "glitch",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-circle",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "يدوي",
+  "name": "نص — دائرة يدوية",
+  "desc": "دائرة تنرسم حوالين النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "circle",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-echo",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — صدى",
+  "desc": "نسخ صدى تتجمع في النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "echo",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-news",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "نص — شريط خبر",
+  "desc": "شريط خبر مع تاق",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "news",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100,
+     "sub": "عاجل"
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-bubble",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "نص — فقاعة كلام",
+  "desc": "فقاعة بيضاء تنط",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "bubble",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-gradient",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — تدرّج",
+  "desc": "تدرج ألوان يمشي داخل النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "gradient",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-glowchar",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — حروف تضوي",
+  "desc": "الحروف تضوي حرف حرف",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "glowchar",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-swipe",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — سحبة",
+  "desc": "سحبة سريعة بموشن بلور وخط ضوء",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "swipe",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-reveal",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — شرارة كاشفة",
+  "desc": "شرارة ضوء تمشي وتكشف النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "reveal",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-split",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — حد وتعبئة",
+  "desc": "حد خارجي + كشيدة والآخر يتعبى",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "split",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-trail",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — ذيل ضوئي",
+  "desc": "كشيدة طويلة عليها ذيل ضوئي",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "trail",
+     "text": "*الحكاية* بدأت هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-twotone",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — سطرين بلونين",
+  "desc": "الثاني بكشيدة",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "twotone",
+     "text": "الحكاية بدأت | من هنا",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-stack",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — كلمات مكدسة",
+  "desc": "كل كلمة سطر ودائرة على الأولى",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "stack",
+     "text": "ابدأ اليوم بخطوة",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-name",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — اسم مضيء",
+  "desc": "اسم عربي + لاتيني حرف حرف",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "name",
+     "text": "سين",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100,
+     "sub": "SEEN"
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-number",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "نص — رقم يعدّ",
+  "desc": "رقم بحد مضيء يعدّ",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "number",
+     "text": "850",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100,
+     "from": 0,
+     "to": 850
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-spot",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — كشاف",
+  "desc": "ضوء كشاف يمشي ويكشف النص",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "spot",
+     "text": "خصم *30%* اليوم",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "size": 100
+    }
+   ]
+  }
+ },
+ {
+  "id": "textfx-frame",
+  "skill": "reel-textfx",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نص — إطار المتحدث",
+  "desc": "إطار متوهج حوالين المتحدث + سطرين",
+  "theme": "auto",
+  "params": {
+   "items": [
+    {
+     "fx": "frame",
+     "text": "أحمد الشهري",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.62,
+     "size": 100,
+     "sub": "مؤسس الشركة",
+     "w": 0.8,
+     "h": 0.5
+    }
+   ]
+  }
+ },
+ {
+  "id": "docu-count",
+  "skill": "reel-docu",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "وثائقي — كرة برقم يعدّ",
+  "desc": "كرة تنزل وترتد ورقم يعدّ وكلمة بكشيدة",
+  "theme": "red",
+  "params": {
+   "items": [
+    {
+     "type": "count",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 110,
+     "value": "24",
+     "sub": "عاماً",
+     "x": 0.5,
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "docu-circle",
+  "skill": "reel-docu",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "وثائقي — كرة بسطرين",
+  "desc": "كرة تكبر وفيها سطرين بكشيدة",
+  "theme": "red",
+  "params": {
+   "items": [
+    {
+     "type": "circle",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 110,
+     "text": "قصة|نجاح",
+     "x": 0.5,
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "docu-box",
+  "skill": "reel-docu",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "وثائقي — مربع أحمر",
+  "desc": "مربع ينفتح بنص ثم يصير شفاف",
+  "theme": "red",
+  "params": {
+   "items": [
+    {
+     "type": "box",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 110,
+     "text": "البداية كانت صعبة",
+     "x": 0.5,
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "docu-title",
+  "skill": "reel-docu",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "وثائقي — عنوان ورا ضوء",
+  "desc": "عنوان أبيض ينكشف ورا كرة ضوء حمرا",
+  "theme": "red",
+  "params": {
+   "items": [
+    {
+     "type": "title",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 110,
+     "text": "الحكاية",
+     "x": 0.5,
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "docu-sweep",
+  "skill": "reel-docu",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "وثائقي — وميض عابر",
+  "desc": "وميض ضوء أحمر يعبر الشاشة (فاصل)",
+  "theme": "red",
+  "params": {
+   "items": [
+    {
+     "type": "sweep",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 110
+    }
+   ]
+  }
+ },
+ {
+  "id": "frames-text",
+  "skill": "reel-frames",
+  "cat": "عناوين وهوك",
+  "mood": "تقني",
+  "name": "خطوط وزوايا — عبارة",
+  "desc": "إطار خطوط رفيعة ونقاط على الزوايا",
+  "theme": "gold",
+  "params": {
+   "items": [
+    {
+     "type": "text",
+     "text": "هذه *الفكرة* ببساطة",
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.2,
+     "size": 60
+    }
+   ]
+  }
+ },
+ {
+  "id": "frames-phrases",
+  "skill": "reel-frames",
+  "cat": "عناوين وهوك",
+  "mood": "تقني",
+  "name": "خطوط وزوايا — عبارات تتبدل",
+  "desc": "العبارة تتبدل والإطار يتمدد",
+  "theme": "cyan",
+  "params": {
+   "items": [
+    {
+     "type": "text",
+     "phrases": [
+      "خطوة *صغيرة*",
+      {
+       "text": "كل يوم *تفرق*",
+       "at": 1.5
+      }
+     ],
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.2,
+     "size": 60
+    }
+   ]
+  }
+ },
+ {
+  "id": "frames-photo",
+  "skill": "reel-frames",
+  "cat": "صور ومعارض",
+  "mood": "تقني",
+  "name": "خطوط وزوايا — صورة",
+  "desc": "صورة بإطار خطوط وتسمية",
+  "theme": "gold",
+  "params": {
+   "items": [
+    {
+     "type": "photo",
+     "img": "@bg",
+     "label": "قبل",
+     "w": 0.6,
+     "aspect": 0.8,
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.32
+    }
+   ]
+  }
+ },
+ {
+  "id": "frames-glow",
+  "skill": "reel-frames",
+  "cat": "صور ومعارض",
+  "mood": "فخم",
+  "name": "خطوط وزوايا — صورة متوهجة",
+  "desc": "إطار متوهج بدل الخطوط (قبل/بعد)",
+  "theme": "gold",
+  "params": {
+   "items": [
+    {
+     "type": "photo",
+     "img": "@bg",
+     "label": "بعد",
+     "glow": true,
+     "w": 0.6,
+     "aspect": 0.8,
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.32
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-card",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — كرت",
+  "desc": "عنوان وسطر فرعي بأيقونة",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "card",
+     "in": 0.25,
+     "out": 3.3,
+     "text": "3 غرف نوم",
+     "sub": "ماستر بدورة مياه خاصة",
+     "icon": "bed"
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-stat",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — رقم يعدّ",
+  "desc": "رقم يعدّ من صفر مع وحدة",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "stat",
+     "in": 0.25,
+     "out": 3.3,
+     "value": "+180",
+     "unit": "م²",
+     "label": "مساحة الشقة",
+     "icon": "area"
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-pill",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — كبسولة",
+  "desc": "سطر واحد بأيقونة",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "pill",
+     "in": 0.25,
+     "out": 3.3,
+     "text": "جاهزة للسكن",
+     "icon": "check"
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-title",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — كرت عنوان",
+  "desc": "عنوان بالنص بسطرين",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "title",
+     "in": 0.25,
+     "out": 3.3,
+     "text": "شقق النرجس",
+     "sub": "تبدأ من 850 ألف",
+     "cy": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-arch",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — قوس",
+  "desc": "قوس زجاج طالع من تحت بصورة دائرية",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "arch",
+     "in": 0.25,
+     "out": 3.3,
+     "text": "الواجهة",
+     "img": "@bg",
+     "w": 0.6,
+     "h": 0.5
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-lens",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — عدسة",
+  "desc": "عدسة زجاج تكبّر اللي وراها",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "lens",
+     "in": 0.25,
+     "out": 3.3,
+     "d": 0.45,
+     "cy": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-bubble",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — فقاعة صورة",
+  "desc": "فقاعة زجاج فيها صورة دائرية",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "bubble",
+     "in": 0.25,
+     "out": 3.3,
+     "d": 0.4,
+     "img": "@bg",
+     "cy": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-orbit",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — مدار خطوات",
+  "desc": "دائرة بنص وحلقة نقاط مرقمة",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "orbit",
+     "in": 0.25,
+     "out": 3.3,
+     "text": "الخطوات",
+     "steps": 4,
+     "active": 2,
+     "d": 0.5,
+     "cy": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-icon",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — أيقونة زجاج",
+  "desc": "أيقونة كبيرة خطها زجاج يتوهج",
+  "theme": "frost",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "icon",
+     "in": 0.25,
+     "out": 3.3,
+     "icon": "bulb",
+     "s": 0.35,
+     "cy": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "glass-liquid",
+  "skill": "reel-glass",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زجاج — Liquid Glass",
+  "desc": "ستايل Apple: انكسار ولمعة على الحواف",
+  "theme": "liquid",
+  "params": {
+   "stack": {
+    "x": 0.9,
+    "y": 0.18
+   },
+   "cards": [
+    {
+     "kind": "stat",
+     "value": "+180",
+     "unit": "م²",
+     "label": "مساحة الشقة",
+     "icon": "area",
+     "in": 0.25,
+     "out": 3.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-title",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — عنوان قسم",
+  "desc": "خط جانبي وعنوان ينسحب وسطر فرعي",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "title",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "المميزات",
+     "sub": "ليش تختارها",
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-bar",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — شريط نص",
+  "desc": "شريط عرضي ملون",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "bar",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "متبقي 3 وحدات فقط",
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-highlight",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — تمييز كلمة",
+  "desc": "بوكس ملون ورا الكلمة",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "highlight",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "أفضل *موقع* في الحي",
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-lower",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — تعريف أسفل الشاشة",
+  "desc": "Lower third باسم المتكلم وصفته",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "lower",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "م. خالد العتيبي",
+     "sub": "مدير المبيعات",
+     "icon": "user",
+     "x": 0.94,
+     "y": 0.8
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-card",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — بطاقة معلومة",
+  "desc": "أيقونة وعنوان ونص",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "card",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "icon": "pin",
+     "text": "الموقع",
+     "sub": "5 دقائق من طريق الملك سلمان",
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-stats",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — بطاقة إحصائية",
+  "desc": "رقم يعدّ + نسبة + أعمدة",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "stats",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "المبيعات هذا الشهر",
+     "value": "1,250",
+     "delta": "+12%",
+     "y": 0.22
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-number",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — رقم كبير",
+  "desc": "رقم ضخم يعدّ مع وحدة",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "number",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "value": "350",
+     "unit": "م²",
+     "sub": "مساحة الأرض",
+     "y": 0.22
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-calendar",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — تقويم",
+  "desc": "ورقة تقويم تنقلب",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "calendar",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "day": "15",
+     "month": "نوفمبر",
+     "weekday": "السبت",
+     "sub": "موعد الافتتاح",
+     "y": 0.22
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-list",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — قائمة صح",
+  "desc": "قائمة بعلامات ✓",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "list",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "items": [
+      "3 غرف نوم",
+      "مسبح خاص",
+      "موقف سيارتين"
+     ],
+     "x": 0.7,
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-row",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — صف كبسولات",
+  "desc": "كبسولات بأيقونات في صف",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "row",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "items": [
+      {
+       "text": "مسبح",
+       "icon": "star"
+      },
+      {
+       "text": "حديقة",
+       "icon": "home"
+      },
+      {
+       "text": "موقف",
+       "icon": "car"
+      }
+     ],
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-grid",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — شبكة مميزات",
+  "desc": "شبكة عمودين",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "grid",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "items": [
+      {
+       "text": "مسبح",
+       "icon": "star"
+      },
+      {
+       "text": "حديقة",
+       "icon": "home"
+      },
+      {
+       "text": "موقف",
+       "icon": "car"
+      },
+      {
+       "text": "أمن",
+       "icon": "lock"
+      }
+     ],
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-pill",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — كبسولة",
+  "desc": "كبسولة بأيقونة تنفتح",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "pill",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "icon": "check",
+     "text": "جاهزة للسكن",
+     "y": 0.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-cta",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — زر متابعة",
+  "desc": "مؤشر يضغط الزر ويتحول «تمت المتابعة»",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "cta",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "تابعنا",
+     "sub": "تمت المتابعة",
+     "click": 1.6,
+     "y": 0.75
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-end",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — شاشة ختامية",
+  "desc": "تغمّق الفيديو وفيها الحساب والأزرار",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "end",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "text": "سين العقارية",
+     "sub": "@seen.sa",
+     "buttons": [
+      [
+       "phone",
+       "اتصل"
+      ],
+      [
+       "pin",
+       "الموقع"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-callout",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — إشارة على نقطة",
+  "desc": "نقطة تنبض + خط + بطاقة",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "callout",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "px": 0.5,
+     "py": 0.55,
+     "x": 0.3,
+     "y": 0.3,
+     "text": "غرفة ماستر",
+     "sub": "25 م²",
+     "icon": "bed"
+    }
+   ]
+  }
+ },
+ {
+  "id": "info-orbit",
+  "skill": "reel-info",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "معلومات — إشارات حوالين مركز",
+  "desc": "بطاقات حوالين نقطة بخطوط",
+  "theme": "light",
+  "params": {
+   "items": [
+    {
+     "type": "orbit",
+     "in": 0.25,
+     "out": 3.3,
+     "size": 65,
+     "px": 0.5,
+     "py": 0.5,
+     "items": [
+      {
+       "text": "مسبح",
+       "icon": "star"
+      },
+      {
+       "text": "حديقة",
+       "icon": "home"
+      },
+      {
+       "text": "موقف",
+       "icon": "car"
+      }
+     ],
+     "radius": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-notification",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — إشعار",
+  "desc": "إشعار iOS ينزل من فوق بارتداد",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "notification",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "title": "سين العقارية",
+     "text": "شقة 180 م² في النرجس متاحة الآن",
+     "y": 0.09,
+     "w": 0.9
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-chat",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — محادثة",
+  "desc": "رسائل وحدة وحدة مع «يكتب…»",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "chat",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "messages": [
+      {
+       "text": "السلام عليكم، الشقة متاحة؟",
+       "me": true
+      },
+      {
+       "text": "هلا! إيه متاحة 👌"
+      }
+     ],
+     "gap": 1.0,
+     "y": 0.3,
+     "w": 0.85
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-search",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — بحث",
+  "desc": "يكتب حرف حرف مع مؤشر",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "search",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "شقق للبيع في النرجس",
+     "y": 0.2,
+     "w": 0.85
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-button",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — زر يضغطه مؤشر",
+  "desc": "الزر يتحول لحالة «تم»",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "button",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "احجز معاينة",
+     "done_text": "تم الحجز ✓",
+     "tap": 1.6,
+     "y": 0.7,
+     "w": 0.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-progress",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — شريط تقدم",
+  "desc": "يتعبى مع الوقت",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "progress",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.12,
+     "w": 0.8
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-badge",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — شارة",
+  "desc": "تنط بدوران خفيف",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "badge",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "جديد",
+     "y": 0.2,
+     "w": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-checklist",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — قائمة مهام",
+  "desc": "صح ✓ وحدة وحدة",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "checklist",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "items": [
+      "المعاينة",
+      "التمويل",
+      "الإفراغ"
+     ],
+     "gap": 0.6,
+     "y": 0.25,
+     "w": 0.7
+    }
+   ]
+  }
+ },
+ {
+  "id": "ui-rating",
+  "skill": "reel-ui",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "واجهة — تقييم نجوم",
+  "desc": "النجوم تتعبى بالتتابع",
+  "theme": "ios-light",
+  "params": {
+   "elements": [
+    {
+     "type": "rating",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "value": 5,
+     "y": 0.2,
+     "w": 0.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-circle",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — دائرة",
+  "desc": "دائرة يدوية حول شي",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "circle",
+     "in": 0.25,
+     "out": 3.3,
+     "label": {
+      "text": "هنا السر",
+      "x": 0.5,
+      "y": 0.18
+     },
+     "x": 0.5,
+     "y": 0.55,
+     "w": 0.4,
+     "h": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-box",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — بوكس",
+  "desc": "مربع يدوي",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "box",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.25,
+     "y": 0.4,
+     "w": 0.5,
+     "h": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-underline",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — خط تحت",
+  "desc": "خط تحت (أو مزدوج/متموج)",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "underline",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.2,
+     "y": 0.35,
+     "w": 0.6,
+     "wave": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-arrow",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — سهم",
+  "desc": "سهم منحني من نقطة لنقطة",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "arrow",
+     "in": 0.25,
+     "out": 3.3,
+     "label": {
+      "text": "هنا السر",
+      "x": 0.5,
+      "y": 0.18
+     },
+     "x1": 0.2,
+     "y1": 0.2,
+     "x2": 0.45,
+     "y2": 0.45,
+     "bend": 1
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-check",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — صح",
+  "desc": "علامة صح",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "check",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "w": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-cross",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — خطأ",
+  "desc": "علامة خطأ",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "cross",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.3,
+     "w": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-highlight",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — هايلايتر",
+  "desc": "مسحة هايلايتر",
+  "theme": "highlighter",
+  "params": {
+   "marks": [
+    {
+     "type": "highlight",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.15,
+     "y": 0.25,
+     "w": 0.7,
+     "h": 0.06
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-burst",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — انفجار",
+  "desc": "خطوط حوالين شي للفت الانتباه",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "burst",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.5,
+     "y": 0.5,
+     "w": 0.45
+    }
+   ]
+  }
+ },
+ {
+  "id": "marker-scribble",
+  "skill": "reel-marker",
+  "cat": "رسم يدوي",
+  "mood": "يدوي",
+  "name": "ماركر — شخبطة",
+  "desc": "شطب/شخبطة",
+  "theme": "red",
+  "params": {
+   "marks": [
+    {
+     "type": "scribble",
+     "in": 0.25,
+     "out": 3.3,
+     "x": 0.25,
+     "y": 0.25,
+     "w": 0.5,
+     "h": 0.12
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-paper",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — ورقة ممزقة",
+  "desc": "ورقة بعنوان عريض",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "paper",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "عرض اليوم",
+     "kicker": "لفترة محدودة",
+     "sub": "خصم 10%",
+     "y": 0.25,
+     "w": 0.8
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-clipping",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — قصاصة جريدة",
+  "desc": "قصاصة بعنوان وأسطر",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "clipping",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "الأسعار ترتفع",
+     "lines": 4,
+     "y": 0.25,
+     "w": 0.7
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-photo",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — بولارويد",
+  "desc": "صورة بإطار ورق",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "photo",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "src": "@bg",
+     "caption": "الواجهة",
+     "y": 0.3,
+     "w": 0.55
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-ransom",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — رسالة فدية",
+  "desc": "كل كلمة على ورقة بلون وخط",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "ransom",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "شقتك الجديدة جاهزة",
+     "y": 0.2,
+     "w": 0.86,
+     "size": 82
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-bg",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — خلفية ورق",
+  "desc": "خلفية غامقة بملمس — مشهد بدون تصوير",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "bg",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-archive",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — صورة أرشيف",
+  "desc": "أبيض وأسود بإطار فاتح وميلان",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "archive",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "src": "@bg",
+     "y": 0.3,
+     "w": 0.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-cutout",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — قصاصة شخص",
+  "desc": "صورة أبيض وأسود تطلع من بلور",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "cutout",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "src": "@bg",
+     "y": 0.35,
+     "w": 0.5
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-star",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — نجمة زخرفة",
+  "desc": "نجمة ثمانية تنرسم وتدور",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "star",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25,
+     "w": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-label",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — سطور مظللة",
+  "desc": "سطور تنكشف وكلمات ببوكس بيج",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "label",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "text": "الفكرة|*أهم* من الأداة",
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-ornament",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — فاصل زخرفي",
+  "desc": "ثلاث معينات صغيرة",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "ornament",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "y": 0.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "collage-wipe",
+  "skill": "reel-collage",
+  "cat": "كولاج وورق",
+  "mood": "يدوي",
+  "name": "كولاج — انتقال دائرة",
+  "desc": "دائرة تكبر تغطي الشاشة ثم تنفتح",
+  "theme": "newsprint",
+  "params": {
+   "pieces": [
+    {
+     "type": "wipe",
+     "x": 0.5,
+     "in": 0.25,
+     "out": 3.3,
+     "color": "paper",
+     "y": 0.5,
+     "dur": 1.4
+    }
+   ]
+  },
+  "poster": 1.0
+ },
+ {
+  "id": "trans-whip",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — سحبة",
+  "desc": "سحبة أفقية بموشن بلور",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "whip",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-zoom",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — زووم",
+  "desc": "زووم داخل ببلور شعاعي",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "zoom",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-spin",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — دوران",
+  "desc": "دوران مع زووم وبلور",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "spin",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-defocus",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — فوكس سينمائي",
+  "desc": "بلور + بوكيه ضوء",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "defocus",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-pixel",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — بكسلات",
+  "desc": "بكسلات تكبر ثم ترجع",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "pixel",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-grid",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — شبكة",
+  "desc": "الصورة تتقسم مربعات",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "grid",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-iris",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — حلقة نار",
+  "desc": "حلقة تقفل وتنفتح",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "iris",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-glass",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — لوح زجاج",
+  "desc": "لوح زجاج يعبر الشاشة",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "glass",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-xray",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — أشعة",
+  "desc": "نيجاتيف + أشعة ضوء",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "xray",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-streak",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — خط ضوء",
+  "desc": "زووم + خط ضوء أفقي",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "streak",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-flash",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — ومضة",
+  "desc": "ومضة بيضاء أو بلون",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "flash",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "trans-glitch",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — قلتش",
+  "desc": "شرائح منزاحة وخطوط ألوان",
+  "params": {
+   "cuts": [
+    {
+     "t": 1.7,
+     "fx": "glitch",
+     "dur": 0.6
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.78
+ },
+ {
+  "id": "cam-punch",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "كاميرا — قفزة زووم",
+  "desc": "قفزة سريعة وتثبت",
+  "params": {
+   "cuts": [],
+   "camera": [
+    {
+     "type": "punch",
+     "in": 0.6,
+     "out": 3.0,
+     "scale": 1.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "cam-zoom",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "كاميرا — Ken Burns",
+  "desc": "زووم بطيء",
+  "params": {
+   "cuts": [],
+   "camera": [
+    {
+     "type": "zoom",
+     "in": 0.6,
+     "out": 3.0,
+     "from": 1,
+     "to": 1.25
+    }
+   ]
+  }
+ },
+ {
+  "id": "cam-pan",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "كاميرا — بان",
+  "desc": "تحريك أفقي",
+  "params": {
+   "cuts": [],
+   "camera": [
+    {
+     "type": "pan",
+     "in": 0.6,
+     "out": 3.0,
+     "scale": 1.2,
+     "x0": -0.07,
+     "x1": 0.07
+    }
+   ]
+  }
+ },
+ {
+  "id": "cam-shake",
+  "skill": "reel-transitions",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "كاميرا — هزّة",
+  "desc": "هزّة كاميرا",
+  "params": {
+   "cuts": [],
+   "camera": [
+    {
+     "type": "shake",
+     "in": 0.6,
+     "out": 3.0,
+     "amount": 1
+    }
+   ]
+  }
+ },
+ {
+  "id": "caps-hormozi",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "كابشن — Hormozi",
+  "desc": "عريض بحد أسود والكلمة الحالية صفراء",
+  "theme": "hormozi",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-mrbeast",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "كابشن — MrBeast",
+  "desc": "أضخم وألوان حسب المعنى",
+  "theme": "mrbeast",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-box",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "كابشن — بوكس",
+  "desc": "الكلمة الحالية ببوكس أصفر",
+  "theme": "box",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-karaoke",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "هادي",
+  "name": "كابشن — كاريوكي",
+  "desc": "الجملة باهتة وتنور كلمة كلمة",
+  "theme": "karaoke",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-clean",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "هادي",
+  "name": "كابشن — نظيف",
+  "desc": "ناعم بدون حد (Ali Abdaal)",
+  "theme": "clean",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-yellow",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "هادي",
+  "name": "كابشن — أصفر كبير",
+  "desc": "Yellow confessions",
+  "theme": "yellow",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-seen",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "فخم",
+  "name": "كابشن — سين",
+  "desc": "أبيض Tajawal والكلمة المهمة نيون",
+  "theme": "seen",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "caps-motion",
+  "skill": "reel-captions",
+  "cat": "كابشن",
+  "mood": "فخم",
+  "name": "كابشن — موشن",
+  "desc": "كل كلمة تدخل ببلور وتستقر",
+  "theme": "motion",
+  "params": {
+   "words": "@words",
+   "keywords": [
+    "أفضل"
+   ],
+   "colors": {
+    "850": "#3ddc5c"
+   },
+   "y": 0.72
+  }
+ },
+ {
+  "id": "motion-text",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — نص كلمة كلمة",
+  "desc": "كلمات تطلع بالبلور وكشيدة وتتوسّط",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "text",
+     "in": 0.1,
+     "out": 3.5,
+     "text": "تدوّر بيت\nوتعـبت؟",
+     "y": 0.42,
+     "size": 120
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-card",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — كرت زجاج",
+  "desc": "كرت يبلّر الخلفية بنجوم لمعة",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "card",
+     "in": 0.1,
+     "out": 3.5,
+     "text": "سين تختصر\nعليك *كل* شي",
+     "y": 0.45,
+     "w": 0.66,
+     "size": 80
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-card-alert",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — كرت تحذير",
+  "desc": "كرت أحمر بأيقونات ⚠️",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "card",
+     "in": 0.1,
+     "out": 3.5,
+     "tone": "alert",
+     "warn": true,
+     "text": "لكـن الوحـدات\nقلـيلة",
+     "y": 0.45,
+     "w": 0.66,
+     "size": 84
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-tabs",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — تبويبات",
+  "desc": "كروت مجلدات سودا والكاميرا تدخل",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "tabs",
+     "in": 0.1,
+     "out": 3.5,
+     "items": [
+      "المعاينة",
+      "التمويل",
+      "الإفراغ"
+     ],
+     "y": 0.5,
+     "stagger": 0.3,
+     "cam_delay": 0.9,
+     "cam_dur": 1.2,
+     "zoom": [
+      1,
+      1.8
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-band",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — شريط زجاجي",
+  "desc": "خطين مضيئين وشعار تحت",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "band",
+     "in": 0.1,
+     "out": 3.5,
+     "text": "شقق النرجس من 850 ألف\nاحجز معاينتك الحين",
+     "y": 0.4,
+     "h": 0.28,
+     "size": 70
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-follow",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — زر Follow",
+  "desc": "شعار وزر يضغطه مؤشر",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "follow",
+     "in": 0.1,
+     "out": 3.5,
+     "tap": 2.0,
+     "y": 0.55
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-image",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — صورة Ken Burns",
+  "desc": "صورة بدخول ودفع بطيء",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "image",
+     "in": 0.1,
+     "out": 3.5,
+     "src": "@bg",
+     "push": [
+      1.35,
+      1
+     ],
+     "push_dur": 1.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "motion-logo",
+  "skill": "reel-motion",
+  "cat": "موشن شاشة كاملة",
+  "mood": "فخم",
+  "name": "موشن — شعار",
+  "desc": "الشعار لحاله يدور",
+  "theme": "blue",
+  "params": {
+   "beats": [
+    {
+     "type": "logo",
+     "in": 0.1,
+     "out": 3.5,
+     "y": 0.5,
+     "size": 240
+    }
+   ]
+  }
+ },
+ {
+  "id": "map",
+  "skill": "reel-map",
+  "cat": "خرائط",
+  "mood": "تقني",
+  "name": "خريطة الموقع",
+  "desc": "كاميرا تقرب ودبوس ومسار ومعالم بالمسافة",
+  "example": "reel-map/examples/project-location.json"
+ },
+ {
+  "id": "backdrop",
+  "skill": "reel-backdrop",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "خلفية استوديو 2.5D",
+  "desc": "جدار وأرضية وديكور خلف المقدّم — يحتاج تصوير كروما",
+  "example": "reel-backdrop/examples/navy-study.json",
+  "keyed": true
+ },
+ {
+  "id": "studio3d",
+  "skill": "reel-studio3d",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "استوديو 3D",
+  "desc": "غرفة 3D حقيقية خلف المقدّم — يحتاج تصوير كروما",
+  "example": "reel-studio3d/examples/teal-room.json",
+  "keyed": true
+ },
+ {
+  "id": "film-charity-intro",
+  "skill": "reel-charity",
+  "cat": "أفلام كاملة",
+  "mood": "فخم",
+  "name": "عاصم — مقدمة بناء الشعار",
+  "desc": "الشعار يتبنى بطبقات وحلقات تنغلق",
+  "clip": {
+   "src": "~/Desktop/علاء/asem-orphans/out/intro.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "16/9"
+ },
+ {
+  "id": "film-charity-end",
+  "skill": "reel-charity",
+  "cat": "أفلام كاملة",
+  "mood": "فخم",
+  "name": "عاصم — بطاقة النهاية",
+  "desc": "QR والرقم والآيبان بأسطر متساوية",
+  "clip": {
+   "src": "~/Desktop/علاء/asem-orphans/out/end.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "16/9"
+ },
+ {
+  "id": "film-diorama",
+  "skill": "reel-diorama",
+  "cat": "أفلام كاملة",
+  "mood": "فخم",
+  "name": "رحماء — ديوراما ورقية 2.5D",
+  "desc": "عالم ورقي وكاميرا تطير بين المحطات",
+  "clip": {
+   "src": "~/Desktop/علاء/rohamaa/out/رحماء-2.5D.mp4",
+   "from": 4,
+   "dur": 6
+  },
+  "aspect": "16/9"
+ },
+ {
+  "id": "film-applaunch",
+  "skill": "reel-applaunch",
+  "cat": "أفلام كاملة",
+  "mood": "تقني",
+  "name": "كيو — إطلاق ميزة تطبيق",
+  "desc": "كاميرا داخل مربع الكتابة ثم الجوال يترسم حوله",
+  "clip": {
+   "src": "~/Desktop/علاء/q-voice-sample/renders/q-interactive-order-4k60.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "16/9"
+ },
+ {
+  "id": "film-applaunch-voice",
+  "skill": "reel-applaunch",
+  "cat": "أفلام كاملة",
+  "mood": "تقني",
+  "name": "كيو — وضع الصوت",
+  "desc": "مايك زجاجي + أورورا",
+  "clip": {
+   "src": "~/Desktop/علاء/q-voice-sample/renders/q-voice-mode-4k60.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "16/9"
+ }
+]

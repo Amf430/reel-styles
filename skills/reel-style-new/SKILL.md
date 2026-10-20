@@ -39,5 +39,6 @@ cp -R skills/_template skills/reel-<name> && mv skills/reel-<name>/SKILL.templat
 - قارن مع المرجع جنب بعض، وصرّح بالفروقات.
 
 ## 5) سلّم وسجّل
+- أضف كل نوع/حركة في الستايل لـ `gallery/catalog.json` وشغّل `python3 "$REEL/gallery/build.py" --only <بادئة الستايل>` (شوف «مكتبة الموشن» في reel-engine).
 - commit + push الفرع + `gh pr create --base dev` (بدون أي ذكر لـ AI). لا push على dev/main.
 - قل للمستخدم اسم المهارة وكيف يطلبها، وأمثلة أوامر.

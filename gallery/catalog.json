@@ -2940,7 +2940,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "16/9"
+  "aspect": "16/9",
+  "poster": 1.5
  },
  {
   "id": "film-charity-end",
@@ -2954,7 +2955,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "16/9"
+  "aspect": "16/9",
+  "poster": 1.5
  },
  {
   "id": "film-diorama",
@@ -2968,7 +2970,8 @@
    "from": 4,
    "dur": 6
   },
-  "aspect": "16/9"
+  "aspect": "16/9",
+  "poster": 1.5
  },
  {
   "id": "film-applaunch",
@@ -2982,7 +2985,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "16/9"
+  "aspect": "16/9",
+  "poster": 1.5
  },
  {
   "id": "film-applaunch-voice",
@@ -2996,7 +3000,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "16/9"
+  "aspect": "16/9",
+  "poster": 1.5
  },
  {
   "id": "mv-wordSwap",
@@ -4149,7 +4154,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/ai-chat-reveal.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-app-showcase",
@@ -4164,7 +4170,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-apple-money-count",
@@ -4179,7 +4186,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-aurora",
@@ -4194,7 +4202,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-blob",
@@ -4209,7 +4218,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-camcorder-hud",
@@ -4224,7 +4234,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-canopy-part-title",
@@ -4239,7 +4250,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-clip-wipe",
@@ -4254,7 +4266,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-editorial-emphasis",
@@ -4269,7 +4282,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-emoji-pop",
@@ -4284,7 +4298,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-glitch-rgb",
@@ -4299,7 +4314,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-gradient-fill",
@@ -4314,7 +4330,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-highlight",
@@ -4329,7 +4346,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-kinetic-slam",
@@ -4344,7 +4362,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-matrix-decode",
@@ -4359,7 +4378,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-neon-accent",
@@ -4374,7 +4394,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-neon-glow",
@@ -4389,7 +4410,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-parallax-layers",
@@ -4404,7 +4426,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-particle-burst",
@@ -4419,7 +4442,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-pill-karaoke",
@@ -4434,7 +4458,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-texture",
@@ -4449,7 +4474,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-caption-weight-shift",
@@ -4464,7 +4490,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-chromatic-radial-split",
@@ -4479,7 +4506,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-chrome-orb",
@@ -4494,7 +4522,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-cinematic-zoom",
@@ -4509,7 +4538,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-claude-exchange",
@@ -4523,7 +4553,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/claude-exchange.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-code-3d-extrude",
@@ -4538,7 +4569,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-diff",
@@ -4553,7 +4585,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-highlight",
@@ -4568,7 +4601,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-morph",
@@ -4583,7 +4617,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-particle-assemble",
@@ -4598,7 +4633,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-scroll",
@@ -4613,7 +4649,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-shader-dissolve",
@@ -4628,7 +4665,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-slice-hero",
@@ -4643,7 +4681,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-snippet-apple-terminal-pro",
@@ -4658,7 +4697,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-code-typing",
@@ -4673,7 +4713,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-color-wheel",
@@ -4688,7 +4729,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-cross-warp-morph",
@@ -4703,7 +4745,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-cuboid-carousel",
@@ -4718,7 +4761,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-data-chart",
@@ -4733,7 +4777,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-domain-warp-dissolve",
@@ -4748,7 +4793,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-editorial-flash-overlay",
@@ -4763,7 +4809,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-falling-lines",
@@ -4778,7 +4825,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-filmed-screen",
@@ -4793,7 +4841,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1280/720"
+  "aspect": "1280/720",
+  "poster": 1.5
  },
  {
   "id": "hf-flash-through-white",
@@ -4808,7 +4857,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-flowchart-vertical",
@@ -4822,7 +4872,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/flowchart-vertical.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-flowchart",
@@ -4837,7 +4888,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-flowing-gradient",
@@ -4852,7 +4904,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-fractal-noise",
@@ -4867,7 +4920,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-freeze-frame-dressing",
@@ -4882,7 +4936,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-frost-sequence-camera-orbit",
@@ -4897,7 +4952,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-frost",
@@ -4912,7 +4968,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-gabor-noise",
@@ -4927,7 +4984,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-glass-shard-title",
@@ -4942,7 +5000,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-glitch",
@@ -4957,7 +5016,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-godrays",
@@ -4972,7 +5032,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-goo",
@@ -4987,7 +5048,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-gravitational-lens",
@@ -5002,7 +5064,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-heatmap",
@@ -5017,7 +5080,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-hologram",
@@ -5032,7 +5096,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-holographic",
@@ -5047,7 +5112,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-instagram-follow",
@@ -5061,7 +5127,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/instagram-follow.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-ios26-liquid-glass",
@@ -5076,7 +5143,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-lens-flare",
@@ -5091,7 +5159,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-light-edge",
@@ -5106,7 +5175,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-light-leak",
@@ -5121,7 +5191,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-liquid-glass-notification",
@@ -5136,7 +5207,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-liquid-glass-widgets",
@@ -5151,7 +5223,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-liquid-metal",
@@ -5166,7 +5239,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-logo-outro",
@@ -5181,7 +5255,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-macos-notification",
@@ -5196,7 +5271,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-macos-tahoe-liquid-glass",
@@ -5211,7 +5287,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-marble",
@@ -5226,7 +5303,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-mesh-gradient",
@@ -5241,7 +5319,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-message-thread-reveal",
@@ -5255,7 +5334,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/message-thread-reveal.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-morph-text",
@@ -5270,7 +5350,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-nebula",
@@ -5285,7 +5366,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-notes-reveal",
@@ -5299,7 +5381,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/notes-reveal.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-notification-cascade",
@@ -5313,7 +5396,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/notification-cascade.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-obsidian",
@@ -5328,7 +5412,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-orbit-card",
@@ -5343,7 +5428,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-organic-light-leak-overlay",
@@ -5358,7 +5444,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-plasma",
@@ -5373,7 +5460,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-plastic",
@@ -5388,7 +5476,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-prism",
@@ -5403,7 +5492,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-reddit-post",
@@ -5418,7 +5508,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-ridged-burn",
@@ -5433,7 +5524,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-ripple-waves",
@@ -5448,7 +5540,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-ripples",
@@ -5463,7 +5556,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-sdf-iris",
@@ -5478,7 +5572,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-share-sheet-carousel",
@@ -5492,7 +5587,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/share-sheet-carousel.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-sine-wave",
@@ -5507,7 +5603,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-slack-notification-ad",
@@ -5521,7 +5618,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/slack-notification-ad.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-spiral",
@@ -5536,7 +5634,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-spotify-card",
@@ -5550,7 +5649,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/spotify-card.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-strands",
@@ -5565,7 +5665,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-stripes",
@@ -5580,7 +5681,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-sun-burst",
@@ -5595,7 +5697,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-swirl-vortex",
@@ -5610,7 +5713,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-swirl",
@@ -5625,7 +5729,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-thermal-distortion",
@@ -5640,7 +5745,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-thin-film",
@@ -5655,7 +5761,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-tiktok-follow",
@@ -5669,7 +5776,8 @@
    "src": "~/.reel-styles/gallery/hf/raw/tiktok-follow.mp4",
    "from": 0,
    "dur": 6
-  }
+  },
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-3d",
@@ -5684,7 +5792,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-blur",
@@ -5699,7 +5808,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-cover",
@@ -5714,7 +5824,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-destruction",
@@ -5729,7 +5840,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-dissolve",
@@ -5744,7 +5856,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-distortion",
@@ -5759,7 +5872,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-grid",
@@ -5774,7 +5888,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-light",
@@ -5789,7 +5904,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-mechanical",
@@ -5804,7 +5920,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-other",
@@ -5819,7 +5936,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-push",
@@ -5834,7 +5952,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-radial",
@@ -5849,7 +5968,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-transitions-scale",
@@ -5864,7 +5984,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-ui-3d-reveal",
@@ -5879,7 +6000,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-iphone-device",
@@ -5894,7 +6016,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-liquid-background",
@@ -5909,7 +6032,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-liquid-glass",
@@ -5924,7 +6048,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-magnetic",
@@ -5939,7 +6064,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-portal",
@@ -5954,7 +6080,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-shatter",
@@ -5969,7 +6096,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-vfx-text-cursor",
@@ -5984,7 +6112,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-voronoi",
@@ -5999,7 +6128,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-water",
@@ -6014,7 +6144,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-waveform",
@@ -6029,7 +6160,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-whip-pan",
@@ -6044,7 +6176,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-wireframe-portal-title",
@@ -6059,7 +6192,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-world-map",
@@ -6074,7 +6208,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-worley-noise",
@@ -6089,7 +6224,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-x-post",
@@ -6104,7 +6240,8 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  },
  {
   "id": "hf-yt-lower-third",
@@ -6119,6 +6256,7 @@
    "from": 0,
    "dur": 6
   },
-  "aspect": "1920/1080"
+  "aspect": "1920/1080",
+  "poster": 1.5
  }
 ]

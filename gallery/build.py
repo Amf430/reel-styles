@@ -35,14 +35,11 @@ def ff(*a):
     subprocess.run(["ffmpeg", "-v", "error", "-y", *a], check=True)
 
 
-def shrink(src, dst, start=0, dur=None, poster=2.0):
-    """Small looping web preview + poster frame."""
+def shrink(src, dst, start=0, dur=None):
+    """Small looping web preview (the page opens it at the catalog's `poster` second)."""
     t = ["-t", str(dur)] if dur else []
     ff("-ss", str(start), "-i", src, *t, "-vf", "scale=540:-2,fps=30", "-c:v", "libx264", "-crf", "30", "-preset", "slow",
        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "80k", "-movflags", "+faststart", dst)
-    length = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", dst],
-                                  capture_output=True, text=True).stdout or 0)
-    ff("-ss", str(min(poster, length / 2)), "-i", dst, "-frames:v", "1", "-q:v", "5", dst[:-4] + ".jpg")
 
 
 def job_for(e, d):
@@ -80,7 +77,7 @@ def render(e, force):
         return e["id"], "cached"
     try:
         if "clip" in e:
-            shrink(os.path.expanduser(c["src"]), pv, c.get("from", 0), c.get("dur", 6), e.get("poster", 2.0))
+            shrink(os.path.expanduser(c["src"]), pv, c.get("from", 0), c.get("dur", 6))
         else:
             jf = os.path.join(d, "job.json")
             json.dump(job, open(jf, "w"), ensure_ascii=False, indent=1)
@@ -95,7 +92,7 @@ def render(e, force):
             src = next((os.path.join(dp, f) for dp, _, fs in os.walk(os.path.join(d, "out")) for f in fs if f.endswith("_preview.mp4")), None)
             if not src:
                 return e["id"], "FAILED: no preview"
-            shrink(src, pv, poster=e.get("poster", 2.0))
+            shrink(src, pv)
         open(stamp, "w").write(h)
         return e["id"], "ok"
     except Exception as ex:

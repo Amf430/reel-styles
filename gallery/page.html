@@ -1,0 +1,275 @@
+<meta charset="utf-8">
+<title>مكتبة موشن الريلز</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: an editing-bay contact sheet. Sticky filter rail on top, a dense grid of 9:16 takes,
+   a bottom tray collecting the picks for one video's mood. */
+:root {
+  --bg: #f4f1ee; --panel: #ffffff; --ink: #1d1a18; --mute: #6f655e; --line: #e2dbd4;
+  --accent: #9a6c48; --accent-ink: #ffffff; --chip: #ece6e0; --sel: #f3e4d6;
+  --display: "Readex Pro", "IBM Plex Sans Arabic", Tahoma, sans-serif;
+  --body: "IBM Plex Sans Arabic", Tahoma, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141210; --panel: #1d1a17; --ink: #f1ebe5; --mute: #a39789; --line: #2e2925;
+  --accent: #c99a72; --accent-ink: #1a120b; --chip: #26221e; --sel: #3a2c20; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141210; --panel: #1d1a17; --ink: #f1ebe5; --mute: #a39789; --line: #2e2925;
+  --accent: #c99a72; --accent-ink: #1a120b; --chip: #26221e; --sel: #3a2c20; color-scheme: dark }
+
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.55; margin: 0; direction: rtl }
+.wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); max-width: 1500px; margin: 0 auto }
+header.top { padding-block: 28px 8px }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 40px); margin: 0; text-wrap: balance; letter-spacing: -.01em }
+.sub { color: var(--mute); margin: 6px 0 0; max-width: 62ch }
+.sub b { color: var(--ink); font-weight: 600 }
+
+.rail { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line) }
+.rail .wrap { padding-block: 12px; display: flex; flex-direction: column; gap: 10px }
+.row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center }
+.row .lbl { color: var(--mute); font-size: 12.5px; min-width: 44px }
+.chip { font: inherit; font-size: 13.5px; border: 1px solid transparent; background: var(--chip); color: var(--ink); border-radius: 999px; padding: 4px 12px; cursor: pointer }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg) }
+.chip:focus-visible, .card:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.chip .n { opacity: .55; font-size: 11.5px; margin-inline-start: 4px; font-variant-numeric: tabular-nums }
+.tools { display: flex; gap: 8px; flex-wrap: wrap }
+input[type=search], select { font: inherit; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; min-width: 0 }
+input[type=search] { flex: 1 1 220px }
+
+main { padding-block: 18px 120px }
+.count { color: var(--mute); font-size: 13px; margin-bottom: 12px; font-variant-numeric: tabular-nums }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 18px 14px }
+.card { cursor: pointer; display: flex; flex-direction: column; gap: 8px; min-width: 0; border-radius: 12px }
+.thumb { position: relative; aspect-ratio: 9/16; max-width: 100%; border-radius: 12px; overflow: hidden; background: #221d19 }
+.thumb video { width: 100%; height: 100%; object-fit: cover; display: block }
+.thumb .none { position: absolute; inset: 0; display: grid; place-items: center; color: #b9ab9d; font-size: 13px; padding: 12px; text-align: center }
+.pick { position: absolute; top: 8px; inset-inline-start: 8px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(20,16,13,.55); color: #fff; font-size: 17px; line-height: 32px; cursor: pointer; backdrop-filter: blur(6px) }
+.card.on .thumb { outline: 3px solid var(--accent); outline-offset: -3px }
+.card.on .pick { background: var(--accent); color: var(--accent-ink) }
+.meta { display: flex; flex-direction: column; gap: 3px; min-width: 0 }
+.name { font-weight: 600; font-size: 14.5px; line-height: 1.35 }
+.desc { color: var(--mute); font-size: 12.8px; line-height: 1.4 }
+.skill { font-family: var(--mono); font-size: 11.5px; color: var(--accent); overflow-wrap: anywhere }
+.cat { margin: 34px 0 12px; font-family: var(--display); font-weight: 500; font-size: 19px; display: flex; gap: 10px; align-items: baseline }
+.cat small { color: var(--mute); font-family: var(--body); font-size: 13px; font-weight: 400 }
+#out > .cat:first-child { margin-top: 0 }
+
+.tray { position: fixed; inset-inline: 0; bottom: 0; z-index: 8; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px) }
+.tray .wrap { padding-block: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap }
+.tray .list { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 300px; min-width: 0; max-height: 76px; overflow-y: auto }
+.tray .p { background: var(--sel); border-radius: 8px; padding: 3px 8px 3px 4px; font-size: 13px; display: inline-flex; gap: 4px; align-items: center }
+.tray .p button { border: 0; background: none; color: var(--mute); cursor: pointer; font-size: 15px; padding: 0 4px }
+.btn { font: inherit; font-weight: 600; border: 0; border-radius: 10px; padding: 8px 16px; cursor: pointer; background: var(--accent); color: var(--accent-ink) }
+.btn:disabled { opacity: .45; cursor: default }
+.btn.ghost { background: var(--chip); color: var(--ink); font-weight: 500 }
+.tray .hint { color: var(--mute); font-size: 13px }
+
+dialog { border: 0; padding: 0; background: var(--panel); color: var(--ink); border-radius: 16px; width: min(860px, calc(100vw - 32px)); max-height: calc(100dvh - 32px) }
+dialog::backdrop { background: rgba(10,8,6,.6) }
+.dl { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 22px; padding: 20px }
+.dl h2 { font-family: var(--display); font-weight: 700; font-size: 24px; margin: 0 0 4px; padding-inline-end: 40px; text-wrap: balance }
+.dl .info { display: flex; flex-direction: column; gap: 14px; min-width: 0 }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; margin: 0 }
+.kv dt { color: var(--mute) } .kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 0; font-family: var(--body); font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere }
+.acts { display: flex; gap: 8px; flex-wrap: wrap }
+.x { position: absolute; top: 12px; inset-inline-end: 12px; border: 0; background: var(--chip); color: var(--ink); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; cursor: pointer; z-index: 2 }
+.toast { position: fixed; bottom: calc(90px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 16px; border-radius: 10px; font-size: 14px; z-index: 20 }
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .dl { grid-template-columns: 1fr } .dl .thumb { width: 100%; max-width: 240px; margin: 0 auto }
+}
+</style>
+
+<header class="top wrap">
+  <h1>مكتبة موشن الريلز</h1>
+  <p class="sub">كل حركة في سكلات <b>reel-*</b> (منها بنك <b>reel-moves</b>) بمعاينة حقيقية من المحرّك نفسه، ومعها بلوكات <b>HyperFrames</b> للأفلام الكاملة. اضغط على الحركة تشوفها كبيرة بصوتها، واضغط <b>＋</b> تضيفها لمود الفيديو وتنسخ الطلب جاهز للشات.</p>
+</header>
+
+<div class="rail">
+  <div class="wrap">
+    <div class="row" id="cats" aria-label="النوع"></div>
+    <div class="row" id="moods" aria-label="المود"><span class="lbl">المود</span></div>
+    <div class="tools">
+      <input type="search" id="q" placeholder="ابحث: كشيدة، زجاج، رقم، إشعار…" aria-label="بحث">
+      <select id="skill" aria-label="السكل"><option value="">كل السكلات</option></select>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="count" id="count"></div>
+  <div id="out"></div>
+</main>
+
+<div class="tray">
+  <div class="wrap">
+    <div class="list" id="picks"></div>
+    <button class="btn ghost" id="clear" type="button">مسح</button>
+    <button class="btn" id="copyAll" type="button">انسخ الطلب</button>
+  </div>
+</div>
+
+<dialog id="dlg" aria-label="تفاصيل الحركة">
+  <button class="x" type="button" id="dlgX" aria-label="إغلاق">×</button>
+  <div class="dl">
+    <div class="thumb" id="dV"></div>
+    <div class="info">
+      <div><h2 id="dN"></h2><div class="desc" id="dD"></div></div>
+      <dl class="kv">
+        <dt>السكل</dt><dd class="skill" id="dS"></dd>
+        <dt>الرمز</dt><dd class="skill" id="dI"></dd>
+        <dt>النوع</dt><dd id="dC"></dd>
+        <dt>المود</dt><dd id="dM"></dd>
+        <dt id="dTl">الثيمات</dt><dd class="skill" id="dT"></dd>
+      </dl>
+      <div><div class="desc" style="margin-bottom:6px">الطلب الجاهز للشات</div><pre id="dP"></pre></div>
+      <div class="acts">
+        <button class="btn" type="button" id="dCopy">انسخ الطلب</button>
+        <button class="btn ghost" type="button" id="dPick">＋ أضف للمود</button>
+        <button class="btn ghost" type="button" id="dSound">شغّل الصوت</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const C = /*CATALOG*/[];
+const CATS = ["عناوين وهوك","حركات نص","كابشن","كروت ومعلومات","بيانات ورسوم","واجهات تطبيق","كود ومطورين","صور ومعارض","رسم يدوي","كولاج وورق","انتقالات وكاميرا","مؤثرات فوق الفيديو","موشن شاشة كاملة","خرائط","خلفيات","أفلام كاملة"];
+const MOODS = ["هادي","فخم","طاقة","تقني","يدوي"];
+const $ = s => document.querySelector(s);
+const st = { cat: "", mood: "", q: "", skill: "" };
+let picks = [];
+try { picks = JSON.parse(localStorage.getItem("picks") || "[]").filter(id => C.some(e => e.id === id)) } catch (e) {}
+const save = () => { try { localStorage.setItem("picks", JSON.stringify(picks)) } catch (e) {} };
+const byId = id => C.find(e => e.id === id);
+const prompt1 = e => e.hf ? `استخدم بلوك HyperFrames «${e.hf}» (hyperframes add ${e.hf}) — ${e.name}` : `استخدم ${e.skill} — ${e.name} (${e.id} من مكتبة الموشن)`;
+const promptAll = () => "ابغى الفيديو بهالمود — استخدم هالحركات من مكتبة الموشن (gallery/catalog.json):\n" +
+  picks.map(byId).map(e => `- ${e.skill} · ${e.name} (${e.id})`).join("\n");
+
+function chip(label, n, on, fn) {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.setAttribute("aria-pressed", on);
+  b.textContent = label;
+  if (n != null) { const s = document.createElement("span"); s.className = "n"; s.textContent = n; b.append(s) }
+  b.onclick = fn; return b;
+}
+function rails() {
+  const cats = $("#cats"); cats.innerHTML = "";
+  cats.append(chip("الكل", C.length, !st.cat, () => { st.cat = ""; draw() }));
+  CATS.filter(c => C.some(e => e.cat === c)).forEach(c =>
+    cats.append(chip(c, C.filter(e => e.cat === c).length, st.cat === c, () => { st.cat = st.cat === c ? "" : c; draw() })));
+  const moods = $("#moods"); [...moods.querySelectorAll(".chip")].forEach(x => x.remove());
+  MOODS.forEach(m => moods.append(chip(m, null, st.mood === m, () => { st.mood = st.mood === m ? "" : m; draw() })));
+}
+const io = new IntersectionObserver(es => es.forEach(x => {
+  const v = x.target; if (x.isIntersecting) v.play().catch(() => {}); else v.pause();
+}), { rootMargin: "150px" });
+
+function thumb(e, big) {
+  const d = document.createElement("div"); d.className = "thumb";
+  if (e.aspect) d.style.aspectRatio = e.aspect;
+  if (e.has) {
+    const v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = big ? "auto" : "metadata";
+    v.src = `previews/${e.id}.mp4#t=${e.poster ?? 2}`;   // the still before it plays: the move's telling moment
+    if (big) v.autoplay = true; else io.observe(v);
+    d.append(v);
+  } else d.innerHTML = `<div class="none">بدون معاينة بعد</div>`;
+  return d;
+}
+function card(e) {
+  const on = picks.includes(e.id);
+  const b = document.createElement("div");
+  b.className = "card" + (on ? " on" : ""); b.tabIndex = 0; b.setAttribute("role", "button"); b.setAttribute("aria-label", e.name); b.dataset.id = e.id;
+  const t = thumb(e);
+  const p = document.createElement("button"); p.type = "button"; p.className = "pick";
+  p.textContent = on ? "✓" : "＋"; p.setAttribute("aria-label", on ? "شيلها من المود" : "أضفها للمود");
+  p.onclick = ev => { ev.stopPropagation(); toggle(e.id) };
+  t.append(p);
+  const m = document.createElement("div"); m.className = "meta";
+  [["name", e.name], ["desc", e.desc], ["skill", e.skill]].forEach(([c, s]) => { const x = document.createElement("div"); x.className = c; x.textContent = s; m.append(x) });
+  b.append(t, m);
+  b.onclick = () => open(e);
+  b.onkeydown = ev => { if (ev.target === b && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); open(e) } };
+  return b;
+}
+function draw() {
+  rails(); io.disconnect();
+  const q = st.q.trim();
+  const list = C.filter(e => (!st.cat || e.cat === st.cat) && (!st.mood || e.mood === st.mood) && (!st.skill || e.skill === st.skill) &&
+    (!q || [e.name, e.desc, e.skill, e.id, e.cat].join(" ").toLowerCase().includes(q.toLowerCase())));
+  $("#count").textContent = `${list.length} حركة`;
+  const out = $("#out"); out.innerHTML = "";
+  CATS.forEach(c => {
+    const g = list.filter(e => e.cat === c); if (!g.length) return;
+    const h = document.createElement("h2"); h.className = "cat"; h.textContent = c + " ";
+    const s = document.createElement("small"); s.textContent = g.length; h.append(s);
+    const grid = document.createElement("div"); grid.className = "grid";
+    g.forEach(e => grid.append(card(e)));
+    out.append(h, grid);
+  });
+  if (!list.length) out.innerHTML = `<p class="desc">ما فيه حركة تطابق البحث. جرّب كلمة ثانية أو امسح الفلاتر.</p>`;
+  tray();
+}
+function toggle(id) {
+  picks = picks.includes(id) ? picks.filter(x => x !== id) : [...picks, id]; save();
+  document.querySelectorAll(".card").forEach(c => {
+    const e = byId(c.dataset.id); if (!e) return;
+    const on = picks.includes(e.id); c.classList.toggle("on", on);
+    const p = c.querySelector(".pick"); p.textContent = on ? "✓" : "＋";
+  });
+  tray();
+  if ($("#dlg").open) $("#dPick").textContent = picks.includes(cur.id) ? "✓ مضافة للمود" : "＋ أضف للمود";
+}
+function tray() {
+  const l = $("#picks"); l.innerHTML = "";
+  if (!picks.length) { const h = document.createElement("span"); h.className = "hint"; h.textContent = "ما اخترت شي. اضغط ＋ على أي حركة عشان تبني مود الفيديو."; l.append(h) }
+  picks.map(byId).forEach(e => {
+    const s = document.createElement("span"); s.className = "p";
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "شيل " + e.name); x.onclick = () => toggle(e.id);
+    s.append(x, document.createTextNode(e.name)); l.append(s);
+  });
+  $("#copyAll").disabled = $("#clear").disabled = !picks.length;
+  $("#copyAll").textContent = picks.length ? `انسخ الطلب (${picks.length})` : "انسخ الطلب";
+}
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.setAttribute("role", "status"); d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 1800) }
+function selectText(el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r) }
+function copy(text, el) {
+  const fail = () => { if (el) { selectText(el); toast("النص محدد — انسخه بـ ⌘C") } else toast("ما قدرت أنسخ — افتح أي حركة وانسخ من هناك") };
+  try { navigator.clipboard.writeText(text).then(() => toast("انّسخ — الصقه في الشات")).catch(fail) } catch (e) { fail() }
+}
+
+let cur = null;
+function open(e) {
+  cur = e;
+  const n = thumb(e, true); n.id = "dV"; $("#dV").replaceWith(n);
+  $("#dN").textContent = e.name; $("#dD").textContent = e.desc;
+  $("#dS").textContent = e.skill; $("#dI").textContent = e.id; $("#dC").textContent = e.cat; $("#dM").textContent = e.mood;
+  $("#dT").textContent = (e.themes || []).join(" · "); $("#dT").hidden = $("#dTl").hidden = !(e.themes || []).length;
+  $("#dP").textContent = prompt1(e);
+  $("#dPick").textContent = picks.includes(e.id) ? "✓ مضافة للمود" : "＋ أضف للمود";
+  $("#dSound").hidden = !e.has; $("#dSound").textContent = "شغّل الصوت";
+  $("#dlg").showModal();
+}
+$("#dlgX").onclick = () => $("#dlg").close();
+$("#dlg").addEventListener("click", ev => { if (ev.target === $("#dlg")) $("#dlg").close() });
+$("#dlg").addEventListener("close", () => { const v = $("#dV video"); if (v) v.pause() });
+$("#dCopy").onclick = () => copy(prompt1(cur), $("#dP"));
+$("#dPick").onclick = () => toggle(cur.id);
+$("#dSound").onclick = () => {
+  const v = $("#dV video"); if (!v) return;
+  v.muted = !v.muted; if (!v.muted) v.currentTime = 0; v.play().catch(() => {});
+  $("#dSound").textContent = v.muted ? "شغّل الصوت" : "اكتم الصوت";
+};
+$("#copyAll").onclick = () => copy(promptAll(), null);
+$("#clear").onclick = () => { picks = []; save(); draw() };
+$("#q").oninput = ev => { st.q = ev.target.value; draw() };
+$("#skill").onchange = ev => { st.skill = ev.target.value; draw() };
+[...new Set(C.map(e => e.skill))].sort().forEach(s => $("#skill").append(new Option(s, s)));
+draw();
+</script>

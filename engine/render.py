@@ -24,7 +24,7 @@ import common  # noqa: E402
 
 
 def _worker(args):
-    base, vp, scale, jobs, alpha, want_meta = args
+    base, vp, scale, jobs, alpha, want_meta, index = args
     from playwright.sync_api import sync_playwright
     meta = None
     with sync_playwright() as p:
@@ -40,6 +40,8 @@ def _worker(args):
             page.evaluate("window.__reel.ready")
         except Exception:
             raise RuntimeError("scene failed to load:\n" + "\n".join(errors[-10:]))
+        if index:   # every footage frame of the render, so a scene can draw another moment (R.frameAt)
+            page.evaluate("idx => { window.__reel.frameIndex = idx; }", index)
         for t, frame_url, matte_url, out in jobs:
             page.evaluate("([t,u,m]) => window.__reel.frame(t,u,m)", [t, frame_url, matte_url])
             page.screenshot(path=out, omit_background=alpha, type="png")
@@ -82,11 +84,12 @@ def render_frames(job, times, outdir, workers, alpha, needs_frames):
     if job.get("behind"):
         mattes = [f"{base}/f{urllib.parse.quote(p)}" for p in extract_frames(job, times, os.path.join(outdir, "_matte"), "behind")]
     items = [(t, frames[i], mattes[i], os.path.join(outdir, f"f_{i:06d}.png")) for i, t in enumerate(times)]
+    index = [[t, frames[i]] for i, t in enumerate(times)] if needs_frames is True and frames[0] else None
     n = max(1, min(workers, len(items) // 8 or 1))
     chunks = [items[i::n] for i in range(n)]
     t_start = time.time()
     with mp.get_context("spawn").Pool(n) as pool:
-        metas = pool.map(_worker, [(base, (vw, vh), scale, c, alpha, i == 0) for i, c in enumerate(chunks)])
+        metas = pool.map(_worker, [(base, (vw, vh), scale, c, alpha, i == 0, index) for i, c in enumerate(chunks)])
     srv.shutdown()
     print(f"rendered {len(items)} frames in {time.time() - t_start:.1f}s ({n} workers)")
     return metas[0] or {}

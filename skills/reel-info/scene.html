@@ -171,21 +171,6 @@ B.pill = {
     c.tx.style.opacity = tw(s.lt, 0.3, 0.3); },
   sfx: () => [{ at: 0, id: "pop" }, { at: 0.15, id: "swipe_ui", gain: -6 }] };
 
-B.cta = {
-  build(c) { c.b = h("div", "row", c.box); css(c.b, { gap: "0.3em", background: c.A, color: c.T.on_accent, borderRadius: "999px", padding: "0.3em 1em 0.35em", fontWeight: 900, boxShadow: `0 0.25em 0.8em ${rgba(c.A, 0.45)}`, textShadow: "none" });
-    c.ic = h("div", "ic", c.b, icon(c.it.icon || "userplus", 2.2)); css(c.ic, { width: "1em", height: "1em", borderRadius: 0 });
-    c.l1 = h("span", null, c.b, esc(c.it.text || "تابعنا")); c.l2 = h("span", null, null, esc(c.it.sub || "تمت المتابعة"));
-    c.rip = h("div", null, c.b); css(c.rip, { position: "absolute", left: "50%", top: "50%", width: "1em", height: "1em", borderRadius: "50%", border: "0.08em solid #fff", opacity: 0 });
-    c.b.style.position = "relative";
-    c.cur = h("div", null, c.box, icon("cursor", 1.6)); css(c.cur, { position: "absolute", width: "1.1em", height: "1.1em", color: "#111", filter: "drop-shadow(0 .05em .1em rgba(0,0,0,.4))", left: "55%", top: "55%" });
-    c.cur.querySelector("svg").style.fill = "#fff"; c.click = c.it.click ?? 1.1; },
-  render(c, s) { const e = tw(s.lt, 0, 0.45, E.outBack); css(c.b, { transform: `scale(${Math.max(0, e) * (s.lt > c.click && s.lt < c.click + 0.15 ? 0.92 : 1)})` });
-    const m = tw(s.lt, 0.35, c.click - 0.35, E.inOutCubic); css(c.cur, { transform: `translate(${(1 - m) * 3}em, ${(1 - m) * 2.5}em) scale(${s.lt > c.click && s.lt < c.click + 0.15 ? 0.85 : 1})`, opacity: clamp((s.lt - 0.3) * 5) * (1 - tw(s.lt, c.click + 0.6, 0.3)) });
-    const r = tw(s.lt, c.click, 0.5, E.outCubic); css(c.rip, { transform: `translate(-50%,-50%) scale(${1 + r * 6})`, opacity: r > 0 && r < 1 ? 1 - r : 0 });
-    const done = s.lt > c.click + 0.08; if (done && c.l1.parentNode) { c.l1.replaceWith(c.l2); c.ic.innerHTML = icon("check", 2.6); c.b.style.background = c.it.done_bg || "#222"; }
-    if (!done && c.l2.parentNode) { c.l2.replaceWith(c.l1); c.ic.innerHTML = icon(c.it.icon || "userplus", 2.2); c.b.style.background = c.A; } },
-  sfx: (c) => [{ at: 0, id: "pop_low", gain: -3 }, { at: c.it.click ?? 1.1, id: "click" }, { at: (c.it.click ?? 1.1) + 0.1, id: "success", gain: -6 }] };
-
 B.end = { anchor: "frame",
   build(c) { c.dim = h("div", null, c.root); css(c.dim, { position: "absolute", left: 0, top: 0, width: R.W + "px", height: R.H + "px", background: c.it.bg || "rgba(0,0,0,.62)", zIndex: -1 });
     const col = h("div", "col", c.box); css(col, { alignItems: "center", gap: "0.3em" });

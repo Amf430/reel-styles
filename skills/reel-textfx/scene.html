@@ -34,7 +34,6 @@ const h = (tag, cls, parent, html) => { const e = document.createElement(tag); i
 const plain = (s) => String(s ?? "").replace(/\*/g, "");
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const rgba = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-const glow = (c, s = 1) => `0 0 ${0.04 * s}em #fff, 0 0 ${0.14 * s}em ${c}, 0 0 ${0.35 * s}em ${c}, 0 0 ${0.7 * s}em ${rgba(c, 0.6)}`;
 
 // Kashida (ـ): stretched before the last letter that can join forward (انتبـــه, الحكايـــة, لكـــن).
 const NONJOIN = new Set("اأإآٱدذرزوؤةىءـ");
@@ -98,29 +97,6 @@ FX.type = { accent: "#2de0c0",
   },
   sfx: (c) => [{ at: 0, id: "typing", len: c.dur + 0.1 }] };
 
-FX.neon = { dur: 0.6, accent: "#ff2bd6",
-  build(c) { c.tx = textEl(c.text, c.box); },
-  render(c, s) {
-    const on = s.lt > 0.55 ? 0.93 + 0.07 * noise1(s.t * 9, 3) : rand(Math.floor(s.lt * 26), 7) > 0.42 ? 1 : 0.12;
-    c.tx.el.style.color = on > 0.5 ? "#fff" : "rgba(255,255,255,.3)";
-    c.tx.el.style.textShadow = on > 0.5 ? glow(c.A, 1.1) : "none";
-    c.tx.el.style.opacity = 0.35 + 0.65 * on;
-  },
-  sfx: () => [{ at: 0, id: "neon_on" }] };
-
-FX.shine = { dur: 0.45, accent: "#ffffff",
-  build(c) { const t = h("div", "tx", c.box); c.base = textEl(c.text, t, "w"); c.base.el.style.color = "#e9e9e9";
-             c.sh = textEl(c.text, t, "lay"); c.sh.el.style.color = "#fff"; c.sh.el.style.textShadow = `0 0 .25em ${rgba(c.A, 0.9)}`; c.t = t; },
-  render(c, s) {
-    const e = tw(s.lt, 0, c.dur, E.outQuint);
-    c.t.style.opacity = e; c.t.style.transform = `translateY(${(1 - e) * 0.3}em)`;
-    const every = c.it.every ?? 2.4, ph = Math.max(0, s.lt - 0.3) % every, p = clamp(ph / 0.7);
-    const x = lerp(125, -25, E.inOutCubic(p));
-    const m = `linear-gradient(105deg, transparent ${x - 14}%, #000 ${x}%, transparent ${x + 14}%)`;
-    c.sh.el.style.webkitMaskImage = s.lt < 0.3 || p >= 1 ? "linear-gradient(transparent,transparent)" : m;
-  },
-  sfx: () => [{ at: 0.3, id: "shine" }] };
-
 const wordsIn = (fn) => ({
   build(c) { c.tx = textEl(c.text, c.box); },
   render(c, s) { c.tx.words.forEach((w, i) => fn(c, s, w, i, c.tx.words.length)); },
@@ -145,13 +121,6 @@ FX.drop = { dur: 0.7, accent: "#ffffff", ...wordsIn((c, s, w, i) => {
     w.style.opacity = clamp(k * 5); w.style.transform = `translateY(${-(1 - E.outBounce(k)) * 2.2}em)`;
   }),
   sfx: (c) => c.words.map((_, i) => ({ at: i * (c.it.stagger ?? 0.1) + 0.26, id: "tap", v: i, gain: -2 })) };
-
-FX.wave = { dur: 0.5, accent: "#ffffff", ...wordsIn((c, s, w, i) => {
-    const e = tw(s.lt, i * 0.08, c.dur, E.outQuint), amp = c.it.amp ?? 1;
-    const y = (1 - e) * 0.6 + Math.sin(s.t * 5 - i * 0.9) * 0.08 * amp * e;
-    w.style.opacity = e; w.style.transform = `translateY(${y}em)`;
-  }),
-  sfx: () => [{ at: 0, id: "bubble", gain: -4 }] };
 
 function kashidaFx(c) {
   c.kw = kashidaWord(c.tx.data);
@@ -193,46 +162,6 @@ FX.box = { dur: 0.6, accent: "#ffe14d",
   },
   sfx: () => [{ at: 0, id: "swipe_ui" }] };
 
-FX.marker = { dur: 0.55, accent: "#6c3ce0",
-  build(c) { const t = h("div", "tx", c.box); c.t = t;
-             c.bg = h("div", "hlbox", t); Object.assign(c.bg.style, { inset: "0.04em -0.2em 0", background: c.A, borderRadius: "0.04em 0.18em 0.06em 0.22em", transform: "rotate(-1deg)" });
-             c.tx = textEl(c.text, t); c.tx.el.style.textShadow = "none"; },
-  render(c, s) {
-    c.bg.style.clipPath = `inset(0 0 0 ${(1 - tw(s.lt, 0, 0.42, E.outCubic)) * 100}%)`;
-    c.tx.el.style.opacity = tw(s.lt, 0, 0.15);
-  },
-  sfx: () => [{ at: 0, id: "draw_line", gain: -2 }] };
-
-FX.pill = { dur: 0.6, accent: "#d946ef",
-  build(c) { c.p = h("div", "tx", c.box); Object.assign(c.p.style, { background: c.A, borderRadius: "999px", padding: "0.1em 0.6em 0.14em" });
-             c.tx = textEl(c.text, c.p); c.tx.el.style.textShadow = "none"; },
-  render(c, s) {
-    const e = tw(s.lt, 0, 0.45, E.outExpo), x = (1 - e) * 48;
-    c.p.style.clipPath = `inset(-50% ${x}% -50% ${x}% round 999px)`;
-    c.p.style.boxShadow = `0 0 ${0.35 + 0.15 * Math.sin(s.t * 4)}em ${rgba(c.A, 0.75)}`;
-    c.tx.el.style.opacity = tw(s.lt, 0.2, 0.3);
-  },
-  sfx: () => [{ at: 0, id: "pop_low" }] };
-
-FX.cine = { dur: 1.2, accent: "#ffffff",
-  build(c) { c.tx = textEl(c.text, c.box); },
-  render(c, s) {
-    const e = tw(s.lt, 0, c.dur, E.outCubic);
-    Object.assign(c.tx.el.style, { opacity: e, transform: `scale(${1.18 - 0.18 * e})`, filter: e < 0.99 ? `blur(${(1 - e) * 0.35}em)` : "none",
-      textShadow: `0 0 ${0.5}em rgba(255,255,255,${0.35 * (1 - e) + 0.08}), 0 .05em .3em rgba(0,0,0,${c.T.shadow})` });
-  },
-  sfx: () => [{ at: 0, id: "whoosh_deep", gain: -6 }] };
-
-FX.slice = { dur: 0.6, accent: "#ffffff",
-  build(c) { const t = h("div", "tx", c.box); c.t = t; h("div", "ghost", t, esc(plain(c.text)));
-             const n = c.it.slices ?? 5; c.sl = [];
-             for (let i = 0; i < n; i++) { const l = textEl(c.text, t, "lay"); l.el.style.clipPath = `inset(${(i / n) * 100}% -10% ${(1 - (i + 1) / n) * 100}% -10%)`; c.sl.push(l.el); } },
-  render(c, s) {
-    c.sl.forEach((el, i) => { const e = tw(s.lt, i * 0.05, 0.5, E.outExpo);
-      el.style.transform = `translateX(${(i % 2 ? 1 : -1) * 1.6 * (1 - e)}em)`; el.style.opacity = clamp(e * 3); });
-  },
-  sfx: () => [{ at: 0, id: "whip" }] };
-
 FX.brackets = { dur: 0.6, accent: "#2de0c0",
   build(c) { const t = h("div", "tx", c.box); c.t = t; c.tx = textEl(c.text, t);
              c.cn = [0, 1, 2, 3].map((i) => { const d = h("div", "bar", t); const b = `0.07em solid ${c.A}`;
@@ -269,35 +198,6 @@ FX.glitch = { dur: 0.45, accent: "#00f0ff",
   sfx: (c) => { const ev = [{ at: 0, id: "glitch" }]; const every = c.it.every ?? 1.8;
     for (let a = c.dur; a < c.life - 0.4; a += every) ev.push({ at: a, id: "glitch", v: 1, gain: -6 }); return ev; } };
 
-FX.circle = { dur: 0.85, accent: "#ff3b6b",
-  build(c) { const t = h("div", "tx", c.box); c.t = t; c.tx = textEl(c.text, t);
-             c.svg = h("div", null, t); c.svg.innerHTML = `<svg class="ov"><path fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`; c.path = c.svg.querySelector("path"); c.sv = c.svg.querySelector("svg"); },
-  layout(c) {
-    const W = c.t.offsetWidth, H = c.t.offsetHeight, fs = parseFloat(getComputedStyle(c.t).fontSize);
-    const rx = W / 2 + 0.38 * fs, ry = H / 2 + 0.22 * fs, cx = W / 2, cy = H / 2, pts = [];
-    for (let i = 0; i <= 90; i++) { const a = -Math.PI * 0.62 + (i / 90) * Math.PI * 2 * 1.12, r = 1 + 0.035 * noise1(i / 6, c.seed) + 0.02 * (i / 90);
-      pts.push(`${(cx + Math.cos(a) * rx * r).toFixed(1)},${(cy + Math.sin(a) * ry * r).toFixed(1)}`); }
-    c.path.setAttribute("d", "M" + pts.join(" L"));
-    Object.assign(c.sv.style, { left: 0, top: 0, width: W + "px", height: H + "px" });
-    c.path.setAttribute("stroke", c.A); c.path.setAttribute("stroke-width", 0.055 * fs);
-    c.len = c.path.getTotalLength(); c.path.style.strokeDasharray = c.len;
-  },
-  render(c, s) {
-    const e = tw(s.lt, 0, 0.3, E.outBack); c.tx.el.style.opacity = clamp(e * 2); c.tx.el.style.transform = `scale(${0.8 + 0.2 * e})`;
-    c.path.style.strokeDashoffset = c.len * (1 - tw(s.lt, 0.2, 0.6, E.inOutCubic));
-  },
-  sfx: () => [{ at: 0.2, id: "draw_circle" }] };
-
-FX.echo = { dur: 0.7, accent: "#ffffff",
-  build(c) { const t = h("div", "tx", c.box); c.t = t; c.cp = [3, 2, 1].map(() => textEl(c.text, t, "lay")); c.tx = textEl(c.text, t);
-             c.cp.forEach((l) => (l.el.style.textShadow = "none")); },
-  render(c, s) {
-    const e = tw(s.lt, 0, c.dur, E.outCubic);
-    c.cp.forEach((l, j) => { const i = 3 - j; l.el.style.transform = `scale(${1 + 0.22 * i * (1 - e)})`; l.el.style.opacity = (0.5 - i * 0.12) * (1 - e) * clamp(s.lt * 8); });
-    c.tx.el.style.opacity = e;
-  },
-  sfx: () => [{ at: 0, id: "whoosh_in", gain: -4 }] };
-
 FX.news = { dur: 0.6, accent: "#e0242b",
   build(c) { const row = h("div", null, c.box); Object.assign(row.style, { display: "flex", alignItems: "stretch", fontSize: "0.62em" });
              c.tag = h("div", null, row, esc(c.it.sub || "عاجل")); Object.assign(c.tag.style, { background: c.A, padding: "0.12em 0.4em 0.16em", fontWeight: 800, borderRadius: "0.12em 0 0 0.12em" });
@@ -315,15 +215,6 @@ FX.bubble = { dur: 0.4, accent: "#ffffff",
              c.b.style.setProperty("--bub", c.A); c.tx = textEl(c.text, c.b); c.tx.el.style.textShadow = "none"; c.b.style.boxShadow = "0 .08em .3em rgba(0,0,0,.35)"; },
   render(c, s) { const e = E.outBack(tw(s.lt, 0, c.dur, E.linear)); c.b.style.transform = `scale(${Math.max(0, e)})`; c.tx.el.style.opacity = tw(s.lt, 0.12, 0.2); },
   sfx: () => [{ at: 0, id: "message_in" }] };
-
-FX.gradient = { dur: 0.5, accent: "#ff4fd8",
-  build(c) { c.tx = textEl(c.text, c.box);
-             Object.assign(c.tx.el.style, { backgroundImage: `linear-gradient(90deg, ${c.A}, ${c.it.accent2 || c.T.accent2 || "#8b5cff"}, #ffffff, ${c.A})`, backgroundSize: "300% 100%",
-               webkitBackgroundClip: "text", backgroundClip: "text", color: "transparent", textShadow: "none", filter: `drop-shadow(0 .04em .12em rgba(0,0,0,${c.T.shadow}))` }); },
-  render(c, s) { const e = tw(s.lt, 0, c.dur, E.outQuint);
-    c.tx.el.style.opacity = e; c.tx.el.style.transform = `translateY(${(1 - e) * 0.35}em)`;
-    c.tx.el.style.backgroundPosition = `${(s.t * (c.it.speed ?? 40)) % 300}% 0`; },
-  sfx: () => [{ at: 0, id: "shine", gain: -4 }] };
 
 FX.glowchar = { accent: "#2de0c0",
   dur: (c) => Math.min(1.4, [...plain(c.text)].length * 0.07) + 0.3,
@@ -353,32 +244,6 @@ FX.reveal = { dur: 0.95, accent: "#ff8a1f",
     c.tr.style.left = x + "px"; c.tr.style.width = Math.min(W - x, W * 0.35) + "px";
     c.tr.style.background = `linear-gradient(90deg, ${c.A}, transparent)`; c.tr.style.opacity = c.sp.style.opacity * 0.9; },
   sfx: () => [{ at: 0, id: "shine" }] };
-
-FX.split = { dur: 0.9, accent: "#ffffff",
-  build(c) { const t = h("div", "tx", c.box); c.t = t;
-             c.tx = textEl(c.text, t); Object.assign(c.tx.el.style, { color: "transparent", webkitTextStroke: `0.025em ${c.A}`, textShadow: "none", filter: `drop-shadow(0 0 .04em rgba(0,0,0,${c.T.shadow + 0.2})) drop-shadow(0 .03em .12em rgba(0,0,0,${c.T.shadow}))` });
-             const f = textEl(c.text, t, "lay"); f.el.style.color = c.A; c.fill = f; c.copies = [f]; kashidaFx(c); },
-  render(c, s) { const a = tw(s.lt, 0, 0.3); c.t.style.opacity = a;
-    setKashida(c, Math.round((c.it.kashida ?? 8) * tw(s.lt, 0.1, 0.6, E.outCubic)));
-    c.fill.el.style.clipPath = `inset(-30% ${100 - (c.it.fill ?? 45) * tw(s.lt, 0.45, 0.45, E.outCubic)}% -30% 0)`; },
-  sfx: () => [{ at: 0.1, id: "whoosh_soft", gain: -2 }] };
-
-FX.trail = { dur: 0.8, accent: "#ffb02e",
-  build(c) { const t = h("div", "tx", c.box); c.t = t; c.tx = textEl(c.text, t); kashidaFx(c);
-             c.ln = h("div", "bar", t); Object.assign(c.ln.style, { height: "0.06em", borderRadius: "1em", boxShadow: `0 0 .25em ${c.A}` }); },
-  render(c, s) {
-    const n = Math.round((c.it.kashida ?? 9) * tw(s.lt, 0.05, 0.55, E.outCubic)); setKashida(c, n);
-    c.tx.el.style.opacity = tw(s.lt, 0, 0.25);
-    const w = c.tx.words[c.kw]; const tn = w?.firstChild;
-    if (!tn || n < 1) { c.ln.style.opacity = 0; return; }
-    const at = kashidaAt(c.tx.data[c.kw].text), r = document.createRange();
-    r.setStart(tn, [...tn.textContent].slice(0, at).join("").length); r.setEnd(tn, [...tn.textContent].slice(0, at + n).join("").length);
-    const b = r.getBoundingClientRect(), o = c.t.getBoundingClientRect(), sc = o.width / c.t.offsetWidth || 1;
-    const fs = parseFloat(getComputedStyle(c.t).fontSize);
-    Object.assign(c.ln.style, { left: (b.left - o.left) / sc - 0.6 * fs + "px", width: b.width / sc + 0.6 * fs + "px", top: (b.top - o.top) / sc + b.height / sc * 0.6 + "px",
-      background: `linear-gradient(90deg, transparent, ${c.A} 40%, #fff)`, opacity: 0.95 });
-  },
-  sfx: () => [{ at: 0.05, id: "whoosh_fast", gain: -2 }] };
 
 FX.twotone = { dur: 0.9, accent: "#ffb02e",
   build(c) { const [a, b] = plain(c.text).split(/\s*[|\n]\s*/); c.l1 = textEl(a || "", c.box); c.l1.el.style.color = c.A; c.l1.el.style.fontSize = "0.8em";
@@ -416,20 +281,6 @@ FX.name = { dur: 0.9, accent: "#ffb02e",
     const p = tw(s.lt, 0, 0.55, E.inOutCubic);
     c.sl.style.transform = `translate(-50%, -50%) translate(${lerp(1.4, -1.4, p)}em, ${lerp(-0.7, 0.7, p)}em) rotate(-25deg)`; c.sl.style.opacity = Math.sin(Math.PI * p); },
   sfx: () => [{ at: 0, id: "whip", v: 1, gain: -3 }, { at: 0.25, id: "shine", gain: -4 }] };
-
-FX.number = { accent: "#ffb02e",
-  dur: (c) => c.it.count_dur ?? 1.2,
-  build(c) { const m = /^(\D*)(\d+)(.*)$/.exec(plain(c.text)) || ["", "", "0", ""]; c.pre = m[1]; c.post = m[3]; c.to = c.it.to ?? +m[2]; c.from = c.it.from ?? Math.min(1, c.to);
-             c.tx = h("div", "tx", c.box);
-             Object.assign(c.tx.style, { fontWeight: 900, color: "rgba(255,255,255,.16)", webkitTextStroke: "0.022em rgba(255,255,255,.92)", textShadow: "none",
-               filter: `drop-shadow(0 0 .03em rgba(0,0,0,.6)) drop-shadow(0 0 .08em ${rgba(c.A, 0.8)}) drop-shadow(0 .04em .15em rgba(0,0,0,.55))`, fontVariantNumeric: "tabular-nums" }); },
-  value(c, lt) { return Math.round(lerp(c.from, c.to, E.outCubic(clamp(lt / c.dur)))); },
-  render(c, s) { const v = this.value(c, s.lt); c.tx.textContent = c.pre + v + c.post;
-    const t0 = clamp(s.lt / c.dur), bump = 1 + 0.06 * Math.max(0, 1 - ((s.lt * 30) % 30) / 6) * (t0 < 1 ? 1 : 0);
-    c.tx.style.transform = `scale(${bump})`; c.tx.style.opacity = tw(s.lt, 0, 0.15); },
-  sfx(c) { const ev = []; let last = null;
-    for (let lt = 0; lt <= c.dur; lt += 1 / 60) { const v = this.value(c, lt); if (v !== last) { ev.push({ at: lt, id: "tick", gain: -2 }); last = v; } }
-    return ev.slice(0, 40).concat([{ at: c.dur, id: "count_end", gain: -2 }]); } };
 
 FX.spot = { dur: 1.0, accent: "#ffd400",
   build(c) { const t = h("div", "tx", c.box); c.t = t; c.dim = textEl(c.text, t); c.dim.el.style.opacity = 0.18;

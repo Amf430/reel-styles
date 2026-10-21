@@ -125,6 +125,7 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
         <dt>الرمز</dt><dd class="skill" id="dI"></dd>
         <dt>النوع</dt><dd id="dC"></dd>
         <dt>المود</dt><dd id="dM"></dd>
+        <dt id="dTl">الثيمات</dt><dd class="skill" id="dT"></dd>
       </dl>
       <div><div class="desc" style="margin-bottom:6px">الطلب الجاهز للشات</div><pre id="dP"></pre></div>
       <div class="acts">
@@ -249,6 +250,7 @@ function open(e) {
   const n = thumb(e, true); n.id = "dV"; $("#dV").replaceWith(n);
   $("#dN").textContent = e.name; $("#dD").textContent = e.desc;
   $("#dS").textContent = e.skill; $("#dI").textContent = e.id; $("#dC").textContent = e.cat; $("#dM").textContent = e.mood;
+  $("#dT").textContent = (e.themes || []).join(" · "); $("#dT").hidden = $("#dTl").hidden = !(e.themes || []).length;
   $("#dP").textContent = prompt1(e);
   $("#dPick").textContent = picks.includes(e.id) ? "✓ مضافة للمود" : "＋ أضف للمود";
   $("#dSound").hidden = !e.has; $("#dSound").textContent = "شغّل الصوت";

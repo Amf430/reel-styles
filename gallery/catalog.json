@@ -130,106 +130,6 @@
   }
  },
  {
-  "id": "hook-theme-box",
-  "skill": "reel-hook",
-  "cat": "عناوين وهوك",
-  "mood": "طاقة",
-  "name": "هوك — ثيم بوكس أسود",
-  "desc": "نفس الهوك بثيم مختلف",
-  "theme": "box",
-  "params": {
-   "lines": [
-    {
-     "text": "لا تشتري *قبل*",
-     "size": 130
-    },
-    {
-     "text": "ما تشوف هذا",
-     "size": 110
-    }
-   ],
-   "y": 0.36,
-   "in": 0.25,
-   "out": 3.3,
-   "anim": "punch"
-  }
- },
- {
-  "id": "hook-theme-white-box",
-  "skill": "reel-hook",
-  "cat": "عناوين وهوك",
-  "mood": "طاقة",
-  "name": "هوك — ثيم بوكس أبيض",
-  "desc": "نفس الهوك بثيم مختلف",
-  "theme": "white-box",
-  "params": {
-   "lines": [
-    {
-     "text": "لا تشتري *قبل*",
-     "size": 130
-    },
-    {
-     "text": "ما تشوف هذا",
-     "size": 110
-    }
-   ],
-   "y": 0.36,
-   "in": 0.25,
-   "out": 3.3,
-   "anim": "punch"
-  }
- },
- {
-  "id": "hook-theme-red",
-  "skill": "reel-hook",
-  "cat": "عناوين وهوك",
-  "mood": "طاقة",
-  "name": "هوك — ثيم بوكس أحمر",
-  "desc": "نفس الهوك بثيم مختلف",
-  "theme": "red",
-  "params": {
-   "lines": [
-    {
-     "text": "لا تشتري *قبل*",
-     "size": 130
-    },
-    {
-     "text": "ما تشوف هذا",
-     "size": 110
-    }
-   ],
-   "y": 0.36,
-   "in": 0.25,
-   "out": 3.3,
-   "anim": "punch"
-  }
- },
- {
-  "id": "hook-theme-clean",
-  "skill": "reel-hook",
-  "cat": "عناوين وهوك",
-  "mood": "طاقة",
-  "name": "هوك — ثيم نظيف بظل",
-  "desc": "نفس الهوك بثيم مختلف",
-  "theme": "clean",
-  "params": {
-   "lines": [
-    {
-     "text": "لا تشتري *قبل*",
-     "size": 130
-    },
-    {
-     "text": "ما تشوف هذا",
-     "size": 110
-    }
-   ],
-   "y": 0.36,
-   "in": 0.25,
-   "out": 3.3,
-   "anim": "punch"
-  }
- },
- {
   "id": "neon-rise",
   "skill": "reel-neon",
   "cat": "عناوين وهوك",
@@ -450,27 +350,6 @@
   }
  },
  {
-  "id": "neon-item-flash",
-  "skill": "reel-neon",
-  "cat": "عناوين وهوك",
-  "mood": "طاقة",
-  "name": "نيون المتحدث — ومضة",
-  "desc": "ومضة لون على الشاشة كاملة (فاصل)",
-  "theme": "green",
-  "params": {
-   "lines": [],
-   "items": [
-    {
-     "type": "flash",
-     "in": 0.25,
-     "out": 3.3,
-     "y": 0.25
-    }
-   ]
-  },
-  "poster": 0.4
- },
- {
   "id": "textfx-select",
   "skill": "reel-textfx",
   "cat": "حركات نص",
@@ -504,50 +383,6 @@
    "items": [
     {
      "fx": "type",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-neon",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "طاقة",
-  "name": "نص — نيون",
-  "desc": "يرمش ثم يثبت مع توهج",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "neon",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-shine",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "فخم",
-  "name": "نص — لمعة",
-  "desc": "ضوء يعبر النص ويتكرر",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "shine",
      "text": "*الحكاية* بدأت هنا",
      "in": 0.25,
      "out": 3.3,
@@ -625,28 +460,6 @@
   }
  },
  {
-  "id": "textfx-wave",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "هادي",
-  "name": "نص — تموّج",
-  "desc": "الكلمات تتموج باستمرار",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "wave",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
   "id": "textfx-kashida",
   "skill": "reel-textfx",
   "cat": "حركات نص",
@@ -713,94 +526,6 @@
   }
  },
  {
-  "id": "textfx-marker",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "يدوي",
-  "name": "نص — هايلايتر",
-  "desc": "يمسح ورا النص",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "marker",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-pill",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "فخم",
-  "name": "نص — كبسولة",
-  "desc": "كبسولة متوهجة تنفتح من خط",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "pill",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-cine",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "فخم",
-  "name": "نص — سينمائي",
-  "desc": "دخول بطيء من بلور وتكبير",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "cine",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-slice",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "تقني",
-  "name": "نص — شرائح",
-  "desc": "النص شرائح أفقية تتجمع",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "slice",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
   "id": "textfx-brackets",
   "skill": "reel-textfx",
   "cat": "حركات نص",
@@ -834,50 +559,6 @@
    "items": [
     {
      "fx": "glitch",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-circle",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "يدوي",
-  "name": "نص — دائرة يدوية",
-  "desc": "دائرة تنرسم حوالين النص",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "circle",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-echo",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "طاقة",
-  "name": "نص — صدى",
-  "desc": "نسخ صدى تتجمع في النص",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "echo",
      "text": "*الحكاية* بدأت هنا",
      "in": 0.25,
      "out": 3.3,
@@ -923,28 +604,6 @@
    "items": [
     {
      "fx": "bubble",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-gradient",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "طاقة",
-  "name": "نص — تدرّج",
-  "desc": "تدرج ألوان يمشي داخل النص",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "gradient",
      "text": "*الحكاية* بدأت هنا",
      "in": 0.25,
      "out": 3.3,
@@ -1022,50 +681,6 @@
   }
  },
  {
-  "id": "textfx-split",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "فخم",
-  "name": "نص — حد وتعبئة",
-  "desc": "حد خارجي + كشيدة والآخر يتعبى",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "split",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-trail",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "فخم",
-  "name": "نص — ذيل ضوئي",
-  "desc": "كشيدة طويلة عليها ذيل ضوئي",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "trail",
-     "text": "*الحكاية* بدأت هنا",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100
-    }
-   ]
-  }
- },
- {
   "id": "textfx-twotone",
   "skill": "reel-textfx",
   "cat": "حركات نص",
@@ -1128,30 +743,6 @@
      "y": 0.3,
      "size": 100,
      "sub": "SEEN"
-    }
-   ]
-  }
- },
- {
-  "id": "textfx-number",
-  "skill": "reel-textfx",
-  "cat": "حركات نص",
-  "mood": "طاقة",
-  "name": "نص — رقم يعدّ",
-  "desc": "رقم بحد مضيء يعدّ",
-  "theme": "auto",
-  "params": {
-   "items": [
-    {
-     "fx": "number",
-     "text": "850",
-     "in": 0.25,
-     "out": 3.3,
-     "x": 0.5,
-     "y": 0.3,
-     "size": 100,
-     "from": 0,
-     "to": 850
     }
    ]
   }
@@ -1961,29 +1552,6 @@
   }
  },
  {
-  "id": "info-cta",
-  "skill": "reel-info",
-  "cat": "كروت ومعلومات",
-  "mood": "هادي",
-  "name": "معلومات — زر متابعة",
-  "desc": "مؤشر يضغط الزر ويتحول «تمت المتابعة»",
-  "theme": "light",
-  "params": {
-   "items": [
-    {
-     "type": "cta",
-     "in": 0.25,
-     "out": 3.3,
-     "size": 65,
-     "text": "تابعنا",
-     "sub": "تمت المتابعة",
-     "click": 1.6,
-     "y": 0.75
-    }
-   ]
-  }
- },
- {
   "id": "info-end",
   "skill": "reel-info",
   "cat": "كروت ومعلومات",
@@ -2215,33 +1783,6 @@
      "text": "جديد",
      "y": 0.2,
      "w": 0.3
-    }
-   ]
-  }
- },
- {
-  "id": "ui-checklist",
-  "skill": "reel-ui",
-  "cat": "واجهات تطبيق",
-  "mood": "تقني",
-  "name": "واجهة — قائمة مهام",
-  "desc": "صح ✓ وحدة وحدة",
-  "theme": "ios-light",
-  "params": {
-   "elements": [
-    {
-     "type": "checklist",
-     "x": 0.5,
-     "in": 0.25,
-     "out": 3.3,
-     "items": [
-      "المعاينة",
-      "التمويل",
-      "الإفراغ"
-     ],
-     "gap": 0.6,
-     "y": 0.25,
-     "w": 0.7
     }
    ]
   }

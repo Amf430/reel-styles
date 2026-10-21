@@ -104,6 +104,9 @@ def page(cat):
     have = [dict(e, has=os.path.exists(os.path.join(SITE, "previews", e["id"] + ".mp4"))) for e in cat]
     for e in have:
         e.pop("params", None)
+        pre = os.path.join(REPO, "skills", e["skill"], "presets.json")
+        if os.path.exists(pre):
+            e["themes"] = list(json.load(open(pre, encoding="utf-8")).get("themes", {}))
     html = open(os.path.join(HERE, "page.html"), encoding="utf-8").read()
     open(os.path.join(SITE, "index.html"), "w", encoding="utf-8").write(
         html.replace("/*CATALOG*/[]", json.dumps(have, ensure_ascii=False)))

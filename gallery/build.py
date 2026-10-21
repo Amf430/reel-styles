@@ -40,7 +40,9 @@ def shrink(src, dst, start=0, dur=None, poster=2.0):
     t = ["-t", str(dur)] if dur else []
     ff("-ss", str(start), "-i", src, *t, "-vf", "scale=540:-2,fps=30", "-c:v", "libx264", "-crf", "30", "-preset", "slow",
        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "80k", "-movflags", "+faststart", dst)
-    ff("-ss", str(poster), "-i", dst, "-frames:v", "1", "-q:v", "5", dst[:-4] + ".jpg")
+    length = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", dst],
+                                  capture_output=True, text=True).stdout or 0)
+    ff("-ss", str(min(poster, length / 2)), "-i", dst, "-frames:v", "1", "-q:v", "5", dst[:-4] + ".jpg")
 
 
 def job_for(e, d):

@@ -2997,5 +2997,3128 @@
    "dur": 6
   },
   "aspect": "16/9"
+ },
+ {
+  "id": "mv-wordSwap",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "تبديل كلمة",
+  "desc": "الجملة ثابتة والكلمة تلف بعجلة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "wordSwap",
+     "lead": "ابدأ",
+     "words": [
+      "اليوم",
+      "الحين",
+      "بكرة"
+     ],
+     "s": 0.3,
+     "every": 0.9,
+     "y": 800,
+     "size": 150
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-focus",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "عدسة التركيز",
+  "desc": "الجملة مغبشة إلا كلمة، وأقواس تتنقّل",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "focus",
+     "text": "الفكرة أهم من الأداة",
+     "seq": [
+      1,
+      3
+     ],
+     "s": 0.3,
+     "y": 880,
+     "size": 110
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-decrypt",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "تقني",
+  "name": "فك الشفرة",
+  "desc": "حروف تتقلب وتستقر من اليمين",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "decrypt",
+     "text": "السر هنا",
+     "s": 0.3,
+     "y": 900,
+     "size": 180
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-rubberPop",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "فرقعة مطاطية",
+  "desc": "كلمة تفرقع وتتمطط مع خطوط ضربة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "rubberPop",
+     "text": "وااو",
+     "s": 0.3,
+     "size": 240
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-versus",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "ضد",
+  "desc": "كلمتين يتواجهون وعلامة × والفائز يكبر",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "versus",
+     "a": "إيجار",
+     "b": "تمليك",
+     "s": 0.3,
+     "win": 1,
+     "winAt": 1.8
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-wordPath",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "مسار الكلمات",
+  "desc": "الكاميرا تمشي من كلمة لكلمة بلقطة وحدة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "wordPath",
+     "words": [
+      "خطط",
+      "نفّذ",
+      "كرر"
+     ],
+     "s": 0.3,
+     "every": 0.9
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-glassType",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "كلام زجاجي",
+  "desc": "كلمة من زجاج مثلّج تكسر اللي وراها",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "glassType",
+     "text": "الفكرة",
+     "sub": "أهم من الأداة",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-ijamDrop",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "نقاط تنزل",
+  "desc": "السطر بلا نقاط والنقاط تنزل وحدة وحدة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "ijamDrop",
+     "text": "بيتك ينتظرك",
+     "s": 0.3,
+     "size": 200,
+     "accent": [
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-videoText",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "كلمة بالفيديو",
+  "desc": "الفيديو يشتغل داخل حروف كلمة ضخمة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "videoText",
+     "text": "سين",
+     "s": 0.3,
+     "out": 3.2
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-joinSnap",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "حروف تتلاصق",
+  "desc": "حروف منفصلة تنسحب وتتصل بلمعة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "joinSnap",
+     "text": "سين",
+     "s": 0.3,
+     "at": 1.4
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-kufiGrid",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "كوفي مربع",
+  "desc": "الكلمة تنبني بلاط على شبكة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "kufiGrid",
+     "text": "سين",
+     "s": 0.3,
+     "w": 760
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-redact",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "طاقة",
+  "name": "الحقيقة تنكشف",
+  "desc": "كلمات مغطاة بحبر تنكشف وختم ينطبع",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "redact",
+     "text": "السعر الحقيقي 850 ألف",
+     "hide": [
+      2,
+      3
+     ],
+     "at": [
+      1.2,
+      1.8
+     ],
+     "s": 0.3,
+     "size": 110
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-ayahCalm",
+  "skill": "reel-moves",
+  "cat": "حركات نص",
+  "mood": "هادي",
+  "name": "آية بسكينة",
+  "desc": "آية بخط المصحف كلمة كلمة على خلفية مغمّقة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "ayahCalm",
+     "text": "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+     "surah": "الرعد",
+     "ayah": 28,
+     "s": 0.3,
+     "wordsAt": 0.4,
+     "stagger": 0.35
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-priceTag",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "طاقة",
+  "name": "بطاقة سعر",
+  "desc": "السعر القديم ينشطب والجديد يعدّ لتحت",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "priceTag",
+     "old": "950",
+     "now": "850",
+     "unit": "ألف",
+     "label": "شقة 3 غرف",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-compare",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "قبل وبعد",
+  "desc": "خط فاصل يمشي ويكشف اللقطة الثانية",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "compare",
+     "labels": [
+      "قبل",
+      "بعد"
+     ],
+     "s": 0.3,
+     "a": 0.2,
+     "b": 2.6
+    }
+   ]
+  },
+  "cut": true
+ },
+ {
+  "id": "mv-ringStat",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "حلقة نسبة",
+  "desc": "حلقة تتعبّى والرقم يعدّ بنصها",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "ringStat",
+     "value": 73,
+     "label": "نسبة الإنجاز",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-barChart",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "أعمدة تكبر",
+  "desc": "أعمدة تطلع بالتتابع وأرقامها تعدّ",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "barChart",
+     "data": [
+      [
+       "2023",
+       40
+      ],
+      [
+       "2024",
+       65
+      ],
+      [
+       "2025",
+       90
+      ]
+     ],
+     "hi": 2,
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-lineChartDraw",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "رسم بياني بخط",
+  "desc": "الخط ينرسم والمساحة تتعبّى ودبوس على القمة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "lineChartDraw",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-uiWorld",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "عالم الواجهات",
+  "desc": "كروت واجهة تطفو حول المتحدث بأعماق مختلفة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "uiWorld",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-headlineWall",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "يدوي",
+  "name": "جدار العناوين",
+  "desc": "عناوين ورق تنلزق وحدة وحدة بدبوس وخيط",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "headlineWall",
+     "items": [
+      "الأسعار ترتفع",
+      "الطلب يزيد",
+      "الفرصة الحين"
+     ],
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-coverStory",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "غلاف مجلة",
+  "desc": "المتحدث يصير غلاف مجلة بعناوين وباركود",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "coverStory",
+     "title": "سين",
+     "issue": "العدد 12 · أكتوبر 2026",
+     "big": "بيتك القادم",
+     "lines": [
+      [
+       "850",
+       "ألف تبدأ الأسعار"
+      ],
+      [
+       "3",
+       "غرف نوم"
+      ]
+     ],
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-stickerFreeze",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "طاقة",
+  "name": "ستيكر",
+  "desc": "لقطة تتجمد وتصير ستيكر",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "stickerFreeze",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-beamConnect",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "شعاع الربط",
+  "desc": "شعاع يربط عناصر ببعض",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "beamConnect",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-lightRays",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "أشعة من وراك",
+  "desc": "أشعة ضوء تطلع من ورا الراس وتلف ببطء",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "lightRays",
+     "s": 0.3,
+     "at": [
+      540,
+      1000
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-dynamicIsland",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "الجزيرة تتمدد",
+  "desc": "حبّة سودا تتمدد لكرت إشعار برقم يعدّ",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "dynamicIsland",
+     "title": "وصلك حجز جديد",
+     "sub": "شقة النرجس",
+     "value": 12,
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-dotMap",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "خريطة نقاط",
+  "desc": "خريطة من نقاط تضوي",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "dotMap",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-terminalType",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "تقني",
+  "name": "طرفية",
+  "desc": "أمر ينكتب ومخرجات تتدفق وعلامة صح",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "terminalType",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-girihBloom",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "زخرفة تتفتح",
+  "desc": "نجمة ثمانية وزخرفة هندسية تتفتح",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "girihBloom",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-postCard",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "هادي",
+  "name": "بوست يطلع",
+  "desc": "كرت بوست عام والكلام ينكتب والأرقام تعدّ",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "postCard",
+     "text": "أفضل قرار سويته هذي السنة",
+     "name": "سين العقارية",
+     "handle": "@seen.sa",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-receiptPrint",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "يدوي",
+  "name": "فاتورة تطبع",
+  "desc": "ورقة تطلع من طابعة والمجموع يعدّ",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "receiptPrint",
+     "items": [
+      {
+       "name": "دفعة أولى",
+       "price": 85
+      },
+      {
+       "name": "رسوم",
+       "price": 5
+      }
+     ],
+     "currency": "ألف",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-couchWall",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "جدار الكنبة",
+  "desc": "المتحدث على كنبة وراه جدار بوستات",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "couchWall",
+     "posts": [
+      [
+       "مشاهدة",
+       1200
+      ],
+      [
+       "متابع",
+       340
+      ]
+     ],
+     "handle": "@seen.sa",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-frameBreak",
+  "skill": "reel-moves",
+  "cat": "كروت ومعلومات",
+  "mood": "فخم",
+  "name": "كسر الإطار",
+  "desc": "المتحدث داخل كرت وراسه يطلع برّا حافته",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "frameBreak",
+     "text": "الفكرة",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-crossZoom",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — زوم مدموج",
+  "desc": "زوم وغباش يبلغ ذروته على القطع",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "crossZoom",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-softWipe",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "انتقال — مسحة ناعمة",
+  "desc": "المشهد الجديد يمسح من اليمين بحافة مموّهة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "softWipe",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-dotZoom",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — زوم داخل النقطة",
+  "desc": "الكاميرا تدخل نقطة لين تصير الشاشة كلها",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "dotZoom",
+     "cut": 1.7,
+     "dot": [
+      540,
+      700
+     ]
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-dipFade",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "انتقال — غمضة لون",
+  "desc": "المشهد يغيب بلون ويرجع الجديد",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "dipFade",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-slideOver",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "انتقال — كرت يغطي",
+  "desc": "المشهد الجديد يطلع ككرت ويغطي القديم",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "slideOver",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-clockWipe",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "تقني",
+  "name": "انتقال — عقرب الساعة",
+  "desc": "المشهد الجديد ينكشف بدورة عقرب",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "clockWipe",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-flip",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — قلبة",
+  "desc": "الإطار يقلب كرت والمشهد الجديد على ظهره",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "flip",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-lightLeak",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "انتقال — تسريب ضوء",
+  "desc": "بقع ضوء دافية تعبر ويتبدل المشهد",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "lightLeak",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-pageTurnRTL",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "انتقال — صفحة كتاب عربي",
+  "desc": "الصفحة تنقلب من اليسار لليمين",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "pageTurnRTL",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-nuqtaCurtain",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "انتقال — ستارة نقاط القلم",
+  "desc": "معيّنات بشكل نقطة القلم تنتشر وتكشف",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "nuqtaCurtain",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-glassLens",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "انتقال — عدسة زجاج",
+  "desc": "عدسة زجاج تدخل وفيها المشهد الجديد",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "glassLens",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-scanLine",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "تقني",
+  "name": "انتقال — خط المسح",
+  "desc": "خط مضيء ينزل وفوقه المشهد الجديد",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "scanLine",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-bentoCut",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "تقني",
+  "name": "انتقال — قص البنتو",
+  "desc": "المشهد يصغر لخانة بشبكة بنتو",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "bentoCut",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-doorway",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — باب ينفتح",
+  "desc": "المشهد ينقسم لبابين وينفتح",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "doorway",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-lumaMelt",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "انتقال — ذوبان الضوء",
+  "desc": "المشهد الجديد يطلع أول بالأماكن الفاتحة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "lumaMelt",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-zoomWipe",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "انتقال — زوم ومسحة",
+  "desc": "زوم لقدّام وبذروته مسحة بشريط",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "zoomWipe",
+     "cut": 1.7
+    }
+   ]
+  },
+  "cut": true,
+  "poster": 1.7
+ },
+ {
+  "id": "mv-handheld",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "هادي",
+  "name": "كاميرا باليد",
+  "desc": "اهتزاز ناعم مستمر كأنها كاميرا محمولة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "handheld",
+     "s": 0.1,
+     "out": 3.4
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-tilt3D",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "ميلة الفصل",
+  "desc": "الفيديو يميل لوح ثلاثي وعنوان الفصل قدامه",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "tilt3D",
+     "title": "النقطة الثانية",
+     "num": "2",
+     "s": 0.3,
+     "out": 2.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-craneUp",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "رافعة",
+  "desc": "الكاميرا ترتفع وتكشف",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "craneUp",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-punchCut",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "كاميرا ثانية",
+  "desc": "قص مباشر لكروب أقرب ويرجع",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "punchCut",
+     "s": 0.8,
+     "out": 2.6
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-swishSettle",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "سحبة وتستقر",
+  "desc": "الكاميرا تبدأ مزاحة ومايلة وتستقر بسرعة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "swishSettle",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-motionEcho",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "صدى الحركة",
+  "desc": "نسخ شبح متأخرة تلحق الحركة",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "motionEcho",
+     "s": 1.2,
+     "dur": 0.8
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-orbit",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "فخم",
+  "name": "مدار",
+  "desc": "حلقة كلمات تلف حول المتحدث بعمق",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "orbit",
+     "words": [
+      "تخطيط",
+      "تنفيذ",
+      "نتيجة"
+     ],
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "mv-phoneMockup",
+  "skill": "reel-moves",
+  "cat": "انتقالات وكاميرا",
+  "mood": "تقني",
+  "name": "الفيديو داخل الجوال",
+  "desc": "الفيديو يصغر لشاشة جوال يتمايل",
+  "theme": "dark",
+  "params": {
+   "moves": [
+    {
+     "fx": "phoneMockup",
+     "title": "سين",
+     "handle": "@seen.sa",
+     "s": 0.3
+    }
+   ]
+  }
+ },
+ {
+  "id": "hf-ai-chat-reveal",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "AI Chat Reveal",
+  "desc": "واجهة من مكتبة HyperFrames — A question is typed on a rising keyboard, sent, and answered by an AI that streams its rep",
+  "hf": "ai-chat-reveal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ai-chat-reveal.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-app-showcase",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "App Showcase",
+  "desc": "واجهة من مكتبة HyperFrames — Fitness app product showcase with three floating smartphone screens",
+  "hf": "app-showcase",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/app-showcase.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-apple-money-count",
+  "skill": "hyperframes-registry",
+  "cat": "أفلام كاملة",
+  "mood": "فخم",
+  "name": "Apple Money Count",
+  "desc": "عرض من مكتبة HyperFrames — Apple-style finance counter that counts from $0 to $10,000, flashes green, and bursts mone",
+  "hf": "apple-money-count",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/apple-money-count.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-aurora",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Aurora",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Green and violet aurora curtains ripple across a night sky. A WebGPU shader from the Shade",
+  "hf": "aurora",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/aurora.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-blob",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Blob",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A soft coral and pink blob with a warm highlight slowly changes shape on black. A WebGPU s",
+  "hf": "blob",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/blob.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-camcorder-hud",
+  "skill": "hyperframes-registry",
+  "cat": "مؤثرات فوق الفيديو",
+  "mood": "هادي",
+  "name": "Camcorder HUD",
+  "desc": "مؤثر فوق الفيديو من مكتبة HyperFrames — Responsive REC, battery, editable date placeholder, and timeline-driven counter overlay fo",
+  "hf": "camcorder-hud",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/camcorder-hud.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-canopy-part-title",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Canopy Part Title",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — Leaves sweep through the frame and part to reveal the headline.",
+  "hf": "canopy-part-title",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/canopy-part-title.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-clip-wipe",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Clip Wipe",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Left-to-right clip-path wipe reveal per word",
+  "hf": "caption-clip-wipe",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-clip-wipe.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-editorial-emphasis",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Editorial Emphasis",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Dual-font system with dramatic size contrast for emphasis words",
+  "hf": "caption-editorial-emphasis",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-editorial-emphasis.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-emoji-pop",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Emoji Pop",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Emoji integration with stroked text and horizontal squeeze entrance",
+  "hf": "caption-emoji-pop",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-emoji-pop.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-glitch-rgb",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Glitch RGB",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — RGB chromatic aberration with CRT scanline overlay",
+  "hf": "caption-glitch-rgb",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-glitch-rgb.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-gradient-fill",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Gradient Fill",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Gradient-clipped text with elastic bounce entrance",
+  "hf": "caption-gradient-fill",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-gradient-fill.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-highlight",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Highlight",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Red background sweep behind each active word, TikTok-style",
+  "hf": "caption-highlight",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-highlight.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-kinetic-slam",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Kinetic Slam",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Full-screen single-word display with alternating entrance directions",
+  "hf": "caption-kinetic-slam",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-kinetic-slam.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-matrix-decode",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Matrix Decode",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Character scramble animation before text reveal",
+  "hf": "caption-matrix-decode",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-matrix-decode.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-neon-accent",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Neon Accent",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Multi-color neon glow accents with wiggle drift animation",
+  "hf": "caption-neon-accent",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-neon-accent.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-neon-glow",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Neon Glow",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Cyan and magenta neon glow with keyword accent colors",
+  "hf": "caption-neon-glow",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-neon-glow.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-parallax-layers",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Parallax Layers",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Behind-subject 3D text layering with vertical stretch effect",
+  "hf": "caption-parallax-layers",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-parallax-layers.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-particle-burst",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Particle Burst",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Keyword words trigger colored particle explosions",
+  "hf": "caption-particle-burst",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-particle-burst.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-pill-karaoke",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Pill Karaoke",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Pill-shaped container with per-word karaoke color highlight",
+  "hf": "caption-pill-karaoke",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-pill-karaoke.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-texture",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Texture",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Flowing texture mask over large uppercase text — ships with 6 textures (lava, marble, meta",
+  "hf": "caption-texture",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-texture.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-caption-weight-shift",
+  "skill": "hyperframes-registry",
+  "cat": "كابشن",
+  "mood": "طاقة",
+  "name": "Weight Shift",
+  "desc": "ستايل كابشن من مكتبة HyperFrames — Elegant font-weight transition between caption lines",
+  "hf": "caption-weight-shift",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/caption-weight-shift.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-chromatic-radial-split",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Chromatic Radial Split",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with chromatic aberration radial split",
+  "hf": "chromatic-radial-split",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/chromatic-radial-split.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-chrome-orb",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Chrome Orb",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A mirror-chrome orb reflects a bright studio light, on black. A WebGPU shader from the Sha",
+  "hf": "chrome-orb",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/chrome-orb.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-cinematic-zoom",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Cinematic Zoom",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with dramatic zoom blur",
+  "hf": "cinematic-zoom",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/cinematic-zoom.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-claude-exchange",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Claude Exchange",
+  "desc": "واجهة من مكتبة HyperFrames — A portrait Claude-style exchange types a prompt, works through search and reasoning steps,",
+  "hf": "claude-exchange",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/claude-exchange.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-code-3d-extrude",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code 3D Extrude",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — Syntax-highlighted code on a lit, beveled 3D slab that rotates through real space and sett",
+  "hf": "code-3d-extrude",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-3d-extrude.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-diff",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Diff",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — An edit shown as a colored diff — removed lines collapse in red, added lines expand in gre",
+  "hf": "code-diff",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-diff.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-highlight",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Highlight Sweep",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — A highlight band sweeps across a target line while the surrounding context dims — draws th",
+  "hf": "code-highlight",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-highlight.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-morph",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Morph",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — One snippet transforms into another — tokens glide between positions, leavers fade out, en",
+  "hf": "code-morph",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-morph.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-particle-assemble",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Particle Assemble",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — Thousands of GPU points scatter through space and fly to the exact glyph pixels of the cod",
+  "hf": "code-particle-assemble",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-particle-assemble.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-scroll",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Scroll To Line",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — The camera scrolls a long file to bring a target line to center and spotlights it — for wa",
+  "hf": "code-scroll",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-scroll.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-shader-dissolve",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Shader Dissolve",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — The code compiles into existence: a GPU fragment shader resolves it out of seeded noise wi",
+  "hf": "code-shader-dissolve",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-shader-dissolve.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-slice-hero",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Code Slice Hero",
+  "desc": "انتقال من مكتبة HyperFrames — A tiled headline surface flips cell by cell under a sweeping depth field to reveal the rea",
+  "hf": "code-slice-hero",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-slice-hero.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-snippet-apple-terminal-pro",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Snippet - Apple Terminal Pro",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — Apple Terminal Pro profile: black background with grey text and lime green cursor, per-cha",
+  "hf": "code-snippet-apple-terminal-pro",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-snippet-apple-terminal-pro.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-code-typing",
+  "skill": "hyperframes-registry",
+  "cat": "كود ومطورين",
+  "mood": "تقني",
+  "name": "Code Typing",
+  "desc": "أنيميشن كود من مكتبة HyperFrames — Token-streamed typing reveal with a caret that tracks the frontier — deterministic, no CSS",
+  "hf": "code-typing",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/code-typing.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-color-wheel",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Color Wheel",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A wide gradient slides slowly through the colours of the rainbow. A WebGPU shader from the",
+  "hf": "color-wheel",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/color-wheel.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-cross-warp-morph",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Cross Warp Morph",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with cross-warped morphing",
+  "hf": "cross-warp-morph",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/cross-warp-morph.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-cuboid-carousel",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Cuboid Carousel",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — A chain of bevelled cuboids rides a travelling wave as a content carousel.",
+  "hf": "cuboid-carousel",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/cuboid-carousel.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-data-chart",
+  "skill": "hyperframes-registry",
+  "cat": "بيانات ورسوم",
+  "mood": "تقني",
+  "name": "Data Chart",
+  "desc": "رسم بيانات من مكتبة HyperFrames — Animated bar + line chart with staggered reveal, NYT-style typography, and value labels",
+  "hf": "data-chart",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/data-chart.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-domain-warp-dissolve",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Domain Warp Dissolve",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with fractal noise domain warping",
+  "hf": "domain-warp-dissolve",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/domain-warp-dissolve.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-editorial-flash-overlay",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Editorial Flash Overlay",
+  "desc": "واجهة من مكتبة HyperFrames — Finite neutral-warm light layers for a seek-safe camera-flash cut or social reveal",
+  "hf": "editorial-flash-overlay",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/editorial-flash-overlay.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-falling-lines",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Falling Lines",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — White lines fall down the frame at varied speeds, each fading into a trail. A WebGPU shade",
+  "hf": "falling-lines",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/falling-lines.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-filmed-screen",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Filmed Screen",
+  "desc": "واجهة من مكتبة HyperFrames — Your scene, filmed off a screen: perspective, depth of field that follows an element you n",
+  "hf": "filmed-screen",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/filmed-screen.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1280/720"
+ },
+ {
+  "id": "hf-flash-through-white",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Flash Through White",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with white flash crossfade",
+  "hf": "flash-through-white",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/flash-through-white.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-flowchart-vertical",
+  "skill": "hyperframes-registry",
+  "cat": "بيانات ورسوم",
+  "mood": "تقني",
+  "name": "Flowchart Vertical",
+  "desc": "رسم بيانات من مكتبة HyperFrames — Portrait animated decision tree with SVG connectors, sticky-note nodes, cursor interaction",
+  "hf": "flowchart-vertical",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/flowchart-vertical.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-flowchart",
+  "skill": "hyperframes-registry",
+  "cat": "بيانات ورسوم",
+  "mood": "تقني",
+  "name": "Flowchart",
+  "desc": "رسم بيانات من مكتبة HyperFrames — Animated decision tree with SVG connectors, sticky-note nodes, cursor interaction, and typ",
+  "hf": "flowchart",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/flowchart.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-flowing-gradient",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Flowing Gradient",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Bands of orange and violet flow across the frame in a smooth gradient. A WebGPU shader fro",
+  "hf": "flowing-gradient",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/flowing-gradient.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-fractal-noise",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Fractal Noise",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Soft grey fractal noise drifts across the frame like slow clouds. A WebGPU shader from the",
+  "hf": "fractal-noise",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/fractal-noise.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-freeze-frame-dressing",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Freeze-Frame Dressing",
+  "desc": "واجهة من مكتبة HyperFrames — Timeline-driven paper, tape, and flash dressing for a freeze-frame or background-removed s",
+  "hf": "freeze-frame-dressing",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/freeze-frame-dressing.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-frost-sequence-camera-orbit",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Frost Sequence Camera Orbit",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — An orbiting camera follows an ice logo as it breaks apart, reforms into two text moments, ",
+  "hf": "frost-sequence-camera-orbit",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/frost-sequence-camera-orbit.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-frost",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Frost",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A frozen blue orb with frost creeping in from its edge, on black. A WebGPU shader from the",
+  "hf": "frost",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/frost.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-gabor-noise",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Gabor Noise",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Grey streaky noise drifts across the frame like a moving fingerprint. A WebGPU shader from",
+  "hf": "gabor-noise",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/gabor-noise.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-glass-shard-title",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Glass Shard Title",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — Glass shards fly in through fog and tile themselves into the headline.",
+  "hf": "glass-shard-title",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/glass-shard-title.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-glitch",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Glitch",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with digital glitch artifacts",
+  "hf": "glitch",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/glitch.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-godrays",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Godrays",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Rays of light fan out from a corner and drift across a deep blue field. A WebGPU shader fr",
+  "hf": "godrays",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/godrays.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-goo",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Goo",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A glossy green liquid ball whose surface bulges and ripples like wet goo, centred on black",
+  "hf": "goo",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/goo.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-gravitational-lens",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Gravitational Lens",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with gravitational lensing distortion",
+  "hf": "gravitational-lens",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/gravitational-lens.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-heatmap",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Heatmap",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Thermal colours flow through a glowing orb, on black. A WebGPU shader from the Shaders lib",
+  "hf": "heatmap",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/heatmap.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-hologram",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Hologram",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A pale blue holographic orb with scan rings and flicker, on black. A WebGPU shader from th",
+  "hf": "hologram",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/hologram.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-holographic",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Holographic",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — An iridescent foil orb with a shifting rainbow sheen, centred on black. A WebGPU shader fr",
+  "hf": "holographic",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/holographic.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-instagram-follow",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Instagram Follow",
+  "desc": "واجهة من مكتبة HyperFrames — Animated Instagram follow overlay with profile card and follow button",
+  "hf": "instagram-follow",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/instagram-follow.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-ios26-liquid-glass",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "iOS 26 Liquid Glass Home Screen",
+  "desc": "واجهة من مكتبة HyperFrames — 3D iPhone with a normal iOS 26 home screen, liquid glass app icons, shader wallpaper, dock",
+  "hf": "ios26-liquid-glass",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ios26-liquid-glass.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-lens-flare",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Lens Flare",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A camera lens flare: a bright star burst and a faint rainbow halo that slowly shimmer on b",
+  "hf": "lens-flare",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/lens-flare.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-light-edge",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Light Edge",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Purple and cyan light races around the edge of an orb on black. A WebGPU shader from the S",
+  "hf": "light-edge",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/light-edge.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-light-leak",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Light Leak",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with cinematic light leak overlay",
+  "hf": "light-leak",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/light-leak.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-liquid-glass-notification",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Liquid Glass Notification",
+  "desc": "واجهة من مكتبة HyperFrames — Frosted glass notification cards floating over an aurora shader background",
+  "hf": "liquid-glass-notification",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/liquid-glass-notification.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-liquid-glass-widgets",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Liquid Glass Widgets",
+  "desc": "واجهة من مكتبة HyperFrames — Frosted glass stat cards, showcase panel and pill chips over an aurora shader background",
+  "hf": "liquid-glass-widgets",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/liquid-glass-widgets.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-liquid-metal",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Liquid Metal",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A chrome sphere ripples and flows like molten metal on black. A WebGPU shader from the Sha",
+  "hf": "liquid-metal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/liquid-metal.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-logo-outro",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Logo Outro",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — Cinematic logo reveal with piece-by-piece assembly, glow bloom, tagline fade-in, and URL p",
+  "hf": "logo-outro",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/logo-outro.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-macos-notification",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "macOS Notification",
+  "desc": "واجهة من مكتبة HyperFrames — Animated macOS-style notification banner with app icon and message",
+  "hf": "macos-notification",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/macos-notification.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-macos-tahoe-liquid-glass",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "macOS Tahoe Liquid Glass Desktop",
+  "desc": "واجهة من مكتبة HyperFrames — 3D MacBook with a macOS Tahoe-style desktop, glass menu bar, Finder window, dock, and cine",
+  "hf": "macos-tahoe-liquid-glass",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/macos-tahoe-liquid-glass.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-marble",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Marble",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Ink-dark veins wind through white in a marbled pattern that slowly shifts. A WebGPU shader",
+  "hf": "marble",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/marble.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-mesh-gradient",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Mesh Gradient",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Soft coral, orange and violet fields blend and drift in a mesh gradient. A WebGPU shader f",
+  "hf": "mesh-gradient",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/mesh-gradient.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-message-thread-reveal",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Message Thread Reveal",
+  "desc": "واجهة من مكتبة HyperFrames — A full text conversation plays out on a phone - bubbles popping in, typing indicators, a s",
+  "hf": "message-thread-reveal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/message-thread-reveal.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-morph-text",
+  "skill": "hyperframes-registry",
+  "cat": "حركات نص",
+  "mood": "فخم",
+  "name": "Morph Text",
+  "desc": "حركة نص من مكتبة HyperFrames — Gooey text morph — cycles through an editable word list using SVG threshold + GSAP-driven ",
+  "hf": "morph-text",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/morph-text.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-nebula",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Nebula",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A small world of pink and blue gas swirls inside a sphere on black. A WebGPU shader from t",
+  "hf": "nebula",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/nebula.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-notes-reveal",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Notes Reveal",
+  "desc": "واجهة من مكتبة HyperFrames — A personal note is typed character by character in a notes app - caret riding every letter",
+  "hf": "notes-reveal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/notes-reveal.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-notification-cascade",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Notification Cascade",
+  "desc": "واجهة من مكتبة HyperFrames — Phone notifications land one after another and stack up the screen, each banner pushing th",
+  "hf": "notification-cascade",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/notification-cascade.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-obsidian",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Obsidian",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A dark glass orb catches pink and cyan iridescent light on black. A WebGPU shader from the",
+  "hf": "obsidian",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/obsidian.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-orbit-card",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Orbit Card",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — A single feature card orbits a dot sphere on approved Blender camera motion.",
+  "hf": "orbit-card",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/orbit-card.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-organic-light-leak-overlay",
+  "skill": "hyperframes-registry",
+  "cat": "مؤثرات فوق الفيديو",
+  "mood": "هادي",
+  "name": "Organic Light Leak Overlay",
+  "desc": "مؤثر فوق الفيديو من مكتبة HyperFrames — Finite CSS light-leak overlay for memory beats and motivated transitions",
+  "hf": "organic-light-leak-overlay",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/organic-light-leak-overlay.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-plasma",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Plasma",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Deep violet plasma folds and churns across the whole frame. A WebGPU shader from the Shade",
+  "hf": "plasma",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/plasma.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-plastic",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Plastic",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A glossy white plastic orb with soft studio reflections, on black. A WebGPU shader from th",
+  "hf": "plastic",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/plastic.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-prism",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Prism",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A white beam of light splits into a slowly turning rainbow. A WebGPU shader from the Shade",
+  "hf": "prism",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/prism.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-reddit-post",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Reddit Post Card",
+  "desc": "واجهة من مكتبة HyperFrames — Animated Reddit post card overlay with upvotes and comments",
+  "hf": "reddit-post",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/reddit-post.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-ridged-burn",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Ridged Burn",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with ridged turbulence burn effect",
+  "hf": "ridged-burn",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ridged-burn.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-ripple-waves",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Ripple Waves",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with concentric ripple wave distortion",
+  "hf": "ripple-waves",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ripple-waves.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-ripples",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Ripples",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Concentric rings ripple outward from the centre, white on black. A WebGPU shader from the ",
+  "hf": "ripples",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ripples.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-sdf-iris",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "SDF Iris",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with signed distance field iris reveal",
+  "hf": "sdf-iris",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/sdf-iris.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-share-sheet-carousel",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Share-Sheet Carousel",
+  "desc": "واجهة من مكتبة HyperFrames — A share sheet springs up from the bottom of the phone and cycles previews inside its card ",
+  "hf": "share-sheet-carousel",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/share-sheet-carousel.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-sine-wave",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Sine Wave",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A glowing white sine wave travels across a black frame. A WebGPU shader from the Shaders l",
+  "hf": "sine-wave",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/sine-wave.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-slack-notification-ad",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Slack Notification Ad",
+  "desc": "واجهة من مكتبة HyperFrames — A portrait lock screen fills with escalating Slack video requests before HeyGen delivers t",
+  "hf": "slack-notification-ad",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/slack-notification-ad.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-spiral",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Spiral",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A bold black and white spiral turns in the frame. A WebGPU shader from the Shaders library",
+  "hf": "spiral",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/spiral.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-spotify-card",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Spotify Now Playing",
+  "desc": "واجهة من مكتبة HyperFrames — Animated Spotify now-playing card with album art and progress bar",
+  "hf": "spotify-card",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/spotify-card.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-strands",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Strands",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Thin ribbons of pink and blue light weave across a black field. A WebGPU shader from the S",
+  "hf": "strands",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/strands.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-stripes",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Stripes",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Bold black and white diagonal stripes slide across the frame. A WebGPU shader from the Sha",
+  "hf": "stripes",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/stripes.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-sun-burst",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Sun Burst",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Cream and black rays fan out from the centre and slowly turn. A WebGPU shader from the Sha",
+  "hf": "sun-burst",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/sun-burst.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-swirl-vortex",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Swirl Vortex",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with swirling vortex distortion",
+  "hf": "swirl-vortex",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/swirl-vortex.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-swirl",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Swirl",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Orange and blue color fields swirl and flow into each other across the whole frame. A WebG",
+  "hf": "swirl",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/swirl.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-thermal-distortion",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Thermal Distortion",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition with heat haze thermal distortion",
+  "hf": "thermal-distortion",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/thermal-distortion.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-thin-film",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Thin Film",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — An orb's rim shimmers with soap-bubble iridescence on black. A WebGPU shader from the Shad",
+  "hf": "thin-film",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/thin-film.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-tiktok-follow",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "TikTok Follow",
+  "desc": "واجهة من مكتبة HyperFrames — Animated TikTok follow overlay with profile card and follow button",
+  "hf": "tiktok-follow",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/tiktok-follow.mp4",
+   "from": 0,
+   "dur": 6
+  }
+ },
+ {
+  "id": "hf-transitions-3d",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "3D Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of 3D perspective flip and rotate transitions",
+  "hf": "transitions-3d",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-3d.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-blur",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Blur Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of blur-based transitions between scenes",
+  "hf": "transitions-blur",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-blur.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-cover",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Cover Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of cover/uncover slide transitions",
+  "hf": "transitions-cover",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-cover.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-destruction",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Destruction Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of destructive break-apart transitions",
+  "hf": "transitions-destruction",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-destruction.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-dissolve",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Dissolve Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of dissolve and fade transitions",
+  "hf": "transitions-dissolve",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-dissolve.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-distortion",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Distortion Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of warp and distortion transitions",
+  "hf": "transitions-distortion",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-distortion.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-grid",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Grid Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of grid-based tile transitions",
+  "hf": "transitions-grid",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-grid.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-light",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Light Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of light-based glow and flash transitions",
+  "hf": "transitions-light",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-light.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-mechanical",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Mechanical Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of mechanical shutter and iris transitions",
+  "hf": "transitions-mechanical",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-mechanical.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-other",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Other Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of miscellaneous creative transitions",
+  "hf": "transitions-other",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-other.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-push",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Push Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of push and slide transitions",
+  "hf": "transitions-push",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-push.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-radial",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Radial Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of radial wipe and reveal transitions",
+  "hf": "transitions-radial",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-radial.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-transitions-scale",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Scale Transitions",
+  "desc": "انتقال من مكتبة HyperFrames — Showcase of scale and zoom transitions",
+  "hf": "transitions-scale",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/transitions-scale.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-ui-3d-reveal",
+  "skill": "hyperframes-registry",
+  "cat": "أفلام كاملة",
+  "mood": "فخم",
+  "name": "3D UI Reveal",
+  "desc": "عرض من مكتبة HyperFrames — Perspective 3D reveal animation for UI elements",
+  "hf": "ui-3d-reveal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/ui-3d-reveal.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-iphone-device",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "iPhone & MacBook 3D Showcase",
+  "desc": "واجهة من مكتبة HyperFrames — Real GLTF iPhone 15 Pro Max and MacBook Pro models with live HTML-in-Canvas screen content",
+  "hf": "vfx-iphone-device",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-iphone-device.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-liquid-background",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Liquid Background",
+  "desc": "واجهة من مكتبة HyperFrames — Organic liquid simulation with vertex displacement on a subdivided plane. HTML content flo",
+  "hf": "vfx-liquid-background",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-liquid-background.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-liquid-glass",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Liquid Glass",
+  "desc": "واجهة من مكتبة HyperFrames — VFX composition block",
+  "hf": "vfx-liquid-glass",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-liquid-glass.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-magnetic",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Magnetic",
+  "desc": "واجهة من مكتبة HyperFrames — VFX composition block",
+  "hf": "vfx-magnetic",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-magnetic.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-portal",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Portal",
+  "desc": "واجهة من مكتبة HyperFrames — VFX composition block",
+  "hf": "vfx-portal",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-portal.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-shatter",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "Shatter",
+  "desc": "واجهة من مكتبة HyperFrames — VFX composition block",
+  "hf": "vfx-shatter",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-shatter.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-vfx-text-cursor",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "VFX Text Cursor",
+  "desc": "واجهة من مكتبة HyperFrames — Dramatic text reveal with cursor glow, chromatic shadow rays, and directional lighting on ",
+  "hf": "vfx-text-cursor",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/vfx-text-cursor.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-voronoi",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Voronoi",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Magenta cells with glowing blue centres shift and reshape across the frame. A WebGPU shade",
+  "hf": "voronoi",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/voronoi.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-water",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Water",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A sphere of wind-rippled water reflecting a blue sky, on black. A WebGPU shader from the S",
+  "hf": "water",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/water.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-waveform",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Waveform",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — Equalizer bars in a blue to pink gradient pulse across the middle of the frame, like an au",
+  "hf": "waveform",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/waveform.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-whip-pan",
+  "skill": "hyperframes-registry",
+  "cat": "انتقالات وكاميرا",
+  "mood": "طاقة",
+  "name": "Whip Pan",
+  "desc": "انتقال من مكتبة HyperFrames — Shader transition simulating a fast camera whip pan",
+  "hf": "whip-pan",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/whip-pan.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-wireframe-portal-title",
+  "skill": "hyperframes-registry",
+  "cat": "عناوين وهوك",
+  "mood": "فخم",
+  "name": "Wireframe Portal Title",
+  "desc": "عنوان ثلاثي الأبعاد من مكتبة HyperFrames — A wireframe portal bursts open, the title comes through, then its letters swap into a seco",
+  "hf": "wireframe-portal-title",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/wireframe-portal-title.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-world-map",
+  "skill": "hyperframes-registry",
+  "cat": "بيانات ورسوم",
+  "mood": "تقني",
+  "name": "World Map",
+  "desc": "رسم بيانات من مكتبة HyperFrames — Animated world choropleth with country-by-country reveal, tooltip labels, and rotating glo",
+  "hf": "world-map",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/world-map.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-worley-noise",
+  "skill": "hyperframes-registry",
+  "cat": "خلفيات",
+  "mood": "فخم",
+  "name": "Worley Noise",
+  "desc": "خلفية/خامة متحركة من مكتبة HyperFrames — A field of drifting cells, light at their centres and dark at their edges. A WebGPU shader",
+  "hf": "worley-noise",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/worley-noise.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-x-post",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "X Post Card",
+  "desc": "واجهة من مكتبة HyperFrames — Animated X/Twitter post card overlay with engagement metrics",
+  "hf": "x-post",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/x-post.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
+ },
+ {
+  "id": "hf-yt-lower-third",
+  "skill": "hyperframes-registry",
+  "cat": "واجهات تطبيق",
+  "mood": "تقني",
+  "name": "YouTube Lower Third",
+  "desc": "واجهة من مكتبة HyperFrames — Animated YouTube subscribe lower third with avatar and channel info",
+  "hf": "yt-lower-third",
+  "clip": {
+   "src": "~/.reel-styles/gallery/hf/raw/yt-lower-third.mp4",
+   "from": 0,
+   "dur": 6
+  },
+  "aspect": "1920/1080"
  }
 ]

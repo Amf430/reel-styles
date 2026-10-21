@@ -1,0 +1,18 @@
+{
+  "output": "alpha",
+  "needs_frames": true,
+  "default_theme": "dark",
+  "defaults": { "moves": [], "sfx": true, "sfx_gain": 0 },
+  "themes": {
+    "light": { "bg": "#F3EFEA", "ink": "#1F1F1D", "acc": "#D97757", "clay": "#C4683F", "mut": "#8A847A", "font": "Tajawal" },
+    "dark":  { "bg": "#121212", "ink": "#FFFFFF", "acc": "#FFD400", "clay": "#FFB02E", "mut": "#9A9A9A", "font": "Tajawal" },
+    "seen":  { "bg": "#240215", "ink": "#FFFFFF", "acc": "#B28764", "clay": "#E2C3A4", "mut": "#A38A96", "font": "Tajawal" },
+    "blue":  { "bg": "#0B1A3A", "ink": "#FFFFFF", "acc": "#3D7BFF", "clay": "#7FB2FF", "mut": "#8C9BB8", "font": "Tajawal" }
+  },
+  "tune": [
+    { "path": "sfx_gain", "label": "sfx gain (dB)", "min": -24, "max": 6, "step": 1 },
+    { "path": "theme.acc", "label": "accent", "type": "color" },
+    { "path": "theme.bg", "label": "background", "type": "color" },
+    { "path": "theme.ink", "label": "ink", "type": "color" }
+  ]
+}

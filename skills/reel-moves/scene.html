@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/r/engine/web/base.css">
+<style>
+  @font-face { font-family: "Amiri Quran"; src: url("/r/skills/reel-moves/vendor/AmiriQuran-Regular.ttf"); }
+  #cv { position: absolute; inset: 0; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas><div id="hit"></div></div>
+<script src="/r/skills/reel-moves/vendor/moves.js"></script>
+<script src="/r/skills/reel-moves/vendor/moves-compose.js"></script>
+<script type="module">
+// The move bank from majedphotos/video-ad-editor (vendor/, MIT) on our engine. Each move is FX.<id>(MV, t, o) drawing
+// in a 1080×1920 design space; this scene supplies the footage, the theme and other moments of the footage.
+import { Reel } from "/r/engine/web/base.js";
+
+const R = await Reel.init();
+const cv = document.getElementById("cv"), X = cv.getContext("2d");
+const FX = window.FX, MV = window.MV;
+window.X = X;   // MV.X reads the global canvas context
+
+// The moves this style offers (the rest of vendor/moves.js duplicates other reel-* styles and stays unused).
+// role: text/card draw over the footage; transition blends the shot before and after a real cut; camera reframes it.
+// compare wipes between two moments of the footage (`a`, `b`: times, default the move's start and end).
+// span = how long the move runs by default (s), pre = it starts drawing that long before `s`, snd = its sound from reel-sfx.
+const MOVES = {
+  wordSwap: { role: "text", span: 3, snd: "swipe_ui" }, focus: { role: "text", span: 3.5, snd: "whoosh_soft" },
+  decrypt: { role: "text", span: 2.5, snd: "glitch" }, rubberPop: { role: "text", span: 2, snd: "boing" },
+  versus: { role: "text", span: 2.5, snd: "slam" }, wordPath: { role: "text", span: 3.5, snd: "whoosh_soft" },
+  glassType: { role: "text", span: 3, snd: "shine" }, ijamDrop: { role: "text", span: 3, snd: "tick" },
+  videoText: { role: "text", span: 3, snd: "whoosh_in" }, joinSnap: { role: "text", span: 2.5, snd: "click" },
+  kufiGrid: { role: "text", span: 3, snd: "tick" }, redact: { role: "text", span: 3.5, snd: "stamp" },
+  ayahCalm: { role: "text", span: 5, snd: null },
+  priceTag: { role: "card", span: 3, snd: "cash" }, compare: { role: "compare", span: 3.5, snd: "swipe_ui" },
+  ringStat: { role: "card", span: 3, snd: "count_up" }, barChart: { role: "card", span: 3.5, snd: "count_up" },
+  uiWorld: { role: "card", span: 3.5, snd: "whoosh_soft" }, headlineWall: { role: "card", span: 3.5, snd: "pin_drop" },
+  coverStory: { role: "card", span: 3.5, snd: "shutter" },
+  stickerFreeze: { role: "card", span: 2.5, snd: "shutter" }, beamConnect: { role: "card", span: 3, snd: "sparkle" },
+  lightRays: { role: "card", span: 3.5, snd: "whoosh_soft" }, dynamicIsland: { role: "card", span: 2.4, snd: "notify" },
+  dotMap: { role: "card", span: 3.5, snd: "sparkle" }, terminalType: { role: "card", span: 4, snd: "typing" },
+  lineChartDraw: { role: "card", span: 3.5, snd: "draw_line" }, girihBloom: { role: "card", span: 3, snd: "sparkle" },
+  postCard: { role: "card", span: 3.5, snd: "swipe_ui" }, receiptPrint: { role: "card", span: 3.5, snd: "scroll_tick" },
+  couchWall: { role: "card", span: 3.5, snd: "whoosh_soft" }, frameBreak: { role: "card", span: 3, snd: "whoosh_in" },
+  crossZoom: { role: "transition", span: 1, snd: "whoosh_in" }, softWipe: { role: "transition", span: 1.3, snd: "whoosh_soft" },
+  dotZoom: { role: "transition", span: 1.1, pre: 0.7, snd: "zoom_in" }, dipFade: { role: "transition", span: 1.2, snd: "whoosh_soft" },
+  slideOver: { role: "transition", span: 0.9, snd: "swipe_ui" }, clockWipe: { role: "transition", span: 1, snd: "whoosh_soft" },
+  flip: { role: "transition", span: 0.9, snd: "whip" }, lightLeak: { role: "transition", span: 1.4, snd: "whoosh_soft" },
+  pageTurnRTL: { role: "transition", span: 0.8, snd: "paper" }, nuqtaCurtain: { role: "transition", span: 1.2, snd: "whoosh_soft" },
+  glassLens: { role: "transition", span: 1.4, snd: "shine" }, scanLine: { role: "transition", span: 0.9, snd: "scroll_tick" },
+  bentoCut: { role: "transition", span: 1.6, snd: "pop" }, doorway: { role: "transition", span: 0.5, snd: "whoosh_deep" },
+  lumaMelt: { role: "transition", span: 0.9, snd: "whoosh_soft" }, zoomWipe: { role: "transition", span: 0.9, snd: "whip" },
+  handheld: { role: "camera", span: 3, snd: null }, tilt3D: { role: "camera", span: 2.2, snd: "whoosh_soft" },
+  craneUp: { role: "camera", span: 2.5, snd: "whoosh_deep" }, punchCut: { role: "camera", span: 2, snd: null },
+  swishSettle: { role: "camera", span: 0.8, snd: "whip" }, motionEcho: { role: "camera", span: 0.6, snd: "whoosh_fast" },
+  orbit: { role: "camera", span: 3, snd: "whoosh_soft" },
+  phoneMockup: { role: "camera", span: 3, snd: "swipe_ui" },
+};
+
+// Upstream defaults are Kuwaiti (د.ك, «من الكويت للعالم»); ours start from Saudi ones. The job's own values win.
+const LOCAL = {
+  priceTag: { unit: "ر.س" }, receiptPrint: { currency: "ر.س" },
+  dotMap: { from: [46.68, 24.71], title: "من الرياض للعالم" },
+};
+
+const theme = () => {
+  const T = R.T;
+  Object.assign(window, { BG: T.bg, INK: T.ink, ACC: T.acc, CLAY: T.clay || T.acc, MUT: T.mut, FONT: R.P.font || T.font || "Tajawal" });
+};
+
+// A move's start and end on the video timeline. Transitions centre on the real cut (`cut`), the rest start at `s`.
+function windowOf(m) {
+  const d = MOVES[m.fx], dur = m.dur ?? d.span;
+  if (d.role === "transition") { const cut = m.cut ?? m.s + dur / 2, s = m.s ?? cut - dur / 2; return { s, e: s + dur, cut, dur, from: s - (d.pre ?? 0) }; }
+  return { s: m.s, e: m.out ?? m.s + dur, dur, from: m.s - (d.pre ?? 0) };
+}
+
+async function ready() {
+  await document.fonts.load('40px "Amiri Quran"', "الله");   // ayahCalm draws the verse in it
+  build();
+}
+
+function build() {
+  theme();
+  R.clearItems();
+  const hit = document.getElementById("hit");
+  hit.innerHTML = "";
+  (R.P.moves || []).forEach((m, i) => {
+    if (!MOVES[m.fx]) { console.error(`reel-moves: unknown move "${m.fx}"`); return; }
+    const el = document.createElement("div");
+    el.style.cssText = "position:absolute;inset:0";
+    hit.appendChild(el);
+    R.item({ id: "mv" + i, label: m.fx, els: [el], in: `moves.${i}.s`, out: `moves.${i}.out` });
+  });
+  layout();
+}
+
+function layout() {
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  cv.width = Math.round(R.W * dpr); cv.height = Math.round(R.H * dpr);
+}
+
+// Footage into a rect of the design space, covering it (default: the whole frame).
+function cover(Y, img, Rr = { x: 0, y: 0, w: 1080, h: 1920 }) {
+  if (!img || (img.readyState !== undefined && img.readyState < 2)) return false;
+  const sw = img.naturalWidth || img.videoWidth, sh = img.naturalHeight || img.videoHeight;
+  if (!sw) return false;
+  const sc = Math.max(Rr.w / sw, Rr.h / sh), cw = Rr.w / sc, ch = Rr.h / sc;
+  Y.drawImage(img, (sw - cw) / 2, (sh - ch) / 2, cw, ch, Rr.x, Rr.y, Rr.w, Rr.h);
+  return true;
+}
+
+let missing = [];
+const at = (Y, t, Rr) => { const img = R.frameAt(t); if (!img) { missing.push(t); return false; } return cover(Y, img, Rr); };
+const live = (Y, Rr) => cover(Y, R.source, Rr);
+
+function draw(t) {
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  X.clearRect(0, 0, cv.width, cv.height);
+  X.setTransform(cv.width / 1080, 0, 0, cv.height / 1920, 0, 0);
+  for (const m of R.P.moves || []) {
+    const d = MOVES[m.fx];
+    if (!d) continue;
+    const w = windowOf(m);
+    if (t < w.from - 1e-4 || t > w.e + 1e-4) continue;
+    const o = { ...LOCAL[m.fx], ...m, s: w.s, dur: w.dur, video: live, draw: live, videoAt: at };
+    if (d.role === "transition") {
+      const before = w.cut - 1 / R.fps;
+      o.A = (Y) => (t < w.cut ? live(Y) : at(Y, before));
+      o.B = (Y) => (t >= w.cut ? live(Y) : at(Y, w.cut));
+      o.Aat = (Y, tt) => at(Y, Math.min(tt, before));
+    }
+    if (d.role === "compare") { o.A = (Y) => at(Y, m.a ?? w.s); o.B = (Y) => at(Y, m.b ?? w.e); }
+    X.save();
+    FX[m.fx](MV, t, o);
+    X.restore();
+  }
+}
+
+async function renderAt(t) {
+  if (R._needsLayout || cv.width !== Math.round(R.W * Math.min(2, devicePixelRatio || 1))) { layout(); R._needsLayout = false; }
+  theme();
+  // A move can ask for footage from another moment; fetch what it asked for and draw again.
+  for (let pass = 0; pass < 3; pass++) {
+    missing = [];
+    draw(t);
+    if (!missing.length) break;
+    await R.loadFrames(missing);
+  }
+}
+
+function meta() {
+  const sfx = [];
+  for (const m of R.P.moves || []) {
+    const d = MOVES[m.fx];
+    if (!d || m.sfx === false) continue;
+    const id = typeof m.sfx === "string" ? m.sfx : d.snd;
+    if (id) sfx.push({ t: +windowOf(m).s.toFixed(3), id, gain: -3 });
+  }
+  return { sfx };
+}
+
+R.define({ ready, renderAt, meta, onParams: build });
+</script>
+</body>
+</html>

@@ -87,7 +87,7 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
 
 <header class="top wrap">
   <h1>مكتبة موشن الريلز</h1>
-  <p class="sub">كل حركة في سكلات <b>reel-*</b> بمعاينة حقيقية من المحرّك نفسه. اضغط على الحركة تشوفها كبيرة بصوتها، واضغط <b>＋</b> تضيفها لمود الفيديو وتنسخ الطلب جاهز للشات.</p>
+  <p class="sub">كل حركة في سكلات <b>reel-*</b> (منها بنك <b>reel-moves</b>) بمعاينة حقيقية من المحرّك نفسه، ومعها بلوكات <b>HyperFrames</b> للأفلام الكاملة. اضغط على الحركة تشوفها كبيرة بصوتها، واضغط <b>＋</b> تضيفها لمود الفيديو وتنسخ الطلب جاهز للشات.</p>
 </header>
 
 <div class="rail">
@@ -139,7 +139,7 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
 
 <script>
 const C = /*CATALOG*/[];
-const CATS = ["عناوين وهوك","حركات نص","كابشن","كروت ومعلومات","واجهات تطبيق","صور ومعارض","رسم يدوي","كولاج وورق","انتقالات وكاميرا","موشن شاشة كاملة","خرائط","خلفيات","أفلام كاملة"];
+const CATS = ["عناوين وهوك","حركات نص","كابشن","كروت ومعلومات","بيانات ورسوم","واجهات تطبيق","كود ومطورين","صور ومعارض","رسم يدوي","كولاج وورق","انتقالات وكاميرا","مؤثرات فوق الفيديو","موشن شاشة كاملة","خرائط","خلفيات","أفلام كاملة"];
 const MOODS = ["هادي","فخم","طاقة","تقني","يدوي"];
 const $ = s => document.querySelector(s);
 const st = { cat: "", mood: "", q: "", skill: "" };
@@ -147,7 +147,7 @@ let picks = [];
 try { picks = JSON.parse(localStorage.getItem("picks") || "[]").filter(id => C.some(e => e.id === id)) } catch (e) {}
 const save = () => { try { localStorage.setItem("picks", JSON.stringify(picks)) } catch (e) {} };
 const byId = id => C.find(e => e.id === id);
-const prompt1 = e => `استخدم ${e.skill} — ${e.name} (${e.id} من مكتبة الموشن)`;
+const prompt1 = e => e.hf ? `استخدم بلوك HyperFrames «${e.hf}» (hyperframes add ${e.hf}) — ${e.name}` : `استخدم ${e.skill} — ${e.name} (${e.id} من مكتبة الموشن)`;
 const promptAll = () => "ابغى الفيديو بهالمود — استخدم هالحركات من مكتبة الموشن (gallery/catalog.json):\n" +
   picks.map(byId).map(e => `- ${e.skill} · ${e.name} (${e.id})`).join("\n");
 

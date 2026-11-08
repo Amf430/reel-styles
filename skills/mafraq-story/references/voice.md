@@ -27,3 +27,11 @@ uvx --python 3.11 --from mlx-whisper python -I scripts/vo-words.py ep02/vo/mine/
 
 ## أمثلة ح١
 `templates/ep01-lines.json` (الأوقات اللي انقصت) و`templates/ep01-words.json` (توقيت الكلمات).
+
+## من ح٢ وطالع
+- **التنظيف بـ DeepFilterNet** لما تسجيل الجوال فيه ضوضاء (شارع، مكيف):
+  `uvx --python 3.11 --from deepfilternet --with "torch==2.0.1" --with "torchaudio==2.0.2" --with "numpy<2" deepFilter --atten-lim 24 -o dfn raw.wav`
+  وبعدها قص الجملة، وloudnorm على ‎-16 LUFS للسطر، وفرّغه بـ whisper تتأكد إن الكلام كامل.
+- **التذكير** ياخذ صوت الحلقة اللي قبل نفسه (`ep02/tools/recap.py` في الريبو الخاص)، وما يتسجل من جديد.
+- **همس العم** في الفويس الأصلي ينعاد بنفس المقطع من ح١ (`02-u`)، عشان صوته يبقى واحد. أسطر العم بدون فلتر جوال.
+- **علاء أحياناً يرسل سطر لحاله** (تصحيح أو سطر ناقص). نظّفه بنفس الطريقة وحطه في مكانه (شوف «سطر جديد بعد التسجيل» في `edit.md`).

@@ -20,7 +20,7 @@ no panel frame.
 - **أي شاشة جوال:** «glowing warm amber but completely blank, no interface». الموديل يخرب الكتابة العربية، فكل واجهة (إشعار، موجة صوت، فقاعات) تنضاف بالكود في المونتاج.
 - **ولا كتابة أبداً:** no text, no license plate text, no clock numbers.
 
-مراجع الشكل في الكِت: `refs/hero-ref.png` و`refs/uncle-ref.png` و`refs/style-ref.png`.
+مراجع الشكل في الريبو الخاص: `refs/hero-ref.png` و`refs/uncle-ref.png` و`refs/style-ref.png`.
 
 ## الطريقة اللي نجحت (شبكة ← لوحات)
 1. **شبكة 3×3:** نطلب ٩ لوحات قصة وحدة في صورة وحدة، ونرفق معها مراجع الشخصيات والستايل. لأنها تنرسم مع بعض، الشخصيات تطلع نفس الشكل في كل اللوحات. البرومبت في `prompts-ep01.md`، رقم ٤ و٨.

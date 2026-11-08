@@ -5,8 +5,10 @@
 <link rel="stylesheet" href="/r/engine/web/base.css">
 <style>
   #map { position: absolute; overflow: hidden; }
-  #map canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  #vig { position: absolute; inset: 0; pointer-events: none; }
+  #world { position: absolute; transform-style: preserve-3d; }
+  #world canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #ground { position: absolute; inset: 0; transform-style: preserve-3d; }
+  #vig, #fog { position: absolute; inset: 0; pointer-events: none; }
   .pin { position: absolute; width: 0; height: 0; }
   .pin .ring { position: absolute; left: 0; top: 0; border-radius: 50%; border: .12em solid; transform: translate(-50%, -50%); }
   .pin .head { position: absolute; left: 0; top: 0; width: 1.6em; height: 2.2em; transform-origin: 50% 100%; }
@@ -16,17 +18,29 @@
   .poi { position: absolute; width: 0; height: 0; }
   .poi .dot { position: absolute; width: .6em; height: .6em; border-radius: 50%; transform: translate(-50%, -50%); border: .14em solid #fff; }
   .poi .card { font-size: .7em; transform: translate(-50%, calc(-100% - .7em)); }
+  /* Vector base: a marker that stands up off the tilted ground, and labels lying on it. */
+  .vpin { position: absolute; width: 0; height: 0; transform-style: preserve-3d; }
+  .vpin .dot { position: absolute; width: .42em; height: .42em; border-radius: 50%; transform: translate(-50%, -50%); }
+  .vpin .ring { position: absolute; left: 0; top: 0; border-radius: 50%; border: .07em solid; transform: translate(-50%, -50%); }
+  .vpin .stand { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; transform-style: preserve-3d; }
+  .vpin .stem { position: absolute; left: -.03em; bottom: 0; width: .06em; transform-origin: 50% 100%; }
+  .vpin .label { position: absolute; bottom: 0; left: 0; white-space: nowrap; text-align: center; transform: translateX(-50%); }
+  .vpin .label .t { font-weight: 700; font-size: 1.15em; line-height: 1.15; }
+  .vpin .label .s { font-weight: 400; font-size: .7em; margin-top: .45em; opacity: .95; }
+  .area { position: absolute; width: 0; height: 0; }
+  .area span { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; font-weight: 300; word-spacing: .3em; }  /* no letter-spacing: it breaks Arabic joins */
   #credit { position: absolute; font-size: 11px; opacity: .7; direction: ltr; }
 </style>
 </head>
 <body>
-<div id="stage"><div id="map"><canvas id="cv"></canvas><div id="vig"></div><div id="over"></div><div id="credit"></div></div></div>
+<div id="stage"><div id="map"><div id="world"><canvas id="cv"></canvas><div id="ground"></div></div><div id="fog"></div><div id="vig"></div><div id="over"></div><div id="credit"></div></div></div>
 <script type="module">
 import { Reel, tw, ease, clamp, lerp } from "/r/engine/web/base.js";
 
 const R = await Reel.init();
-const mapEl = document.getElementById("map"), cv = document.getElementById("cv"), over = document.getElementById("over");
-let M = null, levels = {}, pin = null, pois = [];
+const mapEl = document.getElementById("map"), world = document.getElementById("world"), cv = document.getElementById("cv");
+const over = document.getElementById("over"), ground = document.getElementById("ground");
+let M = null, levels = {}, pin = null, pois = [], V = null;
 
 // Web Mercator, matches maptiles.py.
 function worldPx(lat, lon, z) {
@@ -34,9 +48,11 @@ function worldPx(lat, lon, z) {
   return [((lon + 180) / 360) * s, ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * s];
 }
 const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const isVector = () => !!M?.vector;
 
 async function loadLevels() {
   M = await (await fetch(R.asset(R.job.map_manifest))).json();
+  if (isVector()) return loadVector();
   const [d0, d1, d2] = hex(R.T.dark), [l0, l1, l2] = hex(R.T.light);
   for (const [L, lv] of Object.entries(M.levels)) {
     const c = document.createElement("canvas");
@@ -59,23 +75,108 @@ async function loadLevels() {
   }
 }
 
+// ---------- Vector base ----------
+// Everything is kept in zoom-0 world pixels (256 px world) and scaled at draw time.
+const RANKS = { motorway: 0, trunk: 0, primary: 1, secondary: 2, tertiary: 3 };
+const RINGS = 7;   // roads light up ring by ring, outward from the pin
+
+async function loadVector() {
+  const D = await (await fetch(R.asset(M.vector))).json();
+  const [clat, clon] = M.places.center, [cx, cy] = worldPx(clat, clon, 0);
+  const w0 = (p) => worldPx(p[0], p[1], 0);
+  const [s, wst, n, e] = D.bbox, [bx0, by0] = worldPx(n, wst, 0), [bx1, by1] = worldPx(s, e, 0);
+  // Roads → Path2D per (rank, ring).
+  const roads = Array.from({ length: 4 }, () => Array.from({ length: RINGS }, () => new Path2D()));
+  const maxd = Math.hypot(bx1 - bx0, by1 - by0) / 2;
+  for (const r of D.roads) {
+    const rank = RANKS[r.k]; if (rank == null) continue;
+    const pts = r.p.map(w0), mid = pts[pts.length >> 1];
+    const ring = Math.min(RINGS - 1, Math.floor((Math.hypot(mid[0] - cx, mid[1] - cy) / maxd) ** 0.6 * RINGS));
+    const p = roads[rank][ring]; p.moveTo(...pts[0]); for (const q of pts.slice(1)) p.lineTo(...q);
+  }
+  const coast = new Path2D();
+  for (const c of D.coast) { const pts = c.map(w0); coast.moveTo(...pts[0]); for (const q of pts.slice(1)) coast.lineTo(...q); }
+  const water = new Path2D();
+  for (const c of D.water) { const pts = c.map(w0); water.moveTo(...pts[0]); for (const q of pts.slice(1)) water.lineTo(...q); water.closePath(); }
+  V = { roads, coast, water, bx0, by0, bx1, by1, sea: seaMask(D, w0, bx0, by0, bx1, by1) };
+}
+
+// Sea = the regions on the water side of the coastline (OSM: land on the left, water on the right).
+// Rasterise the coast, label the regions between the lines, and let every coast segment vote.
+function seaMask(D, w0, bx0, by0, bx1, by1) {
+  const N = 3072, sx = N / (bx1 - bx0), Wd = N, Hd = Math.max(8, Math.round((by1 - by0) * sx));
+  const c = document.createElement("canvas"); c.width = Wd; c.height = Hd;
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.fillStyle = "#000"; x.fillRect(0, 0, Wd, Hd);
+  x.strokeStyle = "#fff"; x.lineWidth = 2.2; x.lineJoin = x.lineCap = "round";
+  const P = (p) => { const [a, b] = w0(p); return [(a - bx0) * sx, (b - by0) * sx]; };
+  const segs = [];
+  for (const cst of D.coast) {
+    const pts = cst.map(P); x.beginPath(); x.moveTo(...pts[0]);
+    for (let i = 1; i < pts.length; i++) { x.lineTo(...pts[i]); segs.push([pts[i - 1], pts[i]]); }
+    x.stroke();
+  }
+  const px = x.getImageData(0, 0, Wd, Hd).data, lab = new Int32Array(Wd * Hd);
+  for (let i = 0; i < Wd * Hd; i++) lab[i] = px[i * 4] > 100 ? -1 : 0;
+  let nlab = 0; const stack = [];
+  for (let i = 0; i < Wd * Hd; i++) {
+    if (lab[i] !== 0) continue;
+    nlab++; lab[i] = nlab; stack.push(i);
+    while (stack.length) {
+      const j = stack.pop(), jx = j % Wd, jy = (j / Wd) | 0;
+      if (jx > 0 && lab[j - 1] === 0) { lab[j - 1] = nlab; stack.push(j - 1); }
+      if (jx < Wd - 1 && lab[j + 1] === 0) { lab[j + 1] = nlab; stack.push(j + 1); }
+      if (jy > 0 && lab[j - Wd] === 0) { lab[j - Wd] = nlab; stack.push(j - Wd); }
+      if (jy < Hd - 1 && lab[j + Wd] === 0) { lab[j + Wd] = nlab; stack.push(j + Wd); }
+    }
+  }
+  const vote = new Float32Array(nlab + 1);
+  for (const [a, b] of segs) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy); if (L < 1) continue;
+    const nx = -dy / L, ny = dx / L, mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;   // (nx,ny) points to the right in screen coords
+    for (const [sgn, w] of [[1, 1], [-1, -1]]) {
+      const qx = Math.round(mx + sgn * nx * 4), qy = Math.round(my + sgn * ny * 4);
+      if (qx < 0 || qy < 0 || qx >= Wd || qy >= Hd) continue;
+      const l = lab[qy * Wd + qx]; if (l > 0) vote[l] += w * L;
+    }
+  }
+  const im = x.createImageData(Wd, Hd), o = im.data;
+  for (let i = 0; i < Wd * Hd; i++) { const l = lab[i], sea = l > 0 ? vote[l] > 0 : false; o[i * 4 + 3] = sea || l === -1 ? 255 : 0; o[i * 4] = o[i * 4 + 1] = o[i * 4 + 2] = 255; }
+  x.putImageData(im, 0, 0);
+  return { canvas: c, sx };
+}
+
 function build() {
   document.body.dir = R.P.dir || "rtl";
   R.clearItems();
-  over.innerHTML = "";
+  over.innerHTML = ""; ground.innerHTML = "";
   const T = R.T, P = R.P;
   pin = document.createElement("div");
-  pin.className = "pin";
-  pin.innerHTML = `<div class="ring"></div><div class="ring"></div><div class="head"><svg viewBox="0 0 32 44"><path d="M16 43C16 43 2 26 2 16a14 14 0 0 1 28 0c0 10-14 27-14 27z" fill="${T.accent}" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg></div>
-    ${P.pin.label ? `<div class="card"><div class="t">${P.pin.label}</div>${P.pin.sub ? `<div class="s">${P.pin.sub}</div>` : ""}</div>` : ""}`;
-  over.appendChild(pin);
-  pois = (P.pois || []).map((p, i) => {
-    const el = document.createElement("div");
-    el.className = "poi";
-    el.innerHTML = `<div class="dot"></div><div class="card"><div class="t">${p.label ?? ""}</div>${p.sub ? `<div class="s">${p.sub}</div>` : ""}</div>`;
-    over.appendChild(el);
-    return { p, el, i };
-  });
+  if (isVector()) {
+    pin.className = "vpin";
+    pin.innerHTML = `<div class="ring"></div><div class="ring"></div><div class="dot"></div>
+      <div class="stand"><div class="stem"></div>${P.pin.label ? `<div class="label"><div class="t">${P.pin.label}</div>${P.pin.sub ? `<div class="s">${P.pin.sub}</div>` : ""}</div>` : ""}</div>`;
+    ground.appendChild(pin);
+    pois = (P.pois || []).map((p, i) => {
+      const el = document.createElement("div");
+      el.className = "area";
+      el.innerHTML = `<span>${p.label ?? ""}</span>`;
+      ground.appendChild(el);
+      return { p, el, i };
+    });
+  } else {
+    pin.className = "pin";
+    pin.innerHTML = `<div class="ring"></div><div class="ring"></div><div class="head"><svg viewBox="0 0 32 44"><path d="M16 43C16 43 2 26 2 16a14 14 0 0 1 28 0c0 10-14 27-14 27z" fill="${T.accent}" stroke="#fff" stroke-width="2.5"/><circle cx="16" cy="16" r="5.5" fill="#fff"/></svg></div>
+      ${P.pin.label ? `<div class="card"><div class="t">${P.pin.label}</div>${P.pin.sub ? `<div class="s">${P.pin.sub}</div>` : ""}</div>` : ""}`;
+    over.appendChild(pin);
+    pois = (P.pois || []).map((p, i) => {
+      const el = document.createElement("div");
+      el.className = "poi";
+      el.innerHTML = `<div class="dot"></div><div class="card"><div class="t">${p.label ?? ""}</div>${p.sub ? `<div class="s">${p.sub}</div>` : ""}</div>`;
+      over.appendChild(el);
+      return { p, el, i };
+    });
+  }
   document.getElementById("credit").textContent = M?.attribution || "© OpenStreetMap";
   R.item({ id: "map", label: "map", els: [mapEl], in: "in", out: "out", xf: "xf" });
   layout();
@@ -86,15 +187,29 @@ function layout() {
   const box = full ? { x: 0, y: 0, w: R.W, h: R.H } : { x: (P.card.x - P.card.w / 2) * R.W, y: (P.card.y - P.card.h / 2) * R.H, w: P.card.w * R.W, h: P.card.h * R.H };
   Object.assign(mapEl.style, { left: box.x + "px", top: box.y + "px", width: box.w + "px", height: box.h + "px",
     borderRadius: full ? "0" : P.card.radius * u + "px", boxShadow: full ? "none" : `0 ${20 * u}px ${60 * u}px rgba(0,0,0,.4)`, cornerShape: "squircle" });
+  // The vector world is a larger plane so it still fills the frame once tilted and turned.
+  const k = isVector() ? 2.2 : 1, ww = box.w * k, wh = box.h * k;
+  Object.assign(world.style, { left: (box.w - ww) / 2 + "px", top: (box.h - wh) / 2 + "px", width: ww + "px", height: wh + "px" });
   const dpr = Math.min(2, devicePixelRatio || 1);
-  cv.width = Math.round(box.w * dpr); cv.height = Math.round(box.h * dpr);
-  document.getElementById("vig").style.background = `radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(0,0,0,${T.vignette}) 100%)`;
-  over.style.fontSize = 40 * u + "px";
+  cv.width = Math.round(ww * dpr); cv.height = Math.round(wh * dpr);
+  document.getElementById("vig").style.background = `radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(0,0,0,${T.vignette}) 100%)`;
+  document.getElementById("fog").style.background = isVector() ? `linear-gradient(to bottom, ${T.land ?? T.dark} 0%, transparent 32%)` : "none";
+  over.style.fontSize = ground.style.fontSize = 40 * u + "px";
+  over.style.fontFamily = ground.style.fontFamily = P.font ? `"${P.font}", Tajawal` : "";
   Object.assign(document.getElementById("credit").style, { right: 10 * u + "px", bottom: 8 * u + "px", color: T.text, fontSize: Math.max(10, 13 * u) + "px" });
   for (const c of over.querySelectorAll(".card")) Object.assign(c.style, { background: T.card, color: T.text });
   for (const r of pin.querySelectorAll(".ring")) r.style.borderColor = T.accent;
-  for (const p of pois) p.el.querySelector(".dot").style.background = p.p.color || T.accent;
-  R._box = box;
+  if (isVector()) {
+    pin.querySelector(".dot").style.background = T.accent;
+    pin.querySelector(".dot").style.boxShadow = `0 0 ${18 * u}px ${4 * u}px ${T.accent}`;
+    pin.querySelector(".stem").style.background = `linear-gradient(to top, ${T.accent}, ${T.accent}00)`;
+    const lb = pin.querySelector(".label");
+    if (lb) { lb.style.color = T.text; lb.querySelector(".s") && (lb.querySelector(".s").style.color = T.accent); }
+    for (const p of pois) Object.assign(p.el.querySelector("span").style, { color: T.text, fontSize: (p.p.size ?? 1.1) + "em" });
+  } else {
+    for (const p of pois) p.el.querySelector(".dot").style.background = p.p.color || T.accent;
+  }
+  R._box = box; R._world = { w: ww, h: wh, dpr };
 }
 
 function renderAt(t) {
@@ -106,6 +221,7 @@ function renderAt(t) {
   if (!vis || !M) return;
   const fade = tw(t, tin, 0.35, ease.outCubic) * (1 - tw(t, tout - 0.35, 0.35, ease.inCubic));
   mapEl.style.opacity = fade;
+  if (isVector()) return renderVector(t, tin);
 
   // Camera: zoom in on the centre.
   const C = P.camera, cs = C.start ?? tin;
@@ -165,6 +281,80 @@ function renderAt(t) {
     const [x, y] = proj(at), pp = tw(t, (k.p.time ?? pa + 0.6 + k.i * 0.35), 0.35, ease.outBack);
     Object.assign(k.el.style, { left: x + "px", top: y + "px", opacity: clamp(pp * 2), transform: `scale(${0.5 + 0.5 * pp})` });
   }
+}
+
+function renderVector(t, tin) {
+  const P = R.P, T = R.T, u = R.u, box = R._box, Wd = R._world;
+  const C = P.camera, cs = C.start ?? tin, k = tw(t, cs, C.dur, ease.inOutCubic);
+  const z = lerp(C.zoom_from, C.zoom_to, k), S = 2 ** z;
+  const tilt = lerp(C.tilt_from ?? 0, C.tilt_to ?? 0, k), bearing = lerp(C.bearing_from ?? 0, C.bearing_to ?? 0, k);
+  mapEl.style.perspective = (C.perspective ?? 1.6) * box.h + "px";
+  mapEl.style.perspectiveOrigin = "50% 42%";
+  world.style.transform = `rotateX(${tilt}deg) rotateZ(${bearing}deg)`;
+
+  const [lat, lon] = M.places.center, [cx, cy] = worldPx(lat, lon, 0);
+  const ctx = cv.getContext("2d"), d = Wd.dpr;
+  // world-0 px → canvas px (centre of the plane = the project).
+  const toCanvas = () => ctx.setTransform(S * d, 0, 0, S * d, (Wd.w / 2 - cx * S) * d, (Wd.h / 2 - cy * S) * d);
+  const lw = (px) => (px * u) / S;      // line width in screen px → world-0 units
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = T.land; ctx.fillRect(0, 0, cv.width, cv.height);
+  toCanvas();
+  ctx.lineCap = ctx.lineJoin = "round";
+  // Sea: tint the mask, then a soft glow along the coast.
+  const sea = V.sea;
+  ctx.save();
+  ctx.globalAlpha = 1;
+  ctx.drawImage(tinted(sea.canvas, T.sea), V.bx0, V.by0, V.bx1 - V.bx0, V.by1 - V.by0);
+  ctx.fillStyle = T.sea; ctx.fill(V.water);
+  ctx.restore();
+  ctx.strokeStyle = T.coast;
+  ctx.globalAlpha = 0.12; ctx.lineWidth = lw(9); ctx.stroke(V.coast);
+  ctx.globalAlpha = 0.65; ctx.lineWidth = lw(1.3); ctx.stroke(V.coast);
+  // Roads: light up ring by ring from the project outward.
+  const W = [[2.6, 0.95, 8, 0.16], [1.5, 0.7, 5, 0.08], [0.9, 0.42, 0, 0], [0.6, 0.2, 0, 0]];   // core width, alpha, glow width, glow alpha
+  const r0 = P.roads?.start ?? cs + 0.1, rd = P.roads?.dur ?? C.dur * 0.7;
+  ctx.strokeStyle = T.accent;
+  for (let rank = 3; rank >= 0; rank--) {
+    const [cw, ca, gw, ga] = W[rank];
+    for (let ring = 0; ring < RINGS; ring++) {
+      const on = tw(t, r0 + (ring / RINGS) * rd, 0.45, ease.outCubic); if (on <= 0) continue;
+      const p = V.roads[rank][ring];
+      if (gw) { ctx.globalAlpha = ga * on; ctx.lineWidth = lw(gw); ctx.stroke(p); }
+      ctx.globalAlpha = ca * on; ctx.lineWidth = lw(cw); ctx.stroke(p);
+    }
+  }
+  ctx.globalAlpha = 1;
+
+  // Ground items sit at plane coordinates; the stand counter-rotates so the label faces the camera.
+  const plane = (la, lo) => { const [x, y] = worldPx(la, lo, 0); return [Wd.w / 2 + (x - cx) * S, Wd.h / 2 + (y - cy) * S]; };
+  const [px, py] = plane(lat, lon), pa = P.pin.at ?? cs + C.dur * 0.55;
+  Object.assign(pin.style, { left: px + "px", top: py + "px" });
+  const dot = pin.querySelector(".dot"), pd = tw(t, pa, 0.4, ease.outBack);
+  Object.assign(dot.style, { opacity: clamp(pd * 2), transform: `translate(-50%, -50%) scale(${pd})` });
+  pin.querySelectorAll(".ring").forEach((r, i) => {
+    const ph = ((t - pa - 0.2 - i * 0.7) % 1.4 + 1.4) % 1.4 / 1.4, on = t > pa + 0.2;
+    Object.assign(r.style, { width: 0.5 + ph * 4.5 + "em", height: 0.5 + ph * 4.5 + "em", opacity: on ? (1 - ph) * 0.8 : 0 });
+  });
+  const stand = pin.querySelector(".stand");
+  stand.style.transform = `rotateZ(${-bearing}deg) rotateX(${-tilt}deg)`;
+  const sh = (P.pin.height ?? 3.2), ps = tw(t, pa + 0.15, 0.6, ease.outCubic), pl = tw(t, pa + 0.45, 0.6, ease.outCubic);
+  Object.assign(pin.querySelector(".stem").style, { height: sh + "em", transform: `scaleY(${ps})` });
+  const lb = pin.querySelector(".label");
+  if (lb) Object.assign(lb.style, { opacity: pl, transform: `translateX(-50%) translateY(${-sh - 0.35 + (1 - pl) * 0.4}em)` });
+  for (const q of pois) {
+    const at = M.places["poi" + q.i]; if (!at) continue;
+    const [x, y] = plane(at[0], at[1]), pp = tw(t, q.p.time ?? cs + 0.3 + q.i * 0.25, 0.8, ease.outCubic);
+    Object.assign(q.el.style, { left: x + "px", top: y + "px", opacity: pp * (q.p.opacity ?? 0.35) });
+  }
+}
+
+const _tint = new Map();
+function tinted(src, color) {
+  const key = color; if (_tint.has(key)) return _tint.get(key);
+  const c = document.createElement("canvas"); c.width = src.width; c.height = src.height;
+  const x = c.getContext("2d"); x.drawImage(src, 0, 0); x.globalCompositeOperation = "source-in"; x.fillStyle = color; x.fillRect(0, 0, c.width, c.height);
+  _tint.set(key, c); return c;
 }
 
 R.define({ ready: async () => { await loadLevels(); build(); }, renderAt, onParams: () => build() });

@@ -1,0 +1,50 @@
+@font-face { font-family: "Tajawal"; src: url("../assets/fonts/Tajawal-Regular.ttf"); font-weight: 400; }
+@font-face { font-family: "Tajawal"; src: url("../assets/fonts/Tajawal-Medium.ttf"); font-weight: 500; }
+@font-face { font-family: "Tajawal"; src: url("../assets/fonts/Tajawal-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Tajawal"; src: url("../assets/fonts/Tajawal-ExtraBold.ttf"); font-weight: 800; }
+body { margin: 0; background: #fff; font-family: "Tajawal", sans-serif; }
+#root { direction: rtl; position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #fff; }
+.scene { position: absolute; inset: 0; }
+.cam { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.fx { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; }
+
+/* the logo build (lib/logobuild.js) */
+.lb { position: absolute; direction: ltr; }
+.lb-part { position: absolute; }
+.lb-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.lb-trace { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.pulse { position: absolute; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%;
+  box-sizing: border-box; border: 2px solid var(--accent); opacity: 0; }
+.pulse.b { border-color: var(--light); }
+
+/* the closing card (lib/endcard.js) */
+.ec { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.ec .ec-logo { position: absolute; }
+.ec .ec-tag { position: absolute; top: 362px; left: 0; right: 0; text-align: center; color: var(--accent); font-weight: 800; font-size: 44px; }
+.ec .col { position: absolute; top: 455px; width: 520px; margin-left: -260px; display: flex; flex-direction: column; align-items: center; }
+.ec .tab { position: relative; height: 66px; padding: 0 44px; border-radius: 18px; display: flex; align-items: center;
+  background: linear-gradient(90deg, var(--accent), var(--primary)); color: #fff; font-weight: 800; font-size: 36px; white-space: nowrap; }
+.ec .tab::after { content: ""; position: absolute; bottom: -12px; left: 50%; margin-left: -12px; border: 12px solid transparent;
+  border-bottom: 0; border-top-color: color-mix(in srgb, var(--accent) 50%, var(--primary)); }
+.ec .body { margin-top: 30px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+.ec .qr { width: 236px; height: 236px; padding: 16px; background: #fff; border-radius: 22px; border: 3px solid var(--line);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--primary) 12%, transparent); }
+.ec .qr img { width: 100%; height: 100%; display: block; }
+.ec .cap { color: var(--ink); font-weight: 700; font-size: 28px; direction: ltr; }
+.ec .big, .ec .iban, .ec .acct { background: #fff; border: 3px solid var(--line); color: var(--primary); font-weight: 800; line-height: 1; direction: ltr;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--primary) 12%, transparent); white-space: nowrap; }
+.ec .big { border-radius: 26px; padding: 18px 34px; font-size: 62px; display: flex; align-items: center; gap: 18px; }
+.ec .big svg, .ec .bankic svg { width: 50px; height: 50px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ec .bank { height: 74px; }
+.ec .iban { border-radius: 22px; padding: 18px 26px; font-size: 34px; letter-spacing: 1px; }
+.ec .acct { border-radius: 18px; padding: 10px 18px; font-size: 26px; display: flex; align-items: center; gap: 14px; }
+.ec .acct img { height: 38px; width: 104px; object-fit: contain; }
+.ec .ec-bar { position: absolute; top: 905px; left: 120px; width: 1680px; height: 92px; border-radius: 46px; background: var(--mist);
+  display: flex; align-items: center; justify-content: space-evenly; }
+.ec .item { display: flex; align-items: center; gap: 14px; color: var(--ink); font-weight: 700; font-size: 30px; white-space: nowrap; }
+.ec .item .ic { width: 50px; height: 50px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; flex: none; }
+.ec .item .ic svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ec .item .soc { display: flex; gap: 8px; }
+.ec .item .soc svg { width: 30px; height: 30px; fill: none; stroke: var(--primary); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ec .sep { width: 2px; height: 44px; background: var(--line); }

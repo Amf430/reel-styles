@@ -18,7 +18,8 @@
     "keywords": [],
     "colors": {},
     "auto_numbers": true,
-    "strip_punct": true
+    "strip_punct": true,
+    "font": null
   },
   "themes": {
     "hormozi": {
@@ -151,6 +152,38 @@
       "params": {
         "max_words": 4
       }
+    },
+    "motion": {
+      "size": 60,
+      "weight": 400,
+      "text": "#ffffff",
+      "active": "#ffffff",
+      "hl": "#e2c086",
+      "stroke": "#000000",
+      "stroke_w": 0,
+      "shadow": 0.6,
+      "reveal": "word",
+      "pop": 0,
+      "box": null,
+      "box_text": null,
+      "dim": 0.4,
+      "rise": 10,
+      "motion": true,
+      "word_dur": 0.55,
+      "blur": 16,
+      "slide": 70,
+      "out_dur": 0.25,
+      "lift": 24,
+      "params": {
+        "max_words": 6,
+        "max_chars": 34,
+        "font": "Readex Pro",
+        "google_fonts": [
+          "Readex Pro"
+        ]
+      },
+      "scrim": 0.6,
+      "scrim_h": 0.4
     }
   },
   "tune": [

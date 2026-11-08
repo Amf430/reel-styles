@@ -21,12 +21,18 @@
       "zoom_from": 11,
       "zoom_to": 15,
       "start": null,
-      "dur": 3.2
+      "dur": 3.2,
+      "tilt_from": 0,
+      "tilt_to": 0,
+      "bearing_from": 0,
+      "bearing_to": 0,
+      "perspective": 1.6
     },
     "pin": {
       "label": "",
       "sub": "",
-      "at": 1.6
+      "at": 1.6,
+      "height": 3.2
     },
     "route": {
       "points": [],
@@ -36,7 +42,8 @@
     },
     "pois": [],
     "in": null,
-    "out": null
+    "out": null,
+    "base": "tiles"
   },
   "themes": {
     "night": {
@@ -46,7 +53,10 @@
       "accent": "#ffb020",
       "text": "#ffffff",
       "card": "rgba(12,18,32,0.82)",
-      "vignette": 0.45
+      "vignette": 0.45,
+      "land": "#0b1220",
+      "sea": "#05070a",
+      "coast": "#5d7aa6"
     },
     "day": {
       "dark": "#7d8794",
@@ -55,7 +65,10 @@
       "accent": "#e0242b",
       "text": "#111111",
       "card": "rgba(255,255,255,0.9)",
-      "vignette": 0.15
+      "vignette": 0.15,
+      "land": "#7d8794",
+      "sea": "#05070a",
+      "coast": "#f4f1ea"
     },
     "seen": {
       "dark": "#1a0009",
@@ -64,7 +77,10 @@
       "accent": "#e2c3a4",
       "text": "#ffffff",
       "card": "rgba(36,2,21,0.85)",
-      "vignette": 0.4
+      "vignette": 0.4,
+      "land": "#1a0009",
+      "sea": "#05070a",
+      "coast": "#a8806a"
     },
     "teal": {
       "dark": "#0d2b2a",
@@ -73,7 +89,22 @@
       "accent": "#ffd38a",
       "text": "#ffffff",
       "card": "rgba(10,32,30,0.82)",
-      "vignette": 0.35
+      "vignette": 0.35,
+      "land": "#0d2b2a",
+      "sea": "#05070a",
+      "coast": "#7fb8ae"
+    },
+    "gold": {
+      "dark": "#100e0b",
+      "light": "#4d463b",
+      "road": 0.9,
+      "accent": "#d6a84e",
+      "text": "#f4ecdc",
+      "card": "rgba(16,14,11,0.75)",
+      "vignette": 0.6,
+      "land": "#18140f",
+      "sea": "#06080b",
+      "coast": "#e9d5a6"
     }
   },
   "tune": [
@@ -119,6 +150,30 @@
       "min": 0,
       "max": 1,
       "step": 0.05
+    },
+    {
+      "path": "camera.tilt_to",
+      "label": "tilt",
+      "min": 0,
+      "max": 65,
+      "step": 1
+    },
+    {
+      "path": "camera.bearing_to",
+      "label": "turn",
+      "min": -45,
+      "max": 45,
+      "step": 1
+    },
+    {
+      "path": "theme.land",
+      "label": "land",
+      "type": "color"
+    },
+    {
+      "path": "theme.sea",
+      "label": "sea",
+      "type": "color"
     }
   ]
 }

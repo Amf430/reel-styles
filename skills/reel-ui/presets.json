@@ -8,10 +8,10 @@
     "elements": []
   },
   "themes": {
-    "ios-light": { "surface": "rgba(245,245,247,0.78)", "text": "#111111", "sub": "rgba(17,17,17,0.6)", "accent": "#0a84ff", "bubble_me": "#0a84ff", "bubble_me_text": "#ffffff", "bubble_them": "rgba(233,233,235,0.95)", "bubble_them_text": "#111111", "track": "rgba(255,255,255,0.35)", "good": "#34c759", "star": "#ffcc00", "radius": 26 },
-    "ios-dark":  { "surface": "rgba(28,28,30,0.72)", "text": "#ffffff", "sub": "rgba(255,255,255,0.6)", "accent": "#0a84ff", "bubble_me": "#0a84ff", "bubble_me_text": "#ffffff", "bubble_them": "rgba(58,58,60,0.95)", "bubble_them_text": "#ffffff", "track": "rgba(255,255,255,0.25)", "good": "#30d158", "star": "#ffd60a", "radius": 26 },
-    "whatsapp":  { "surface": "rgba(255,255,255,0.85)", "text": "#111b21", "sub": "rgba(17,27,33,0.6)", "accent": "#25d366", "bubble_me": "#d9fdd3", "bubble_me_text": "#111b21", "bubble_them": "#ffffff", "bubble_them_text": "#111b21", "track": "rgba(255,255,255,0.35)", "good": "#25d366", "star": "#ffcc00", "radius": 18 },
-    "seen":      { "surface": "rgba(36,2,21,0.72)", "text": "#ffffff", "sub": "rgba(255,255,255,0.65)", "accent": "#b28764", "bubble_me": "#b28764", "bubble_me_text": "#ffffff", "bubble_them": "rgba(255,255,255,0.92)", "bubble_them_text": "#240215", "track": "rgba(255,255,255,0.25)", "good": "#b28764", "star": "#e2c3a4", "radius": 24 }
+    "ios-light": { "surface": "rgba(245,245,247,0.78)", "text": "#111111", "sub": "rgba(17,17,17,0.6)", "accent": "#0a84ff", "bubble_me": "#0a84ff", "bubble_me_text": "#ffffff", "bubble_them": "rgba(233,233,235,0.95)", "bubble_them_text": "#111111", "track": "rgba(255,255,255,0.35)", "star": "#ffcc00", "radius": 26 },
+    "ios-dark":  { "surface": "rgba(28,28,30,0.72)", "text": "#ffffff", "sub": "rgba(255,255,255,0.6)", "accent": "#0a84ff", "bubble_me": "#0a84ff", "bubble_me_text": "#ffffff", "bubble_them": "rgba(58,58,60,0.95)", "bubble_them_text": "#ffffff", "track": "rgba(255,255,255,0.25)", "star": "#ffd60a", "radius": 26 },
+    "whatsapp":  { "surface": "rgba(255,255,255,0.85)", "text": "#111b21", "sub": "rgba(17,27,33,0.6)", "accent": "#25d366", "bubble_me": "#d9fdd3", "bubble_me_text": "#111b21", "bubble_them": "#ffffff", "bubble_them_text": "#111b21", "track": "rgba(255,255,255,0.35)", "star": "#ffcc00", "radius": 18 },
+    "seen":      { "surface": "rgba(36,2,21,0.72)", "text": "#ffffff", "sub": "rgba(255,255,255,0.65)", "accent": "#b28764", "bubble_me": "#b28764", "bubble_me_text": "#ffffff", "bubble_them": "rgba(255,255,255,0.92)", "bubble_them_text": "#240215", "track": "rgba(255,255,255,0.25)", "star": "#e2c3a4", "radius": 24 }
   },
   "tune": [
     { "path": "material_blur", "label": "material blur", "min": 0, "max": 80, "step": 1 },

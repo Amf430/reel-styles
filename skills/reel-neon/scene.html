@@ -85,7 +85,7 @@ function flicker(t, seed) {
 }
 
 // ------------------------------------------------------------------ «نيون المتحدث»: blocks around a talking head
-// items: [{ type: word|pill|banner|number|side|flash, in, out, x, y, size, ... }]
+// items: [{ type: word|pill|banner|number|side, in, out, x, y, size, ... }]
 const itemsEl = document.getElementById("items");
 let items = [];
 const h = (tag, cls, parent, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent?.appendChild(e); return e; };
@@ -163,12 +163,6 @@ NB.side = { full: true,
     const e = tw(lt, 0.05, 0.6, ease.outExpo); c.ci.style.transform = `scale(${0.4 + 0.6 * e})`; c.ci.style.opacity = clamp(e * 2);
     c.ls.forEach((l, i) => { const f = tw(lt, 0.35 + i * 0.15, 0.4, ease.outQuint); css(l, { opacity: f, transform: `translateY(${(1 - f) * 0.5}em)` }); }); },
   sfx: (c) => [{ at: 0, id: "whoosh_deep", gain: -5 }, ...splitLines(c.it.text).map((_, i) => ({ at: 0.35 + i * 0.15, id: "tap", v: i, gain: -6 }))] };
-
-NB.flash = { full: true,
-  build(c) { c.fl = h("div", "full", c.root); css(c.fl, { background: c.G }); },
-  layout(c) { css(c.fl, { width: R.W + "px", height: R.H + "px" }); },
-  render(c, lt) { c.fl.style.opacity = (c.it.strength ?? 0.7) * (lt < 0.06 ? lt / 0.06 : 1 - tw(lt, 0.06, c.it.dur ?? 0.4, ease.outCubic)); },
-  sfx: () => [{ at: 0, id: "whip", gain: -3 }] };
 
 function buildItems() {
   itemsEl.innerHTML = "";

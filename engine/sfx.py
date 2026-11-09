@@ -49,7 +49,7 @@ def mix(events, t0, dur, out_wav, gain_db=0.0):
     if not n:
         return None
     mixed = "".join(f"[s{i}]" for i in range(n))
-    fc = ";".join(parts) + f";{mixed}amix=inputs={n}:normalize=0:dropout_transition=0,apad,atrim=0:{dur:.4f},alimiter=limit=0.89[a]"
+    fc = ";".join(parts) + f";{mixed}amix=inputs={n}:normalize=0:dropout_transition=0,apad=whole_dur={dur:.4f},atrim=0:{dur:.4f},alimiter=limit=0.89[a]"
     common.run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", fc, "-map", "[a]",
                 "-ar", "48000", "-ac", "2", "-c:a", "pcm_s24le", out_wav])
     return out_wav

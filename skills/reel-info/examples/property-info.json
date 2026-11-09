@@ -3,14 +3,13 @@
   "name": "info",
   "video": "../property.mp4",
   "start": 1,
-  "end": 14,
+  "end": 11.5,
   "theme": "light",
   "params": {
     "items": [
       { "type": "lower", "text": "م. خالد العتيبي", "sub": "مدير المبيعات", "icon": "user", "in": 1.2, "out": 4.5, "x": 0.94, "y": 0.8, "size": 60 },
       { "type": "number", "value": "350", "unit": "م²", "sub": "مساحة الأرض", "in": 5.0, "out": 8.0, "y": 0.25, "size": 80 },
-      { "type": "list", "items": ["3 غرف نوم", "مسبح خاص", "موقف سيارتين"], "in": 8.4, "out": 11.5, "x": 0.7, "y": 0.4, "size": 60 },
-      { "type": "cta", "text": "تابعنا", "in": 11.8, "out": 14, "y": 0.85, "size": 65 }
+      { "type": "list", "items": ["3 غرف نوم", "مسبح خاص", "موقف سيارتين"], "in": 8.4, "out": 11.5, "x": 0.7, "y": 0.4, "size": 60 }
     ]
   }
 }

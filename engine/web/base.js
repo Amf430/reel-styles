@@ -164,6 +164,34 @@ class ReelRuntime {
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   }
 
+  /**
+   * The footage at another moment t (transitions that blend the shot before and after a cut, freezes, echoes).
+   * Render: the nearest frame render.py extracted for this job, once loadFrames() has fetched it.
+   * Editor: there is only the live video, so it stands in for every moment.
+   */
+  frameAt(t) {
+    const idx = this.frameIndex;
+    if (!idx || !idx.length) return this.source;
+    return this._frameCache?.get(this._nearestFrame(t)) || null;
+  }
+
+  async loadFrames(times) {
+    const idx = this.frameIndex;
+    if (!idx || !idx.length) return;
+    this._frameCache ??= new Map();
+    const want = [...new Set(times.map((t) => this._nearestFrame(t)))].filter((u) => !this._frameCache.has(u));
+    await Promise.all(want.map(async (u) => { const img = new Image(); img.src = u; await img.decode(); this._frameCache.set(u, img); }));
+    if (this._frameCache.size > 240) for (const k of [...this._frameCache.keys()].slice(0, this._frameCache.size - 240)) this._frameCache.delete(k);
+  }
+
+  _nearestFrame(t) {
+    const idx = this.frameIndex;
+    let lo = 0, hi = idx.length - 1;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (idx[m][0] < t) lo = m + 1; else hi = m; }
+    if (lo > 0 && Math.abs(idx[lo - 1][0] - t) <= Math.abs(idx[lo][0] - t)) lo--;
+    return idx[lo][1];
+  }
+
   meta() { return this.scene.meta ? this.scene.meta(this) : {}; }
 
   // ---------------------------------------------------------------- items
